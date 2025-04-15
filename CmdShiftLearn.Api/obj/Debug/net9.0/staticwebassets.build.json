@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "LfZIEJ7JONHXLzSx1dxG10fsWxfjsmy3/Ae11kwDzQ4=",
+  "Source": "CmdShiftLearn.Api",
+  "BasePath": "_content/CmdShiftLearn.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

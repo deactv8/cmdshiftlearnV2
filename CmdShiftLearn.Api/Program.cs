@@ -17,6 +17,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Add health endpoint
-app.MapGet("/health", () => "OK");
+app.MapGet("/health", () => new { status = "OK" });
 
 app.Run();

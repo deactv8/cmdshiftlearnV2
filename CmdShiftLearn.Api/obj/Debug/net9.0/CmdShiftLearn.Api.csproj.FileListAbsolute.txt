@@ -34,3 +34,4 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\refint\CmdShiftLearn.Api.d
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.pdb
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.genruntimeconfig.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\ref\CmdShiftLearn.Api.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.sourcelink.json

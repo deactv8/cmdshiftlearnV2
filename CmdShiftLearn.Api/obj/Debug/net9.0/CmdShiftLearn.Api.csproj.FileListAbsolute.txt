@@ -6,11 +6,23 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.deps.jso
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.runtimeconfig.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.pdb
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.OpenApi.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Scrutor.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.Filters.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.Filters.Abstractions.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.csproj.AssemblyReference.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.GeneratedMSBuildEditorConfig.editorconfig
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.AssemblyInfoInputs.cache
@@ -18,6 +30,7 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.Assembly
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.csproj.CoreCompileInputs.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.sourcelink.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\scopedcss\bundle\CmdShiftLearn.Api.styles.css
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\staticwebassets.build.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\staticwebassets.development.json
@@ -34,4 +47,3 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\refint\CmdShiftLearn.Api.d
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.pdb
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.genruntimeconfig.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\ref\CmdShiftLearn.Api.dll
-C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.sourcelink.json

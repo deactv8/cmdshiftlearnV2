@@ -1,11 +1,13 @@
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\appsettings.Development.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\appsettings.json
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.runtime.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.endpoints.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.exe
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.deps.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.runtimeconfig.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.pdb
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.xml
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
@@ -32,6 +34,7 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.MvcAppli
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.MvcApplicationPartsAssemblyInfo.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.sourcelink.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\scopedcss\bundle\CmdShiftLearn.Api.styles.css
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\compressed\ewqxg9a5zw-8y555m3ir4.gz
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\staticwebassets.build.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\staticwebassets.development.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\staticwebassets.build.endpoints.json
@@ -44,8 +47,7 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\staticwebassets.pack.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShift.3B1B9757.Up2Date
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\refint\CmdShiftLearn.Api.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.xml
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.pdb
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.genruntimeconfig.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\ref\CmdShiftLearn.Api.dll
-c:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.runtime.json
-c:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\compressed\ewqxg9a5zw-8y555m3ir4.gz

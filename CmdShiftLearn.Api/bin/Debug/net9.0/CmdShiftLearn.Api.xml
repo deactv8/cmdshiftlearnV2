@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CmdShiftLearn.Api</name>
+    </assembly>
+    <members>
+        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.AddXp(CmdShiftLearn.Api.Controllers.AddXpRequest)">
+             <summary>
+             Awards XP to the currently logged-in user
+             </summary>
+             <param name="request">The XP request containing amount and reason</param>
+             <remarks>
+             Sample request:
+            
+                 POST /api/UserProfile/xp
+                 {
+                    "amount": 50,
+                    "reason": "Completed first tutorial"
+                 }
+            
+             </remarks>
+             <returns>The updated user profile with new XP and level</returns>
+        </member>
+    </members>
+</doc>

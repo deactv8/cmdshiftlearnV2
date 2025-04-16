@@ -7,6 +7,7 @@ namespace CmdShiftLearn.Api.Services
         Task<UserProfile?> GetUserProfileAsync(string supabaseUid);
         Task<UserProfile> CreateUserProfileAsync(string supabaseUid, string email);
         Task<UserProfile> UpdateUserProfileAsync(UserProfile userProfile);
+        int CalculateLevel(int xp);
     }
 
     public class UserProfileService : IUserProfileService
@@ -40,6 +41,12 @@ namespace CmdShiftLearn.Api.Services
             userProfile.UpdatedAt = DateTime.UtcNow;
             _userProfiles[userProfile.SupabaseUid] = userProfile;
             return Task.FromResult(userProfile);
+        }
+        
+        public int CalculateLevel(int xp)
+        {
+            // Simple level calculation: level = Math.Floor(xp / 100) + 1
+            return (int)Math.Floor(xp / 100.0) + 1;
         }
     }
 }

@@ -11,6 +11,7 @@ namespace CmdShiftLearn.Api.Models
         public List<XpEntry> XpLog { get; set; } = new List<XpEntry>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? LastLoginAt { get; set; }
     }
 
     public class XpEntry

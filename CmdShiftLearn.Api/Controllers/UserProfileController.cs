@@ -204,6 +204,96 @@ namespace CmdShiftLearn.Api.Controllers
             return Ok(progressResponse);
         }
 
+        /// <summary>
+        /// Claims the daily login bonus of 25 XP if not already claimed today
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/UserProfile/daily-login
+        ///     
+        /// Sample response:
+        ///     {
+        ///         "id": "user123",
+        ///         "supabaseUid": "auth0|123456789",
+        ///         "email": "user@example.com",
+        ///         "xp": 175,
+        ///         "level": 2,
+        ///         "completedTutorials": {
+        ///             "powershell-basics-1": true,
+        ///             "powershell-basics-2": true
+        ///         },
+        ///         "xpLog": [
+        ///             {
+        ///                 "amount": 25,
+        ///                 "reason": "Daily login bonus",
+        ///                 "date": "2025-04-17T08:15:30.123Z"
+        ///             },
+        ///             ...
+        ///         ],
+        ///         "createdAt": "2025-04-10T12:00:00.000Z",
+        ///         "updatedAt": "2025-04-17T08:15:30.123Z",
+        ///         "lastLoginAt": "2025-04-17T08:15:30.123Z"
+        ///     }
+        ///
+        /// </remarks>
+        /// <returns>The updated user profile with the daily login bonus XP</returns>
+        /// <response code="200">Returns the updated user profile</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="404">If the user profile is not found</response>
+        /// <response code="409">If the daily login bonus was already claimed today</response>
+        [HttpPost("daily-login")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<UserProfile>> ClaimDailyLoginBonus()
+        {
+            var supabaseUid = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(supabaseUid))
+            {
+                return Unauthorized();
+            }
+
+            var userProfile = await _userProfileService.GetUserProfileAsync(supabaseUid);
+            if (userProfile == null)
+            {
+                return NotFound();
+            }
+
+            // Get current UTC date (without time)
+            var today = DateTime.UtcNow.Date;
+
+            // Check if the user has already claimed the daily login bonus today
+            if (userProfile.LastLoginAt.HasValue && userProfile.LastLoginAt.Value.Date == today)
+            {
+                return Conflict(new { message = "Daily login bonus already claimed today." });
+            }
+
+            // Award 25 XP for daily login
+            userProfile.XP += 25;
+            
+            // Calculate level using the helper method
+            userProfile.Level = _userProfileService.CalculateLevel(userProfile.XP);
+            
+            // Update the timestamps
+            var currentUtc = DateTime.UtcNow;
+            userProfile.UpdatedAt = currentUtc;
+            userProfile.LastLoginAt = currentUtc;
+            
+            // Add to XP history log
+            userProfile.XpLog.Add(new Models.XpEntry
+            {
+                Amount = 25,
+                Reason = "Daily login bonus",
+                Date = currentUtc
+            });
+
+            var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
+            return Ok(updatedProfile);
+        }
+
         [HttpPost("complete-tutorial")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]

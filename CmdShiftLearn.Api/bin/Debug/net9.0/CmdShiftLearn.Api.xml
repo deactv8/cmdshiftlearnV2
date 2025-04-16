@@ -21,7 +21,7 @@
              </remarks>
              <returns>The updated user profile with new XP and level</returns>
         </member>
-        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.CompleteTutorial(CmdShiftLearn.Api.Controllers.CompleteTutorialRequest)">
+        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.GetUserProgress">
              <summary>
              Marks a tutorial as completed and awards XP to the user
              </summary>
@@ -41,6 +41,56 @@
              <response code="401">If the user is not authenticated</response>
              <response code="404">If the user profile is not found</response>
              <response code="409">If the tutorial is already marked as completed</response>
+             <summary>
+             Gets the user's progress including level, XP, completed tutorials, and recent XP history
+             </summary>
+             <remarks>
+             Sample response:
+            
+                 GET /api/UserProfile/progress
+                 {
+                    "level": 2,
+                    "xp": 150,
+                    "completedTutorials": ["powershell-basics-1", "powershell-basics-2"],
+                    "xpLog": [
+                       {
+                          "amount": 100,
+                          "reason": "Completed powershell-basics-1",
+                          "date": "2025-04-16T21:28:42.920Z"
+                       },
+                       {
+                          "amount": 50,
+                          "reason": "Completed powershell-basics-2",
+                          "date": "2025-04-16T21:33:22.540Z"
+                       }
+                    ]
+                 }
+            
+             </remarks>
+             <returns>The user's progress information</returns>
+             <response code="200">Returns the user's progress</response>
+             <response code="401">If the user is not authenticated</response>
+             <response code="404">If the user profile is not found</response>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.Level">
+            <summary>
+            The user's current level
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.XP">
+            <summary>
+            The user's total XP
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.CompletedTutorials">
+            <summary>
+            List of completed tutorial IDs
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.XpLog">
+            <summary>
+            The last 5 XP log entries, sorted by newest first
+            </summary>
         </member>
     </members>
 </doc>

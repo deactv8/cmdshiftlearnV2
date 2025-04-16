@@ -21,5 +21,26 @@
              </remarks>
              <returns>The updated user profile with new XP and level</returns>
         </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.CompleteTutorial(CmdShiftLearn.Api.Controllers.CompleteTutorialRequest)">
+             <summary>
+             Marks a tutorial as completed and awards XP to the user
+             </summary>
+             <param name="request">The tutorial completion request containing tutorialId and XP amount</param>
+             <remarks>
+             Sample request:
+            
+                 POST /api/UserProfile/complete-tutorial
+                 {
+                    "tutorialId": "powershell-basics.lesson-1",
+                    "xp": 50
+                 }
+            
+             </remarks>
+             <returns>The updated user profile with the completed tutorial and new XP</returns>
+             <response code="200">Returns the updated user profile</response>
+             <response code="401">If the user is not authenticated</response>
+             <response code="404">If the user profile is not found</response>
+             <response code="409">If the tutorial is already marked as completed</response>
+        </member>
     </members>
 </doc>

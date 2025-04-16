@@ -1,12 +1,362 @@
 {
   "Version": 1,
-  "Hash": "LfZIEJ7JONHXLzSx1dxG10fsWxfjsmy3/Ae11kwDzQ4=",
+  "Hash": "US46hxu6FPrDpxoDMOsjM6d8A1MaAP+Mwi4+dVNklQ8=",
   "Source": "CmdShiftLearn.Api",
   "BasePath": "_content/CmdShiftLearn.Api",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "CmdShiftLearn.Api\\wwwroot",
+      "Source": "CmdShiftLearn.Api",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "debug-jwt#[.{fingerprint=8y555m3ir4}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "bh4u8bvqof",
+      "Integrity": "0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html"
+    },
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "debug-jwt#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "8y555m3ir4",
+      "Integrity": "oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\debug-jwt.html"
+    }
+  ],
+  "Endpoints": [
+    {
+      "Route": "debug-jwt.8y555m3ir4.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000823723229"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1213"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 16 Apr 2025 05:59:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8y555m3ir4"
+        },
+        {
+          "Name": "label",
+          "Value": "debug-jwt.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0="
+        }
+      ]
+    },
+    {
+      "Route": "debug-jwt.8y555m3ir4.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5673"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 16 Apr 2025 05:59:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8y555m3ir4"
+        },
+        {
+          "Name": "label",
+          "Value": "debug-jwt.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0="
+        }
+      ]
+    },
+    {
+      "Route": "debug-jwt.8y555m3ir4.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1213"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 16 Apr 2025 05:59:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8y555m3ir4"
+        },
+        {
+          "Name": "label",
+          "Value": "debug-jwt.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0="
+        }
+      ]
+    },
+    {
+      "Route": "debug-jwt.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000823723229"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1213"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 16 Apr 2025 05:59:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0="
+        }
+      ]
+    },
+    {
+      "Route": "debug-jwt.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5673"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 16 Apr 2025 05:59:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-oGVJHw5oAQ7CB5Ptslnm+wii/yy5Ozu8oCutAeOAnu0="
+        }
+      ]
+    },
+    {
+      "Route": "debug-jwt.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1213"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 16 Apr 2025 05:59:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0="
+        }
+      ]
+    }
+  ]
 }

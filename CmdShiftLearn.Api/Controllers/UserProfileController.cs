@@ -3,6 +3,7 @@ using CmdShiftLearn.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace CmdShiftLearn.Api.Controllers
 {
@@ -133,6 +134,76 @@ namespace CmdShiftLearn.Api.Controllers
         /// <response code="401">If the user is not authenticated</response>
         /// <response code="404">If the user profile is not found</response>
         /// <response code="409">If the tutorial is already marked as completed</response>
+
+        /// <summary>
+        /// Gets the user's progress including level, XP, completed tutorials, and recent XP history
+        /// </summary>
+        /// <remarks>
+        /// Sample response:
+        ///
+        ///     GET /api/UserProfile/progress
+        ///     {
+        ///        "level": 2,
+        ///        "xp": 150,
+        ///        "completedTutorials": ["powershell-basics-1", "powershell-basics-2"],
+        ///        "xpLog": [
+        ///           {
+        ///              "amount": 100,
+        ///              "reason": "Completed powershell-basics-1",
+        ///              "date": "2025-04-16T21:28:42.920Z"
+        ///           },
+        ///           {
+        ///              "amount": 50,
+        ///              "reason": "Completed powershell-basics-2",
+        ///              "date": "2025-04-16T21:33:22.540Z"
+        ///           }
+        ///        ]
+        ///     }
+        ///
+        /// </remarks>
+        /// <returns>The user's progress information</returns>
+        /// <response code="200">Returns the user's progress</response>
+        /// <response code="401">If the user is not authenticated</response>
+        /// <response code="404">If the user profile is not found</response>
+        [HttpGet("progress")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserProgressResponse>> GetUserProgress()
+        {
+            var supabaseUid = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(supabaseUid))
+            {
+                return Unauthorized();
+            }
+
+            var userProfile = await _userProfileService.GetUserProfileAsync(supabaseUid);
+            if (userProfile == null)
+            {
+                return NotFound();
+            }
+
+            // Create the progress response
+            var progressResponse = new UserProgressResponse
+            {
+                Level = userProfile.Level,
+                XP = userProfile.XP,
+                // Convert dictionary to array of completed tutorial IDs (where value is true)
+                CompletedTutorials = userProfile.CompletedTutorials
+                    .Where(t => t.Value)
+                    .Select(t => t.Key)
+                    .ToList(),
+                // Get the last 5 XP log entries sorted by newest first
+                XpLog = userProfile.XpLog
+                    .OrderByDescending(x => x.Date)
+                    .Take(5)
+                    .ToList()
+            };
+
+            return Ok(progressResponse);
+        }
+
         [HttpPost("complete-tutorial")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -200,5 +271,28 @@ namespace CmdShiftLearn.Api.Controllers
     {
         public string TutorialId { get; set; } = string.Empty;
         public int XP { get; set; }
+    }
+
+    public class UserProgressResponse
+    {
+        /// <summary>
+        /// The user's current level
+        /// </summary>
+        public int Level { get; set; }
+        
+        /// <summary>
+        /// The user's total XP
+        /// </summary>
+        public int XP { get; set; }
+        
+        /// <summary>
+        /// List of completed tutorial IDs
+        /// </summary>
+        public List<string> CompletedTutorials { get; set; } = new List<string>();
+        
+        /// <summary>
+        /// The last 5 XP log entries, sorted by newest first
+        /// </summary>
+        public List<XpEntry> XpLog { get; set; } = new List<XpEntry>();
     }
 }

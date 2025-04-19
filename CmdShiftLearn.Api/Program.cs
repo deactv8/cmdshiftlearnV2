@@ -167,6 +167,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 
+// Register tutorial services
+builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
+builder.Services.AddSingleton<TutorialService>();
+
 // Configure static files for serving the debug HTML
 builder.Services.AddDirectoryBrowser();
 

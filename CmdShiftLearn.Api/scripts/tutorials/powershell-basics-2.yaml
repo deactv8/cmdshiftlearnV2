@@ -1,0 +1,65 @@
+id: powershell-basics-2
+title: "PowerShell Basics: Part 2"
+description: "Continue learning PowerShell with functions, loops, and conditionals."
+xp: 150
+difficulty: "Beginner"
+content: |
+  # PowerShell Basics: Part 2
+
+  ## Functions
+  Functions in PowerShell allow you to reuse code:
+
+  ```powershell
+  function Say-Hello {
+      param(
+          [string]$Name = "World"
+      )
+      
+      Write-Host "Hello, $Name!"
+  }
+
+  Say-Hello
+  Say-Hello -Name "PowerShell"
+  ```
+
+  ## Conditionals
+  PowerShell supports if-else statements:
+
+  ```powershell
+  $age = 25
+
+  if ($age -lt 18) {
+      Write-Host "You are a minor."
+  } elseif ($age -ge 65) {
+      Write-Host "You are a senior."
+  } else {
+      Write-Host "You are an adult."
+  }
+  ```
+
+  ## Loops
+  PowerShell has several types of loops:
+
+  ### ForEach-Object
+  ```powershell
+  1..5 | ForEach-Object { Write-Host "Number: $_" }
+  ```
+
+  ### ForEach
+  ```powershell
+  foreach ($number in 1..5) {
+      Write-Host "Number: $number"
+  }
+  ```
+
+  ### For
+  ```powershell
+  for ($i = 1; $i -le 5; $i++) {
+      Write-Host "Number: $i"
+  }
+  ```
+
+  ## Try It Yourself
+  1. Create a function that takes a number and returns its square
+  2. Write a loop that prints the squares of numbers 1 through 10
+  3. Create a conditional statement that checks if a number is even or odd

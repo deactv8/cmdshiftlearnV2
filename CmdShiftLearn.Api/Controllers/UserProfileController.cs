@@ -13,11 +13,16 @@ namespace CmdShiftLearn.Api.Controllers
     {
         private readonly IUserProfileService _userProfileService;
         private readonly IEventLogger _eventLogger;
+        private readonly TutorialService _tutorialService;
 
-        public UserProfileController(IUserProfileService userProfileService, IEventLogger eventLogger)
+        public UserProfileController(
+            IUserProfileService userProfileService, 
+            IEventLogger eventLogger,
+            TutorialService tutorialService)
         {
             _userProfileService = userProfileService;
             _eventLogger = eventLogger;
+            _tutorialService = tutorialService;
         }
 
         [HttpGet("me")]
@@ -160,21 +165,20 @@ namespace CmdShiftLearn.Api.Controllers
         /// <summary>
         /// Marks a tutorial as completed and awards XP to the user
         /// </summary>
-        /// <param name="request">The tutorial completion request containing tutorialId and XP amount</param>
+        /// <param name="request">The tutorial completion request containing tutorialId</param>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST /api/UserProfile/complete-tutorial
         ///     {
-        ///        "tutorialId": "powershell-basics.lesson-1",
-        ///        "xp": 50
+        ///        "tutorialId": "powershell-basics-1"
         ///     }
         ///
         /// </remarks>
         /// <returns>The updated user profile with the completed tutorial and new XP</returns>
         /// <response code="200">Returns the updated user profile</response>
         /// <response code="401">If the user is not authenticated</response>
-        /// <response code="404">If the user profile is not found</response>
+        /// <response code="404">If the user profile or tutorial is not found</response>
         /// <response code="409">If the tutorial is already marked as completed</response>
 
         /// <summary>
@@ -402,7 +406,14 @@ namespace CmdShiftLearn.Api.Controllers
             var userProfile = await _userProfileService.GetUserProfileAsync(supabaseUid);
             if (userProfile == null)
             {
-                return NotFound();
+                return NotFound(new { message = "User profile not found." });
+            }
+            
+            // Fetch the tutorial metadata from the TutorialService
+            var tutorial = await _tutorialService.GetTutorialByIdAsync(request.TutorialId);
+            if (tutorial == null)
+            {
+                return NotFound(new { message = $"Tutorial with ID '{request.TutorialId}' not found." });
             }
 
             // Check if the tutorial is already completed
@@ -418,9 +429,9 @@ namespace CmdShiftLearn.Api.Controllers
             // Mark the tutorial as completed
             userProfile.CompletedTutorials[request.TutorialId] = true;
 
-            // Add XP and calculate new level
+            // Add XP and calculate new level using the XP value from the tutorial metadata
             int oldLevel = userProfile.Level;
-            userProfile.XP += request.XP;
+            userProfile.XP += tutorial.Xp;
             
             // Calculate level using the helper method
             userProfile.Level = _userProfileService.CalculateLevel(userProfile.XP);
@@ -431,8 +442,8 @@ namespace CmdShiftLearn.Api.Controllers
             // Add to XP history log with the tutorial completion reason
             userProfile.XpLog.Add(new Models.XpEntry
             {
-                Amount = request.XP,
-                Reason = $"Completed {request.TutorialId}",
+                Amount = tutorial.Xp,
+                Reason = $"Completed tutorial: {tutorial.Title}",
                 Date = DateTime.UtcNow
             });
 
@@ -440,14 +451,14 @@ namespace CmdShiftLearn.Api.Controllers
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
             
             // Log XP added event
-            await _userProfileService.LogXpAddedAsync(updatedProfile, request.XP, $"Completed {request.TutorialId}");
+            await _userProfileService.LogXpAddedAsync(updatedProfile, tutorial.Xp, $"Completed tutorial: {tutorial.Title}");
             
             // Log tutorial completion event
             await _eventLogger.LogAsync(new PlatformEvent
             {
                 EventType = "tutorial.completed",
                 UserId = updatedProfile.SupabaseUid,
-                Description = $"Completed tutorial: {request.TutorialId}"
+                Description = $"Completed tutorial: {tutorial.Title} ({request.TutorialId})"
             });
             
             // Award achievements and milestones (non-blocking)
@@ -662,7 +673,6 @@ namespace CmdShiftLearn.Api.Controllers
     public class CompleteTutorialRequest
     {
         public string TutorialId { get; set; } = string.Empty;
-        public int XP { get; set; }
     }
     
     public class CompleteChallengeRequest

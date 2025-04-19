@@ -1,5 +1,6 @@
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\appsettings.Development.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\appsettings.json
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\scripts\tutorials\powershell-basics-1.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.runtime.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.endpoints.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.exe
@@ -25,6 +26,7 @@ C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swa
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\YamlDotNet.dll
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.csproj.AssemblyReference.cache
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.GeneratedMSBuildEditorConfig.editorconfig
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\obj\Debug\net9.0\CmdShiftLearn.Api.AssemblyInfoInputs.cache

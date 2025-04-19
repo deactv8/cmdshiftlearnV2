@@ -12,7 +12,8 @@
           "Microsoft.AspNetCore.OpenApi": "9.0.4",
           "Swashbuckle.AspNetCore": "6.4.0",
           "Swashbuckle.AspNetCore.Filters": "7.0.6",
-          "System.IdentityModel.Tokens.Jwt": "6.32.1"
+          "System.IdentityModel.Tokens.Jwt": "6.32.1",
+          "YamlDotNet": "16.3.0"
         },
         "runtime": {
           "CmdShiftLearn.Api.dll": {}
@@ -239,7 +240,15 @@
         }
       },
       "System.Text.Encodings.Web/4.7.2": {},
-      "System.Text.Json/4.7.2": {}
+      "System.Text.Json/4.7.2": {},
+      "YamlDotNet/16.3.0": {
+        "runtime": {
+          "lib/net8.0/YamlDotNet.dll": {
+            "assemblyVersion": "16.0.0.0",
+            "fileVersion": "16.3.0.0"
+          }
+        }
+      }
     }
   },
   "libraries": {
@@ -450,6 +459,13 @@
       "sha512": "sha512-TcMd95wcrubm9nHvJEQs70rC0H/8omiSGGpU4FQ/ZA1URIqD4pjmFJh2Mfv1yH1eHgJDWTi2hMDXwTET+zOOyg==",
       "path": "system.text.json/4.7.2",
       "hashPath": "system.text.json.4.7.2.nupkg.sha512"
+    },
+    "YamlDotNet/16.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-SgMOdxbz8X65z8hraIs6hOEdnkH6hESTAIUa7viEngHOYaH+6q5XJmwr1+yb9vJpNQ19hCQY69xbFsLtXpobQA==",
+      "path": "yamldotnet/16.3.0",
+      "hashPath": "yamldotnet.16.3.0.nupkg.sha512"
     }
   }
 }

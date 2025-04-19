@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CmdShiftLearn.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74366fc3b47de212560ba925db38bd718af60148")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+14412bd15f6066003e5f9bb10260ddd590044d7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("CmdShiftLearn.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CmdShiftLearn.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,6 @@
+id: powershell-basics-3
+title: "PowerShell Basics: Part 3"
+description: "Learn how to work with files, directories, CSV, and JSON in PowerShell."
+xp: 200
+difficulty: "Intermediate"
+content: powershell-basics-3.ps1

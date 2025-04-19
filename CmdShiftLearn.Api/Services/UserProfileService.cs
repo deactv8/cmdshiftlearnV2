@@ -10,6 +10,7 @@ namespace CmdShiftLearn.Api.Services
         int CalculateLevel(int xp);
         Task<UserProfile> AwardAchievementAsync(UserProfile profile, string id, string title, string description);
         Task<UserProfile> AwardMilestoneAsync(UserProfile profile, string milestoneId);
+        Task LogXpAddedAsync(UserProfile profile, int amount, string reason);
     }
 
     public class UserProfileService : IUserProfileService

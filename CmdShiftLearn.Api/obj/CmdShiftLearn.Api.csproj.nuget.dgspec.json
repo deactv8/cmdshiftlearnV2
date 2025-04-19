@@ -63,6 +63,10 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[6.32.1, )"
+            },
+            "YamlDotNet": {
+              "target": "Package",
+              "version": "[16.3.0, )"
             }
           },
           "imports": [

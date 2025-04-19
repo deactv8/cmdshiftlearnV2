@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4di3iB8Kvf0=",
+  "dgSpecHash": "tYjt5PzCfpQ=",
   "success": true,
   "projectFilePath": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
   "expectedPackageFiles": [
@@ -32,7 +32,8 @@
     "C:\\Users\\admin\\.nuget\\packages\\system.security.cryptography.cng\\4.5.0\\system.security.cryptography.cng.4.5.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\system.text.encodings.web\\4.7.2\\system.text.encodings.web.4.7.2.nupkg.sha512",
-    "C:\\Users\\admin\\.nuget\\packages\\system.text.json\\4.7.2\\system.text.json.4.7.2.nupkg.sha512"
+    "C:\\Users\\admin\\.nuget\\packages\\system.text.json\\4.7.2\\system.text.json.4.7.2.nupkg.sha512",
+    "C:\\Users\\admin\\.nuget\\packages\\yamldotnet\\16.3.0\\yamldotnet.16.3.0.nupkg.sha512"
   ],
   "logs": [
     {

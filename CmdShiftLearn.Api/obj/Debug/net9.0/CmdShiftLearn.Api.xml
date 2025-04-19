@@ -4,6 +4,58 @@
         <name>CmdShiftLearn.Api</name>
     </assembly>
     <members>
+        <member name="M:CmdShiftLearn.Api.Controllers.TutorialsController.GetAllTutorials">
+             <summary>
+             Gets a list of all available tutorials with metadata
+             </summary>
+             <remarks>
+             Sample response:
+            
+                 GET /api/tutorials
+                 [
+                   {
+                     "id": "powershell-basics-1",
+                     "title": "PowerShell Basics: Part 1",
+                     "description": "Learn the basics of PowerShell including commands, variables, and pipelines.",
+                     "xp": 100,
+                     "difficulty": "Beginner"
+                   },
+                   {
+                     "id": "powershell-basics-2",
+                     "title": "PowerShell Basics: Part 2",
+                     "description": "Continue learning PowerShell with functions, loops, and conditionals.",
+                     "xp": 150,
+                     "difficulty": "Beginner"
+                   }
+                 ]
+            
+             </remarks>
+             <returns>A list of tutorial metadata</returns>
+             <response code="200">Returns the list of tutorials</response>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.TutorialsController.GetTutorialById(System.String)">
+             <summary>
+             Gets a specific tutorial by ID including its content
+             </summary>
+             <param name="id">The tutorial ID</param>
+             <remarks>
+             Sample response:
+            
+                 GET /api/tutorials/powershell-basics-1
+                 {
+                   "id": "powershell-basics-1",
+                   "title": "PowerShell Basics: Part 1",
+                   "description": "Learn the basics of PowerShell including commands, variables, and pipelines.",
+                   "xp": 100,
+                   "difficulty": "Beginner",
+                   "content": "# PowerShell Basics: Part 1\n\n## Introduction\nPowerShell is a powerful scripting language...\n\n## Commands\n$name = 'World'\nWrite-Host \"Hello, $name!\"\n"
+                 }
+            
+             </remarks>
+             <returns>The tutorial with content</returns>
+             <response code="200">Returns the tutorial</response>
+             <response code="404">If the tutorial is not found</response>
+        </member>
         <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.AddXp(CmdShiftLearn.Api.Controllers.AddXpRequest)">
              <summary>
              Awards XP to the currently logged-in user
@@ -25,21 +77,20 @@
              <summary>
              Marks a tutorial as completed and awards XP to the user
              </summary>
-             <param name="request">The tutorial completion request containing tutorialId and XP amount</param>
+             <param name="request">The tutorial completion request containing tutorialId</param>
              <remarks>
              Sample request:
             
                  POST /api/UserProfile/complete-tutorial
                  {
-                    "tutorialId": "powershell-basics.lesson-1",
-                    "xp": 50
+                    "tutorialId": "powershell-basics-1"
                  }
             
              </remarks>
              <returns>The updated user profile with the completed tutorial and new XP</returns>
              <response code="200">Returns the updated user profile</response>
              <response code="401">If the user is not authenticated</response>
-             <response code="404">If the user profile is not found</response>
+             <response code="404">If the user profile or tutorial is not found</response>
              <response code="409">If the tutorial is already marked as completed</response>
              <summary>
              Gets the user's progress including level, XP, XP leveling details, completed tutorials, completed challenges, and recent XP history
@@ -197,6 +248,11 @@
             List of completed challenge IDs
             </summary>
         </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.Milestones">
+            <summary>
+            List of unlocked milestone IDs
+            </summary>
+        </member>
         <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.XpLog">
             <summary>
             The last 5 XP log entries, sorted by newest first
@@ -207,6 +263,132 @@
             List of achievements unlocked by the user
             </summary>
         </member>
+        <member name="T:CmdShiftLearn.Api.Models.Tutorial">
+            <summary>
+            Represents a tutorial with metadata and content
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Id">
+            <summary>
+            Unique identifier for the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Title">
+            <summary>
+            Title of the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Description">
+            <summary>
+            Description of the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Xp">
+            <summary>
+            XP awarded for completing the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Difficulty">
+            <summary>
+            Difficulty level of the tutorial (e.g., "Beginner", "Intermediate", "Advanced")
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Content">
+            <summary>
+            Content of the tutorial (PowerShell script or instructions)
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Models.TutorialMetadata">
+            <summary>
+            Represents tutorial metadata without the full content
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialMetadata.Id">
+            <summary>
+            Unique identifier for the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialMetadata.Title">
+            <summary>
+            Title of the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialMetadata.Description">
+            <summary>
+            Description of the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialMetadata.Xp">
+            <summary>
+            XP awarded for completing the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialMetadata.Difficulty">
+            <summary>
+            Difficulty level of the tutorial (e.g., "Beginner", "Intermediate", "Advanced")
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.FileTutorialLoader">
+            <summary>
+            Loads tutorials from the file system
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileTutorialLoader.GetAllTutorialMetadataAsync">
+            <summary>
+            Gets all available tutorial metadata
+            </summary>
+            <returns>A list of tutorial metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileTutorialLoader.GetTutorialByIdAsync(System.String)">
+            <summary>
+            Gets a specific tutorial by ID including its content
+            </summary>
+            <param name="id">The tutorial ID</param>
+            <returns>The tutorial with content if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileTutorialLoader.LoadTutorialFromFileAsync(System.String)">
+            <summary>
+            Loads a tutorial from a file
+            </summary>
+            <param name="filePath">Path to the tutorial file</param>
+            <returns>The loaded tutorial or null if loading failed</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.ITutorialLoader">
+            <summary>
+            Interface for loading tutorials from various sources
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ITutorialLoader.GetAllTutorialMetadataAsync">
+            <summary>
+            Gets all available tutorial metadata
+            </summary>
+            <returns>A list of tutorial metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ITutorialLoader.GetTutorialByIdAsync(System.String)">
+            <summary>
+            Gets a specific tutorial by ID including its content
+            </summary>
+            <param name="id">The tutorial ID</param>
+            <returns>The tutorial with content if found, null otherwise</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.TutorialService">
+            <summary>
+            Service for managing tutorials
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.TutorialService.GetAllTutorialMetadataAsync">
+            <summary>
+            Gets all available tutorial metadata
+            </summary>
+            <returns>A list of tutorial metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.TutorialService.GetTutorialByIdAsync(System.String)">
+            <summary>
+            Gets a specific tutorial by ID including its content
+            </summary>
+            <param name="id">The tutorial ID</param>
+            <returns>The tutorial with content if found, null otherwise</returns>
+        </member>
         <member name="M:CmdShiftLearn.Api.Services.UserProfileService.AwardAchievementAsync(CmdShiftLearn.Api.Models.UserProfile,System.String,System.String,System.String)">
             <summary>
             Awards an achievement to a user if they don't already have it
@@ -215,6 +397,14 @@
             <param name="id">Unique identifier for the achievement</param>
             <param name="title">Display title of the achievement</param>
             <param name="description">Description of how the achievement was earned</param>
+            <returns>The updated user profile</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.UserProfileService.AwardMilestoneAsync(CmdShiftLearn.Api.Models.UserProfile,System.String)">
+            <summary>
+            Awards a milestone to a user if they don't already have it
+            </summary>
+            <param name="profile">The user profile</param>
+            <param name="milestoneId">Unique identifier for the milestone</param>
             <returns>The updated user profile</returns>
         </member>
     </members>

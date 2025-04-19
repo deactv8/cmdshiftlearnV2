@@ -9,6 +9,7 @@ namespace CmdShiftLearn.Api.Models
         public int Level { get; set; } = 1;
         public Dictionary<string, bool> CompletedTutorials { get; set; } = new Dictionary<string, bool>();
         public Dictionary<string, bool> CompletedChallenges { get; set; } = new Dictionary<string, bool>();
+        public Dictionary<string, bool> Milestones { get; set; } = new Dictionary<string, bool>();
         public List<XpEntry> XpLog { get; set; } = new List<XpEntry>();
         public List<Achievement> Achievements { get; set; } = new();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

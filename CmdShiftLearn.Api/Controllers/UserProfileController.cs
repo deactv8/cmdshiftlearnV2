@@ -12,10 +12,12 @@ namespace CmdShiftLearn.Api.Controllers
     public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileService _userProfileService;
+        private readonly IEventLogger _eventLogger;
 
-        public UserProfileController(IUserProfileService userProfileService)
+        public UserProfileController(IUserProfileService userProfileService, IEventLogger eventLogger)
         {
             _userProfileService = userProfileService;
+            _eventLogger = eventLogger;
         }
 
         [HttpGet("me")]
@@ -118,7 +120,10 @@ namespace CmdShiftLearn.Api.Controllers
             // Update the user profile
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
             
-            // Award achievements (non-blocking)
+            // Log XP added event
+            await _userProfileService.LogXpAddedAsync(updatedProfile, request.Amount, request.Reason);
+            
+            // Award achievements and milestones (non-blocking)
             if (isFirstXp)
             {
                 // First Blood achievement for gaining XP for the first time
@@ -138,6 +143,15 @@ namespace CmdShiftLearn.Api.Controllers
                     "level-up", 
                     "Level Up!", 
                     "Reached Level 2 or higher"
+                );
+            }
+            
+            // Award milestone when user reaches 500 XP
+            if (userProfile.XP >= 500 && (userProfile.XP - request.Amount) < 500)
+            {
+                _ = _userProfileService.AwardMilestoneAsync(
+                    updatedProfile,
+                    "reached-500-xp"
                 );
             }
             return Ok(updatedProfile);
@@ -237,6 +251,11 @@ namespace CmdShiftLearn.Api.Controllers
                 CompletedChallenges = userProfile.CompletedChallenges
                     .Where(c => c.Value)
                     .Select(c => c.Key)
+                    .ToList(),
+                // Convert dictionary to array of unlocked milestone IDs (where value is true)
+                Milestones = userProfile.Milestones
+                    .Where(m => m.Value)
+                    .Select(m => m.Key)
                     .ToList(),
                 // Get the last 5 XP log entries sorted by newest first
                 XpLog = userProfile.XpLog
@@ -420,7 +439,18 @@ namespace CmdShiftLearn.Api.Controllers
             // Update the user profile
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
             
-            // Award achievements (non-blocking)
+            // Log XP added event
+            await _userProfileService.LogXpAddedAsync(updatedProfile, request.XP, $"Completed {request.TutorialId}");
+            
+            // Log tutorial completion event
+            await _eventLogger.LogAsync(new PlatformEvent
+            {
+                EventType = "tutorial.completed",
+                UserId = updatedProfile.SupabaseUid,
+                Description = $"Completed tutorial: {request.TutorialId}"
+            });
+            
+            // Award achievements and milestones (non-blocking)
             if (isFirstTutorial)
             {
                 // Terminal Initiate achievement for completing the first tutorial
@@ -429,6 +459,12 @@ namespace CmdShiftLearn.Api.Controllers
                     "terminal-initiate", 
                     "Terminal Initiate", 
                     "Completed your first tutorial"
+                );
+                
+                // Award milestone for completing first tutorial
+                _ = _userProfileService.AwardMilestoneAsync(
+                    updatedProfile,
+                    "completed-first-tutorial"
                 );
             }
             
@@ -517,6 +553,17 @@ namespace CmdShiftLearn.Api.Controllers
 
             // Update the user profile
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
+            
+            // Log XP added event
+            await _userProfileService.LogXpAddedAsync(updatedProfile, request.Xp, $"Completed challenge {request.ChallengeId}");
+            
+            // Log challenge completion event
+            await _eventLogger.LogAsync(new PlatformEvent
+            {
+                EventType = "challenge.completed",
+                UserId = updatedProfile.SupabaseUid,
+                Description = $"Completed challenge: {request.ChallengeId}"
+            });
             
             // Award achievements (non-blocking)
             if (isFirstChallenge)
@@ -655,6 +702,11 @@ namespace CmdShiftLearn.Api.Controllers
         /// List of completed challenge IDs
         /// </summary>
         public List<string> CompletedChallenges { get; set; } = new List<string>();
+        
+        /// <summary>
+        /// List of unlocked milestone IDs
+        /// </summary>
+        public List<string> Milestones { get; set; } = new List<string>();
         
         /// <summary>
         /// The last 5 XP log entries, sorted by newest first

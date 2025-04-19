@@ -42,7 +42,7 @@
              <response code="404">If the user profile is not found</response>
              <response code="409">If the tutorial is already marked as completed</response>
              <summary>
-             Gets the user's progress including level, XP, completed tutorials, and recent XP history
+             Gets the user's progress including level, XP, XP leveling details, completed tutorials, completed challenges, and recent XP history
              </summary>
              <remarks>
              Sample response:
@@ -51,7 +51,10 @@
                  {
                     "level": 2,
                     "xp": 150,
+                    "xpToNextLevel": 50,
+                    "nextLevelXp": 200,
                     "completedTutorials": ["powershell-basics-1", "powershell-basics-2"],
+                    "completedChallenges": ["powershell-challenge-1"],
                     "xpLog": [
                        {
                           "amount": 100,
@@ -72,6 +75,98 @@
              <response code="401">If the user is not authenticated</response>
              <response code="404">If the user profile is not found</response>
         </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.ClaimDailyLoginBonus">
+             <summary>
+             Claims the daily login bonus of 25 XP if not already claimed today
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 POST /api/UserProfile/daily-login
+                 
+             Sample response:
+                 {
+                     "id": "user123",
+                     "supabaseUid": "auth0|123456789",
+                     "email": "user@example.com",
+                     "xp": 175,
+                     "level": 2,
+                     "completedTutorials": {
+                         "powershell-basics-1": true,
+                         "powershell-basics-2": true
+                     },
+                     "xpLog": [
+                         {
+                             "amount": 25,
+                             "reason": "Daily login bonus",
+                             "date": "2025-04-17T08:15:30.123Z"
+                         },
+                         ...
+                     ],
+                     "createdAt": "2025-04-10T12:00:00.000Z",
+                     "updatedAt": "2025-04-17T08:15:30.123Z",
+                     "lastLoginAt": "2025-04-17T08:15:30.123Z"
+                 }
+            
+             </remarks>
+             <returns>The updated user profile with the daily login bonus XP</returns>
+             <response code="200">Returns the updated user profile</response>
+             <response code="401">If the user is not authenticated</response>
+             <response code="404">If the user profile is not found</response>
+             <response code="409">If the daily login bonus was already claimed today</response>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.CompleteChallenge(CmdShiftLearn.Api.Controllers.CompleteChallengeRequest)">
+             <summary>
+             Marks a challenge as completed and awards XP to the user
+             </summary>
+             <param name="request">The challenge completion request containing challengeId and XP amount</param>
+             <remarks>
+             Sample request:
+            
+                 POST /api/UserProfile/complete-challenge
+                 {
+                    "challengeId": "powershell-challenge-1",
+                    "xp": 100
+                 }
+            
+             </remarks>
+             <returns>The updated user profile with the completed challenge and new XP</returns>
+             <response code="200">Returns the updated user profile</response>
+             <response code="401">If the user is not authenticated</response>
+             <response code="404">If the user profile is not found</response>
+             <response code="409">If the challenge is already marked as completed</response>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.GetUserAchievements">
+             <summary>
+             Gets the achievements unlocked by the currently logged-in user
+             </summary>
+             <remarks>
+             Sample response:
+            
+                 GET /api/UserProfile/achievements
+                 {
+                    "achievements": [
+                       {
+                          "id": "first-login",
+                          "title": "First Steps",
+                          "description": "Logged in for the first time",
+                          "unlockedAt": "2025-04-15T18:30:25.123Z"
+                       },
+                       {
+                          "id": "complete-tutorial",
+                          "title": "Quick Learner",
+                          "description": "Completed your first tutorial",
+                          "unlockedAt": "2025-04-16T14:22:18.456Z"
+                       }
+                    ]
+                 }
+            
+             </remarks>
+             <returns>The user's unlocked achievements</returns>
+             <response code="200">Returns the user's achievements</response>
+             <response code="401">If the user is not authenticated</response>
+             <response code="404">If the user profile is not found</response>
+        </member>
         <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.Level">
             <summary>
             The user's current level
@@ -82,15 +177,45 @@
             The user's total XP
             </summary>
         </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.XpToNextLevel">
+            <summary>
+            The amount of XP needed to reach the next level
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.NextLevelXp">
+            <summary>
+            The total XP threshold for the next level
+            </summary>
+        </member>
         <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.CompletedTutorials">
             <summary>
             List of completed tutorial IDs
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.CompletedChallenges">
+            <summary>
+            List of completed challenge IDs
             </summary>
         </member>
         <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.XpLog">
             <summary>
             The last 5 XP log entries, sorted by newest first
             </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserAchievementsResponse.Achievements">
+            <summary>
+            List of achievements unlocked by the user
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.UserProfileService.AwardAchievementAsync(CmdShiftLearn.Api.Models.UserProfile,System.String,System.String,System.String)">
+            <summary>
+            Awards an achievement to a user if they don't already have it
+            </summary>
+            <param name="profile">The user profile</param>
+            <param name="id">Unique identifier for the achievement</param>
+            <param name="title">Display title of the achievement</param>
+            <param name="description">Description of how the achievement was earned</param>
+            <returns>The updated user profile</returns>
         </member>
     </members>
 </doc>

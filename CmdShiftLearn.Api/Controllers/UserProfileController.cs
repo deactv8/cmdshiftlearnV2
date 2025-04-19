@@ -14,15 +14,18 @@ namespace CmdShiftLearn.Api.Controllers
         private readonly IUserProfileService _userProfileService;
         private readonly IEventLogger _eventLogger;
         private readonly TutorialService _tutorialService;
+        private readonly ChallengeService _challengeService;
 
         public UserProfileController(
             IUserProfileService userProfileService, 
             IEventLogger eventLogger,
-            TutorialService tutorialService)
+            TutorialService tutorialService,
+            ChallengeService challengeService)
         {
             _userProfileService = userProfileService;
             _eventLogger = eventLogger;
             _tutorialService = tutorialService;
+            _challengeService = challengeService;
         }
 
         [HttpGet("me")]
@@ -495,21 +498,44 @@ namespace CmdShiftLearn.Api.Controllers
         /// <summary>
         /// Marks a challenge as completed and awards XP to the user
         /// </summary>
-        /// <param name="request">The challenge completion request containing challengeId and XP amount</param>
+        /// <param name="request">The challenge completion request containing challengeId</param>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST /api/UserProfile/complete-challenge
         ///     {
-        ///        "challengeId": "powershell-challenge-1",
-        ///        "xp": 100
+        ///        "challengeId": "powershell-variables"
+        ///     }
+        ///
+        /// Sample response (200 OK):
+        ///     {
+        ///         "id": "user123",
+        ///         "supabaseUid": "auth0|123456789",
+        ///         "email": "user@example.com",
+        ///         "xp": 150,
+        ///         "level": 2,
+        ///         "completedChallenges": {
+        ///             "powershell-variables": true
+        ///         },
+        ///         "xpLog": [
+        ///             {
+        ///                 "amount": 50,
+        ///                 "reason": "Completed challenge: PowerShell Variables Challenge",
+        ///                 "date": "2025-04-17T08:15:30.123Z"
+        ///             }
+        ///         ]
+        ///     }
+        ///
+        /// Sample response (409 Conflict):
+        ///     {
+        ///         "message": "Challenge already completed."
         ///     }
         ///
         /// </remarks>
         /// <returns>The updated user profile with the completed challenge and new XP</returns>
         /// <response code="200">Returns the updated user profile</response>
         /// <response code="401">If the user is not authenticated</response>
-        /// <response code="404">If the user profile is not found</response>
+        /// <response code="404">If the user profile or challenge is not found</response>
         /// <response code="409">If the challenge is already marked as completed</response>
         [HttpPost("complete-challenge")]
         [Authorize]
@@ -528,7 +554,14 @@ namespace CmdShiftLearn.Api.Controllers
             var userProfile = await _userProfileService.GetUserProfileAsync(supabaseUid);
             if (userProfile == null)
             {
-                return NotFound();
+                return NotFound(new { message = "User profile not found." });
+            }
+            
+            // Fetch the challenge metadata from the ChallengeService
+            var challenge = await _challengeService.GetChallengeByIdAsync(request.ChallengeId);
+            if (challenge == null)
+            {
+                return NotFound(new { message = $"Challenge with ID '{request.ChallengeId}' not found." });
             }
 
             // Check if the challenge is already completed
@@ -546,7 +579,7 @@ namespace CmdShiftLearn.Api.Controllers
 
             // Add XP and calculate new level
             int oldLevel = userProfile.Level;
-            userProfile.XP += request.Xp;
+            userProfile.XP += challenge.Xp;
             
             // Calculate level using the helper method
             userProfile.Level = _userProfileService.CalculateLevel(userProfile.XP);
@@ -557,8 +590,8 @@ namespace CmdShiftLearn.Api.Controllers
             // Add to XP history log with the challenge completion reason
             userProfile.XpLog.Add(new Models.XpEntry
             {
-                Amount = request.Xp,
-                Reason = $"Completed challenge {request.ChallengeId}",
+                Amount = challenge.Xp,
+                Reason = $"Completed challenge: {challenge.Title}",
                 Date = DateTime.UtcNow
             });
 
@@ -566,17 +599,17 @@ namespace CmdShiftLearn.Api.Controllers
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
             
             // Log XP added event
-            await _userProfileService.LogXpAddedAsync(updatedProfile, request.Xp, $"Completed challenge {request.ChallengeId}");
+            await _userProfileService.LogXpAddedAsync(updatedProfile, challenge.Xp, $"Completed challenge: {challenge.Title}");
             
             // Log challenge completion event
             await _eventLogger.LogAsync(new PlatformEvent
             {
                 EventType = "challenge.completed",
                 UserId = updatedProfile.SupabaseUid,
-                Description = $"Completed challenge: {request.ChallengeId}"
+                Description = $"Completed challenge: {challenge.Title} ({request.ChallengeId})"
             });
             
-            // Award achievements (non-blocking)
+            // Award achievements and milestones (non-blocking)
             if (isFirstChallenge)
             {
                 // Challenge Accepted achievement for completing the first challenge
@@ -585,6 +618,12 @@ namespace CmdShiftLearn.Api.Controllers
                     "challenge-accepted", 
                     "Challenge Accepted", 
                     "Completed your first challenge"
+                );
+                
+                // Award milestone for completing first challenge
+                _ = _userProfileService.AwardMilestoneAsync(
+                    updatedProfile,
+                    "completed-first-challenge"
                 );
             }
             
@@ -598,6 +637,16 @@ namespace CmdShiftLearn.Api.Controllers
                     "Reached Level 2 or higher"
                 );
             }
+            
+            // Award Terminal Mastery milestone if user has completed 3 or more challenges
+            if (updatedProfile.CompletedChallenges.Count(c => c.Value) >= 3)
+            {
+                _ = _userProfileService.AwardMilestoneAsync(
+                    updatedProfile,
+                    "terminal-mastery-1"
+                );
+            }
+            
             return Ok(updatedProfile);
         }
         
@@ -678,7 +727,6 @@ namespace CmdShiftLearn.Api.Controllers
     public class CompleteChallengeRequest
     {
         public string ChallengeId { get; set; } = string.Empty;
-        public int Xp { get; set; }
     }
 
     public class UserProgressResponse

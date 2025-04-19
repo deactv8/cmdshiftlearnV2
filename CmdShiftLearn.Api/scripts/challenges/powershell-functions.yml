@@ -1,0 +1,7 @@
+id: powershell-functions
+title: PowerShell Functions Challenge
+description: Learn how to create and use functions in PowerShell.
+xp: 100
+difficulty: Intermediate
+tutorialId: powershell-basics-3
+script: powershell-functions.ps1

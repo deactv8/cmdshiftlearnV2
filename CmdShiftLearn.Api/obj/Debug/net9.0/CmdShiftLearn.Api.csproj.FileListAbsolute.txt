@@ -1,5 +1,6 @@
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\appsettings.Development.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\appsettings.json
+C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\scripts\challenges\powershell-variables.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\scripts\tutorials\powershell-basics-1.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.runtime.json
 C:\cmdshiftlearnV2\CmdShiftLearn.Api\bin\Debug\net9.0\CmdShiftLearn.Api.staticwebassets.endpoints.json

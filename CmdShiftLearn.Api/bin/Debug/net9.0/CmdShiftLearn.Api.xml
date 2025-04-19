@@ -4,6 +4,93 @@
         <name>CmdShiftLearn.Api</name>
     </assembly>
     <members>
+        <member name="M:CmdShiftLearn.Api.Controllers.ChallengesController.GetAllChallenges">
+             <summary>
+             Gets a list of all available challenges with metadata
+             </summary>
+             <remarks>
+             Sample response:
+            
+                 GET /api/challenges
+                 [
+                   {
+                     "id": "powershell-variables",
+                     "title": "PowerShell Variables Challenge",
+                     "description": "Test your knowledge of PowerShell variables and data types.",
+                     "xp": 50,
+                     "difficulty": "Beginner",
+                     "tutorialId": "powershell-basics-1"
+                   },
+                   {
+                     "id": "powershell-loops",
+                     "title": "PowerShell Loops Challenge",
+                     "description": "Practice using loops in PowerShell to solve problems.",
+                     "xp": 75,
+                     "difficulty": "Intermediate",
+                     "tutorialId": "powershell-basics-2"
+                   }
+                 ]
+            
+             </remarks>
+             <returns>A list of challenge metadata</returns>
+             <response code="200">Returns the list of challenges</response>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.ChallengesController.GetChallengeById(System.String)">
+             <summary>
+             Gets a specific challenge by ID including its script
+             </summary>
+             <param name="id">The challenge ID</param>
+             <remarks>
+             Sample response:
+            
+                 GET /api/challenges/powershell-variables
+                 {
+                   "id": "powershell-variables",
+                   "title": "PowerShell Variables Challenge",
+                   "description": "Test your knowledge of PowerShell variables and data types.",
+                   "xp": 50,
+                   "difficulty": "Beginner",
+                   "tutorialId": "powershell-basics-1",
+                   "script": "# PowerShell Variables Challenge\n\n# 1. Create a variable named $name and assign your name to it\n# 2. Create a variable named $age and assign your age to it\n# 3. Create a variable named $skills as an array with at least three skills\n# 4. Print a message using these variables\n\n# Your solution below:\n\n"
+                 }
+            
+             </remarks>
+             <returns>The challenge with script</returns>
+             <response code="200">Returns the challenge</response>
+             <response code="404">If the challenge is not found</response>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.ChallengesController.GetChallengesByTutorialId(System.String)">
+             <summary>
+             Gets all challenges associated with a specific tutorial
+             </summary>
+             <param name="tutorialId">The tutorial ID</param>
+             <remarks>
+             Sample response:
+            
+                 GET /api/challenges/by-tutorial/powershell-basics-1
+                 [
+                   {
+                     "id": "powershell-variables",
+                     "title": "PowerShell Variables Challenge",
+                     "description": "Test your knowledge of PowerShell variables and data types.",
+                     "xp": 50,
+                     "difficulty": "Beginner",
+                     "tutorialId": "powershell-basics-1"
+                   },
+                   {
+                     "id": "powershell-commands",
+                     "title": "PowerShell Commands Challenge",
+                     "description": "Practice using basic PowerShell commands.",
+                     "xp": 60,
+                     "difficulty": "Beginner",
+                     "tutorialId": "powershell-basics-1"
+                   }
+                 ]
+            
+             </remarks>
+             <returns>A list of challenge metadata for the specified tutorial</returns>
+             <response code="200">Returns the list of challenges for the tutorial</response>
+        </member>
         <member name="M:CmdShiftLearn.Api.Controllers.TutorialsController.GetAllTutorials">
              <summary>
              Gets a list of all available tutorials with metadata
@@ -170,21 +257,44 @@
              <summary>
              Marks a challenge as completed and awards XP to the user
              </summary>
-             <param name="request">The challenge completion request containing challengeId and XP amount</param>
+             <param name="request">The challenge completion request containing challengeId</param>
              <remarks>
              Sample request:
             
                  POST /api/UserProfile/complete-challenge
                  {
-                    "challengeId": "powershell-challenge-1",
-                    "xp": 100
+                    "challengeId": "powershell-variables"
+                 }
+            
+             Sample response (200 OK):
+                 {
+                     "id": "user123",
+                     "supabaseUid": "auth0|123456789",
+                     "email": "user@example.com",
+                     "xp": 150,
+                     "level": 2,
+                     "completedChallenges": {
+                         "powershell-variables": true
+                     },
+                     "xpLog": [
+                         {
+                             "amount": 50,
+                             "reason": "Completed challenge: PowerShell Variables Challenge",
+                             "date": "2025-04-17T08:15:30.123Z"
+                         }
+                     ]
+                 }
+            
+             Sample response (409 Conflict):
+                 {
+                     "message": "Challenge already completed."
                  }
             
              </remarks>
              <returns>The updated user profile with the completed challenge and new XP</returns>
              <response code="200">Returns the updated user profile</response>
              <response code="401">If the user is not authenticated</response>
-             <response code="404">If the user profile is not found</response>
+             <response code="404">If the user profile or challenge is not found</response>
              <response code="409">If the challenge is already marked as completed</response>
         </member>
         <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.GetUserAchievements">
@@ -263,6 +373,81 @@
             List of achievements unlocked by the user
             </summary>
         </member>
+        <member name="T:CmdShiftLearn.Api.Models.Challenge">
+            <summary>
+            Represents a challenge with metadata and script content
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.Id">
+            <summary>
+            Unique identifier for the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.Title">
+            <summary>
+            Title of the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.Description">
+            <summary>
+            Description of the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.Xp">
+            <summary>
+            XP awarded for completing the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.Difficulty">
+            <summary>
+            Difficulty level of the challenge (e.g., "Beginner", "Intermediate", "Advanced")
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.TutorialId">
+            <summary>
+            Optional link to a related tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Challenge.Script">
+            <summary>
+            Content of the challenge (PowerShell script)
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Models.ChallengeMetadata">
+            <summary>
+            Represents challenge metadata without the full script content
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ChallengeMetadata.Id">
+            <summary>
+            Unique identifier for the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ChallengeMetadata.Title">
+            <summary>
+            Title of the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ChallengeMetadata.Description">
+            <summary>
+            Description of the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ChallengeMetadata.Xp">
+            <summary>
+            XP awarded for completing the challenge
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ChallengeMetadata.Difficulty">
+            <summary>
+            Difficulty level of the challenge (e.g., "Beginner", "Intermediate", "Advanced")
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ChallengeMetadata.TutorialId">
+            <summary>
+            Optional link to a related tutorial
+            </summary>
+        </member>
         <member name="T:CmdShiftLearn.Api.Models.Tutorial">
             <summary>
             Represents a tutorial with metadata and content
@@ -328,6 +513,63 @@
             Difficulty level of the tutorial (e.g., "Beginner", "Intermediate", "Advanced")
             </summary>
         </member>
+        <member name="T:CmdShiftLearn.Api.Services.ChallengeService">
+            <summary>
+            Service for managing challenges
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ChallengeService.GetAllChallengeMetadataAsync">
+            <summary>
+            Gets all available challenge metadata
+            </summary>
+            <returns>A list of challenge metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ChallengeService.GetChallengeByIdAsync(System.String)">
+            <summary>
+            Gets a specific challenge by ID including its script
+            </summary>
+            <param name="id">The challenge ID</param>
+            <returns>The challenge with script if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ChallengeService.GetChallengesByTutorialIdAsync(System.String)">
+            <summary>
+            Gets all challenges associated with a specific tutorial
+            </summary>
+            <param name="tutorialId">The tutorial ID</param>
+            <returns>A list of challenge metadata for the specified tutorial</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.FileChallengeLoader">
+            <summary>
+            Loads challenges from the file system
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileChallengeLoader.GetAllChallengeMetadataAsync">
+            <summary>
+            Gets all available challenge metadata
+            </summary>
+            <returns>A list of challenge metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileChallengeLoader.GetChallengeByIdAsync(System.String)">
+            <summary>
+            Gets a specific challenge by ID including its script
+            </summary>
+            <param name="id">The challenge ID</param>
+            <returns>The challenge with script if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileChallengeLoader.GetChallengesByTutorialIdAsync(System.String)">
+            <summary>
+            Gets all challenges associated with a specific tutorial
+            </summary>
+            <param name="tutorialId">The tutorial ID</param>
+            <returns>A list of challenge metadata for the specified tutorial</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.FileChallengeLoader.LoadChallengeFromFileAsync(System.String)">
+            <summary>
+            Loads a challenge from a file
+            </summary>
+            <param name="filePath">Path to the challenge file</param>
+            <returns>The loaded challenge or null if loading failed</returns>
+        </member>
         <member name="T:CmdShiftLearn.Api.Services.FileTutorialLoader">
             <summary>
             Loads tutorials from the file system
@@ -352,6 +594,31 @@
             </summary>
             <param name="filePath">Path to the tutorial file</param>
             <returns>The loaded tutorial or null if loading failed</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.IChallengeLoader">
+            <summary>
+            Interface for loading challenges from various sources
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.IChallengeLoader.GetAllChallengeMetadataAsync">
+            <summary>
+            Gets all available challenge metadata
+            </summary>
+            <returns>A list of challenge metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.IChallengeLoader.GetChallengeByIdAsync(System.String)">
+            <summary>
+            Gets a specific challenge by ID including its script
+            </summary>
+            <param name="id">The challenge ID</param>
+            <returns>The challenge with script if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.IChallengeLoader.GetChallengesByTutorialIdAsync(System.String)">
+            <summary>
+            Gets all challenges associated with a specific tutorial
+            </summary>
+            <param name="tutorialId">The tutorial ID</param>
+            <returns>A list of challenge metadata for the specified tutorial</returns>
         </member>
         <member name="T:CmdShiftLearn.Api.Services.ITutorialLoader">
             <summary>

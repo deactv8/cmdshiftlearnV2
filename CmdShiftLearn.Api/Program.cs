@@ -171,6 +171,10 @@ builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
 builder.Services.AddSingleton<TutorialService>();
 
+// Register challenge services
+builder.Services.AddSingleton<IChallengeLoader, FileChallengeLoader>();
+builder.Services.AddSingleton<ChallengeService>();
+
 // Configure static files for serving the debug HTML
 builder.Services.AddDirectoryBrowser();
 

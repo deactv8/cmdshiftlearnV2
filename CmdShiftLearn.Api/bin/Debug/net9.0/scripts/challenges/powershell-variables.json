@@ -1,0 +1,9 @@
+{
+  "id": "powershell-variables",
+  "title": "PowerShell Variables Challenge",
+  "description": "Test your knowledge of PowerShell variables and data types.",
+  "xp": 50,
+  "difficulty": "Beginner",
+  "tutorialId": "powershell-basics-1",
+  "script": "# PowerShell Variables Challenge\n\n# 1. Create a variable named $name and assign your name to it\n# 2. Create a variable named $age and assign your age to it\n# 3. Create a variable named $skills as an array with at least three skills\n# 4. Print a message using these variables\n\n# Your solution below:\n\n"
+}

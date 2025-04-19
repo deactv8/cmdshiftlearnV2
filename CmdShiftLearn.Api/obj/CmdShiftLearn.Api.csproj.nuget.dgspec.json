@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj": {}
+    "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj": {}
   },
   "projects": {
-    "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj": {
+    "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
+        "projectUniqueName": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
         "projectName": "CmdShiftLearn.Api",
-        "projectPath": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
+        "projectPath": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-        "outputPath": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\",
+        "outputPath": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -62,7 +62,7 @@
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[6.32.1, )"
+              "version": "[6.34.0, )"
             },
             "YamlDotNet": {
               "target": "Package",

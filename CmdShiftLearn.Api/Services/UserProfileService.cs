@@ -10,6 +10,7 @@ namespace CmdShiftLearn.Api.Services
         int CalculateLevel(int xp);
         Task<UserProfile> AwardAchievementAsync(UserProfile profile, string id, string title, string description);
         Task<UserProfile> AwardMilestoneAsync(UserProfile profile, string milestoneId);
+        Task<UserProfile> CheckAndAwardXpRewardsAsync(UserProfile profile, int previousXp);
         Task LogXpAddedAsync(UserProfile profile, int amount, string reason);
     }
 
@@ -151,6 +152,69 @@ namespace CmdShiftLearn.Api.Services
                     UserId = profile.SupabaseUid,
                     Description = $"Unlocked milestone: {milestoneId}"
                 });
+            }
+            
+            return profile;
+        }
+        
+        /// <summary>
+        /// Checks if the user has reached any XP thresholds and awards corresponding rewards
+        /// </summary>
+        /// <param name="profile">The user profile</param>
+        /// <param name="previousXp">The user's XP before the latest addition</param>
+        /// <returns>The updated user profile</returns>
+        public async Task<UserProfile> CheckAndAwardXpRewardsAsync(UserProfile profile, int previousXp)
+        {
+            // Define XP thresholds and their corresponding rewards
+            var xpRewards = new Dictionary<int, (string id, string name, string description, string type, string data)>
+            {
+                { 100, ("dark-theme", "Dark Theme", "Unlock the dark theme for the terminal", "theme", "{\"theme\":\"dark\"}") },
+                { 250, ("syntax-highlighting", "Syntax Highlighting", "Unlock syntax highlighting for code blocks", "feature", "{\"feature\":\"syntax-highlighting\"}") },
+                { 500, ("advanced-commands", "Advanced Commands", "Unlock access to advanced PowerShell commands", "content", "{\"contentType\":\"commands\",\"level\":\"advanced\"}") },
+                { 1000, ("custom-prompt", "Custom Prompt", "Customize your terminal prompt", "feature", "{\"feature\":\"custom-prompt\"}") },
+                { 2000, ("expert-badge", "PowerShell Expert", "You've earned the PowerShell Expert badge", "badge", "{\"badge\":\"powershell-expert\",\"color\":\"gold\"}") }
+            };
+            
+            // Check each threshold to see if the user has crossed it with this XP update
+            foreach (var threshold in xpRewards.Keys.OrderBy(k => k))
+            {
+                // If the user's previous XP was below the threshold but current XP is at or above it
+                if (previousXp < threshold && profile.XP >= threshold)
+                {
+                    var (id, name, description, type, data) = xpRewards[threshold];
+                    
+                    // Check if the user already has this reward
+                    if (!profile.Rewards.Any(r => r.Id == id))
+                    {
+                        // Create the new reward
+                        var reward = new Reward
+                        {
+                            Id = id,
+                            Name = name,
+                            Description = description,
+                            Type = type,
+                            Data = data,
+                            UnlockedAt = DateTime.UtcNow
+                        };
+                        
+                        // Add the reward to the user's profile
+                        profile.Rewards.Add(reward);
+                        
+                        // Update the user profile
+                        await UpdateUserProfileAsync(profile);
+                        
+                        // Log the reward unlock
+                        Console.WriteLine($"XP Reward unlocked for {profile.Email}: {name} - {description}");
+                        
+                        // Log the reward event
+                        await _eventLogger.LogAsync(new PlatformEvent
+                        {
+                            EventType = "reward.unlocked",
+                            UserId = profile.SupabaseUid,
+                            Description = $"Unlocked reward: {name} - {description}"
+                        });
+                    }
+                }
             }
             
             return profile;

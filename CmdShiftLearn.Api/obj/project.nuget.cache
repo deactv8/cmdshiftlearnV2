@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Fr0Aizh6cAg=",
+  "dgSpecHash": "9kZ3OmKeR5o=",
   "success": true,
-  "projectFilePath": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
+  "projectFilePath": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\admin\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.0\\microsoft.aspnetcore.authentication.jwtbearer.7.0.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.4\\microsoft.aspnetcore.openapi.9.0.4.nupkg.sha512",

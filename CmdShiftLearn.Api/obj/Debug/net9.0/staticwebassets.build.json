@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "S1q4rHPizMtWSu+zeTmGmB/aV3VdWAkbZo+ytDTos2w=",
+  "Hash": "US46hxu6FPrDpxoDMOsjM6d8A1MaAP+Mwi4+dVNklQ8=",
   "Source": "CmdShiftLearn.Api",
   "BasePath": "_content/CmdShiftLearn.Api",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "CmdShiftLearn.Api\\wwwroot",
       "Source": "CmdShiftLearn.Api",
-      "ContentRoot": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
       "BasePath": "_content/CmdShiftLearn.Api",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
       "SourceId": "CmdShiftLearn.Api",
       "SourceType": "Discovered",
-      "ContentRoot": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/CmdShiftLearn.Api",
       "RelativePath": "debug-jwt#[.{fingerprint=8y555m3ir4}]?.html.gz",
       "AssetKind": "All",
@@ -28,20 +28,20 @@
       "AssetRole": "Alternative",
       "AssetMergeBehavior": "",
       "AssetMergeSource": "",
-      "RelatedAsset": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "RelatedAsset": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
       "Fingerprint": "bh4u8bvqof",
       "Integrity": "0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html"
+      "OriginalItemSpec": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html"
     },
     {
-      "Identity": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
       "SourceId": "CmdShiftLearn.Api",
       "SourceType": "Discovered",
-      "ContentRoot": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
       "BasePath": "_content/CmdShiftLearn.Api",
       "RelativePath": "debug-jwt#[.{fingerprint}]?.html",
       "AssetKind": "All",
@@ -62,7 +62,7 @@
   "Endpoints": [
     {
       "Route": "debug-jwt.8y555m3ir4.html",
-      "AssetFile": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -125,7 +125,7 @@
     },
     {
       "Route": "debug-jwt.8y555m3ir4.html",
-      "AssetFile": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -170,7 +170,7 @@
     },
     {
       "Route": "debug-jwt.8y555m3ir4.html.gz",
-      "AssetFile": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -223,7 +223,7 @@
     },
     {
       "Route": "debug-jwt.html",
-      "AssetFile": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -278,7 +278,7 @@
     },
     {
       "Route": "debug-jwt.html",
-      "AssetFile": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -315,7 +315,7 @@
     },
     {
       "Route": "debug-jwt.html.gz",
-      "AssetFile": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {

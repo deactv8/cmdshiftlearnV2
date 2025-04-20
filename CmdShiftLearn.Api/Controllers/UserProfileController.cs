@@ -107,6 +107,9 @@ namespace CmdShiftLearn.Api.Controllers
             // Check if this is the first time the user is getting XP
             bool isFirstXp = userProfile.XpLog.Count == 0;
             
+            // Store the previous XP value for reward checks
+            int previousXp = userProfile.XP;
+            
             // Add XP and calculate new level
             int oldLevel = userProfile.Level;
             userProfile.XP += request.Amount;
@@ -127,6 +130,9 @@ namespace CmdShiftLearn.Api.Controllers
 
             // Update the user profile
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
+            
+            // Check and award XP-based rewards
+            updatedProfile = await _userProfileService.CheckAndAwardXpRewardsAsync(updatedProfile, previousXp);
             
             // Log XP added event
             await _userProfileService.LogXpAddedAsync(updatedProfile, request.Amount, request.Reason);
@@ -268,7 +274,9 @@ namespace CmdShiftLearn.Api.Controllers
                 XpLog = userProfile.XpLog
                     .OrderByDescending(x => x.Date)
                     .Take(5)
-                    .ToList()
+                    .ToList(),
+                // Include the user's unlocked rewards
+                Rewards = userProfile.Rewards
             };
 
             return Ok(progressResponse);
@@ -432,6 +440,9 @@ namespace CmdShiftLearn.Api.Controllers
             // Mark the tutorial as completed
             userProfile.CompletedTutorials[request.TutorialId] = true;
 
+            // Store the previous XP value for reward checks
+            int previousXp = userProfile.XP;
+            
             // Add XP and calculate new level using the XP value from the tutorial metadata
             int oldLevel = userProfile.Level;
             userProfile.XP += tutorial.Xp;
@@ -452,6 +463,9 @@ namespace CmdShiftLearn.Api.Controllers
 
             // Update the user profile
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
+            
+            // Check and award XP-based rewards
+            updatedProfile = await _userProfileService.CheckAndAwardXpRewardsAsync(updatedProfile, previousXp);
             
             // Log XP added event
             await _userProfileService.LogXpAddedAsync(updatedProfile, tutorial.Xp, $"Completed tutorial: {tutorial.Title}");
@@ -577,6 +591,9 @@ namespace CmdShiftLearn.Api.Controllers
             // Mark the challenge as completed
             userProfile.CompletedChallenges[request.ChallengeId] = true;
 
+            // Store the previous XP value for reward checks
+            int previousXp = userProfile.XP;
+            
             // Add XP and calculate new level
             int oldLevel = userProfile.Level;
             userProfile.XP += challenge.Xp;
@@ -597,6 +614,9 @@ namespace CmdShiftLearn.Api.Controllers
 
             // Update the user profile
             var updatedProfile = await _userProfileService.UpdateUserProfileAsync(userProfile);
+            
+            // Check and award XP-based rewards
+            updatedProfile = await _userProfileService.CheckAndAwardXpRewardsAsync(updatedProfile, previousXp);
             
             // Log XP added event
             await _userProfileService.LogXpAddedAsync(updatedProfile, challenge.Xp, $"Completed challenge: {challenge.Title}");
@@ -770,6 +790,11 @@ namespace CmdShiftLearn.Api.Controllers
         /// The last 5 XP log entries, sorted by newest first
         /// </summary>
         public List<XpEntry> XpLog { get; set; } = new List<XpEntry>();
+        
+        /// <summary>
+        /// List of unlocked rewards
+        /// </summary>
+        public List<Reward> Rewards { get; set; } = new List<Reward>();
     }
 
     public class UserAchievementsResponse

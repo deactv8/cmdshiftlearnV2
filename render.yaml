@@ -17,6 +17,8 @@ services:
         sync: false
       - key: GitHub__AccessToken
         sync: false
+      - key: OpenAI__ApiKey
+        sync: false
       - key: AllowedOrigins
         value: "*"
     autoDeploy: true

@@ -176,8 +176,50 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 
-// Additional registrations (challenge/tutorial loaders etc.)
-// ...
+// Register tutorial and challenge services
+builder.Services.AddSingleton<ITutorialService, TutorialService>();
+
+// Configure OpenAI settings
+builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
+
+// Register HttpClient for OpenAI
+builder.Services.AddHttpClient<IShelloService, ShelloService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.openai.com/v1/");
+    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    
+    // Add API key if available
+    var apiKey = builder.Configuration["OpenAI:ApiKey"];
+    if (!string.IsNullOrEmpty(apiKey))
+    {
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+    }
+});
+
+// Register the appropriate content loader based on configuration
+var tutorialsSource = builder.Configuration.GetValue<string>("ContentSources:Tutorials:Source") ?? "File";
+var challengesSource = builder.Configuration.GetValue<string>("ContentSources:Challenges:Source") ?? "File";
+
+Console.WriteLine($"Using {tutorialsSource} as the source for tutorials");
+Console.WriteLine($"Using {challengesSource} as the source for challenges");
+
+// Register tutorial loader
+if (tutorialsSource.Equals("GitHub", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<ITutorialLoader, GitHubTutorialLoader>();
+    Console.WriteLine("Registered GitHubTutorialLoader");
+}
+else if (tutorialsSource.Equals("Supabase", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<ITutorialLoader, SupabaseTutorialLoader>();
+    Console.WriteLine("Registered SupabaseTutorialLoader");
+}
+else
+{
+    // Default to file-based loader
+    builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
+    Console.WriteLine("Registered FileTutorialLoader");
+}
 
 var app = builder.Build();
 

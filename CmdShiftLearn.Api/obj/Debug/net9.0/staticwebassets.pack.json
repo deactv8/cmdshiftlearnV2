@@ -1,8 +1,20 @@
 {
   "Files": [
     {
+      "Id": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-error.html",
+      "PackagePath": "staticwebassets\\auth-error.html"
+    },
+    {
+      "Id": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-test.html",
+      "PackagePath": "staticwebassets\\auth-test.html"
+    },
+    {
       "Id": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
       "PackagePath": "staticwebassets\\debug-jwt.html"
+    },
+    {
+      "Id": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\tutorial-test.html",
+      "PackagePath": "staticwebassets\\tutorial-test.html"
     },
     {
       "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.CmdShiftLearn.Api.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",

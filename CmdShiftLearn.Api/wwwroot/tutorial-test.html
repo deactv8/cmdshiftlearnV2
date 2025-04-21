@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Step Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .test-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .result {
+            background-color: #f0f8ff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            min-height: 100px;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tutorial Step Test</h1>
+    
+    <div class="test-box">
+        <h2>Test Authentication</h2>
+        <p>Enter your JWT token:</p>
+        <input type="text" id="token" placeholder="Enter your JWT token here">
+    </div>
+    
+    <div class="test-box">
+        <h2>Test Tutorial Step</h2>
+        <p>Tutorial ID:</p>
+        <input type="text" id="tutorialId" value="powershell-interactive-1">
+        <p>Step Index:</p>
+        <input type="number" id="stepIndex" value="0">
+        <p>User Input:</p>
+        <input type="text" id="userInput" value='Write-Host "Hello, PowerShell!"'>
+        <button onclick="testStep()">Test Step</button>
+    </div>
+    
+    <div class="result" id="result">
+        Results will appear here...
+    </div>
+    
+    <script>
+        async function testStep() {
+            const token = document.getElementById('token').value.trim();
+            const tutorialId = document.getElementById('tutorialId').value.trim();
+            const stepIndex = parseInt(document.getElementById('stepIndex').value);
+            const userInput = document.getElementById('userInput').value;
+            
+            if (!token) {
+                document.getElementById('result').textContent = 'Please enter a token';
+                return;
+            }
+            
+            if (!tutorialId) {
+                document.getElementById('result').textContent = 'Please enter a tutorial ID';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/Tutorials/run-step', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        tutorialId: tutorialId,
+                        stepIndex: stepIndex,
+                        userInput: userInput
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    const text = await response.text();
+                    document.getElementById('result').textContent = `Error ${response.status}: ${text}`;
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

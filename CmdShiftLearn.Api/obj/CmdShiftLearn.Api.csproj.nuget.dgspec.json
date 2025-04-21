@@ -52,6 +52,10 @@
               "target": "Package",
               "version": "[9.0.4, )"
             },
+            "Octokit": {
+              "target": "Package",
+              "version": "[14.0.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
@@ -62,11 +66,15 @@
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[6.34.0, )"
+              "version": "[7.0.3, )"
             },
             "YamlDotNet": {
               "target": "Package",
               "version": "[16.3.0, )"
+            },
+            "supabase-csharp": {
+              "target": "Package",
+              "version": "[0.16.2, )"
             }
           },
           "imports": [

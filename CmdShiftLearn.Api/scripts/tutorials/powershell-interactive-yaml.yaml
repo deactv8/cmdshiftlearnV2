@@ -1,0 +1,26 @@
+id: powershell-interactive-yaml
+title: "Interactive PowerShell Tutorial (YAML)"
+description: "Learn PowerShell commands with interactive steps (YAML format)."
+xp: 120
+difficulty: "Beginner"
+content: |
+  # Interactive PowerShell Tutorial (YAML)
+
+  This tutorial will guide you through basic PowerShell commands with interactive steps.
+
+  ## Getting Started
+
+  Follow the instructions for each step and enter the correct command to proceed.
+steps:
+  - instructions: "Let's start with a simple command. Use Write-Host to display 'Hello, PowerShell!' on the screen."
+    expectedCommand: "Write-Host \"Hello, PowerShell!\""
+    hint: "The command should be Write-Host followed by the text in quotes."
+  - instructions: "Now, create a variable named $name and assign your name to it."
+    expectedCommand: "$name = \"YourName\""
+    hint: "Use the $ symbol to create a variable, followed by = and your name in quotes."
+  - instructions: "Use Write-Host to display a greeting using your variable."
+    expectedCommand: "Write-Host \"Hello, $name!\""
+    hint: "Use Write-Host with double quotes to allow variable expansion."
+  - instructions: "Finally, let's see how to get help. Use Get-Help with the Get-Process command."
+    expectedCommand: "Get-Help Get-Process"
+    hint: "The command should be Get-Help followed by the command name."

@@ -91,6 +91,28 @@
              <returns>A list of challenge metadata for the specified tutorial</returns>
              <response code="200">Returns the list of challenges for the tutorial</response>
         </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.DebugController.GetGitHubFiles">
+            <summary>
+            Debug endpoint to list all GitHub files in the tutorials directory
+            </summary>
+            <returns>A list of file information from the GitHub repository</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.DebugController.GetGitHubConfig">
+            <summary>
+            Debug endpoint to show GitHub configuration
+            </summary>
+            <returns>The current GitHub configuration</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.ShelloController.GetHint(System.String,System.String,System.String,System.String)">
+            <summary>
+            Gets a hint from Shello for a specific tutorial step
+            </summary>
+            <param name="tutorialId">The ID of the tutorial</param>
+            <param name="stepId">The ID of the step</param>
+            <param name="userInput">The user's input</param>
+            <param name="previousHint">Optional previous hint that was given</param>
+            <returns>A hint from Shello</returns>
+        </member>
         <member name="M:CmdShiftLearn.Api.Controllers.TutorialsController.GetAllTutorials">
              <summary>
              Gets a list of all available tutorials with metadata
@@ -142,6 +164,58 @@
              <returns>The tutorial with content</returns>
              <response code="200">Returns the tutorial</response>
              <response code="404">If the tutorial is not found</response>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Controllers.TutorialsController.RunTutorialStep(CmdShiftLearn.Api.Models.RunTutorialStepRequest)">
+             <summary>
+             Processes a user's input for a specific step in an interactive tutorial
+             </summary>
+             <param name="request">The request containing tutorial ID, step index, and user input</param>
+             <remarks>
+             Sample request:
+            
+                 POST /api/tutorials/run-step
+                 {
+                   "tutorialId": "powershell-basics-1",
+                   "stepIndex": 0,
+                   "userInput": "Write-Host \"Hello, PowerShell!\""
+                 }
+            
+             Sample response (correct):
+            
+                 {
+                   "isCorrect": true,
+                   "message": "Great job! That's the correct command.",
+                   "hint": null,
+                   "nextStepIndex": 1,
+                   "isComplete": false
+                 }
+            
+             Sample response (incorrect):
+            
+                 {
+                   "isCorrect": false,
+                   "message": "That's not quite right. Try again!",
+                   "hint": "Make sure to use Write-Host with proper quotes.",
+                   "nextStepIndex": null,
+                   "isComplete": false
+                 }
+            
+             Sample response (last step completed):
+            
+                 {
+                   "isCorrect": true,
+                   "message": "Congratulations! You've completed the tutorial.",
+                   "hint": null,
+                   "nextStepIndex": null,
+                   "isComplete": true
+                 }
+            
+             </remarks>
+             <returns>The result of processing the step</returns>
+             <response code="200">Returns the result of processing the step</response>
+             <response code="400">If the request is invalid</response>
+             <response code="401">If the user is not authenticated</response>
+             <response code="404">If the tutorial or step is not found</response>
         </member>
         <member name="M:CmdShiftLearn.Api.Controllers.UserProfileController.AddXp(CmdShiftLearn.Api.Controllers.AddXpRequest)">
              <summary>
@@ -368,10 +442,28 @@
             The last 5 XP log entries, sorted by newest first
             </summary>
         </member>
+        <member name="P:CmdShiftLearn.Api.Controllers.UserProgressResponse.Rewards">
+            <summary>
+            List of unlocked rewards
+            </summary>
+        </member>
         <member name="P:CmdShiftLearn.Api.Controllers.UserAchievementsResponse.Achievements">
             <summary>
             List of achievements unlocked by the user
             </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Helpers.YamlHelpers">
+            <summary>
+            Helper methods for YAML processing
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Helpers.YamlHelpers.DeserializeTutorial(System.String,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Safely deserializes a YAML string to a Tutorial object, ensuring steps are properly loaded
+            </summary>
+            <param name="yamlContent">The YAML content to deserialize</param>
+            <param name="logger">Optional logger for debugging</param>
+            <returns>The deserialized Tutorial object</returns>
         </member>
         <member name="T:CmdShiftLearn.Api.Models.Challenge">
             <summary>
@@ -448,6 +540,36 @@
             Optional link to a related tutorial
             </summary>
         </member>
+        <member name="T:CmdShiftLearn.Api.Models.OpenAISettings">
+            <summary>
+            Settings for OpenAI API
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.OpenAISettings.ApiKey">
+            <summary>
+            The API key for OpenAI
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.OpenAISettings.Model">
+            <summary>
+            The model to use for OpenAI API calls (e.g., "gpt-3.5-turbo", "gpt-4")
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.OpenAISettings.Temperature">
+            <summary>
+            The temperature to use for OpenAI API calls (0.0 to 1.0)
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.OpenAISettings.MaxRetries">
+            <summary>
+            The maximum number of retries for OpenAI API calls
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.OpenAISettings.RetryDelayMs">
+            <summary>
+            The delay in milliseconds between retries for OpenAI API calls
+            </summary>
+        </member>
         <member name="T:CmdShiftLearn.Api.Models.Tutorial">
             <summary>
             Represents a tutorial with metadata and content
@@ -483,6 +605,61 @@
             Content of the tutorial (PowerShell script or instructions)
             </summary>
         </member>
+        <member name="P:CmdShiftLearn.Api.Models.Tutorial.Steps">
+            <summary>
+            Interactive steps for the tutorial
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Models.TutorialStep">
+            <summary>
+            Represents a step in an interactive tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialStep.Id">
+            <summary>
+            Unique identifier for the step
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialStep.Title">
+            <summary>
+            Title of the step
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialStep.Instructions">
+            <summary>
+            Instructions for the step (can be mapped from 'instruction' in YAML)
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialStep.ExpectedCommand">
+            <summary>
+            The expected command or code to complete this step (can be mapped from 'command' in YAML)
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialStep.Hint">
+            <summary>
+            A hint to show if the user gets stuck
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.TutorialStep.Validation">
+            <summary>
+            Validation rules for the step
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Models.ValidationRule">
+            <summary>
+            Represents validation rules for a tutorial step
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ValidationRule.Type">
+            <summary>
+            Type of validation (e.g., 'contains', 'equals', 'regex')
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.ValidationRule.Value">
+            <summary>
+            Value to validate against
+            </summary>
+        </member>
         <member name="T:CmdShiftLearn.Api.Models.TutorialMetadata">
             <summary>
             Represents tutorial metadata without the full content
@@ -511,6 +688,86 @@
         <member name="P:CmdShiftLearn.Api.Models.TutorialMetadata.Difficulty">
             <summary>
             Difficulty level of the tutorial (e.g., "Beginner", "Intermediate", "Advanced")
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Models.RunTutorialStepRequest">
+            <summary>
+            Request model for running a tutorial step
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepRequest.TutorialId">
+            <summary>
+            The ID of the tutorial
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepRequest.StepIndex">
+            <summary>
+            The index of the step to run (0-based)
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepRequest.UserInput">
+            <summary>
+            The user's input command or code
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Models.RunTutorialStepResponse">
+            <summary>
+            Response model for the result of running a tutorial step
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.IsCorrect">
+            <summary>
+            Whether the user's input was correct
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.Message">
+            <summary>
+            Feedback message for the user
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.Hint">
+            <summary>
+            Hint to help the user if they got it wrong
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.NextStepIndex">
+            <summary>
+            The index of the next step (null if this was the last step)
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.IsComplete">
+            <summary>
+            Whether the tutorial is now complete
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Reward.Id">
+            <summary>
+            Unique identifier for the reward
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Reward.Name">
+            <summary>
+            Display name of the reward
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Reward.Description">
+            <summary>
+            Description of the reward
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Reward.Type">
+            <summary>
+            Type of reward (e.g., "theme", "badge", "content", "feature")
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Reward.Data">
+            <summary>
+            Additional data specific to the reward type (JSON serialized)
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.Reward.UnlockedAt">
+            <summary>
+            When the reward was unlocked
             </summary>
         </member>
         <member name="T:CmdShiftLearn.Api.Services.ChallengeService">
@@ -595,6 +852,63 @@
             <param name="filePath">Path to the tutorial file</param>
             <returns>The loaded tutorial or null if loading failed</returns>
         </member>
+        <member name="T:CmdShiftLearn.Api.Services.GitHubChallengeLoader">
+            <summary>
+            Loads challenges from a GitHub repository
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubChallengeLoader.GetAllChallengeMetadataAsync">
+            <summary>
+            Gets all available challenge metadata from GitHub
+            </summary>
+            <returns>A list of challenge metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubChallengeLoader.GetChallengeByIdAsync(System.String)">
+            <summary>
+            Gets a specific challenge by ID including its script from GitHub
+            </summary>
+            <param name="id">The challenge ID</param>
+            <returns>The challenge with script if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubChallengeLoader.GetChallengesByTutorialIdAsync(System.String)">
+            <summary>
+            Gets all challenges associated with a specific tutorial from GitHub
+            </summary>
+            <param name="tutorialId">The tutorial ID</param>
+            <returns>A list of challenge metadata for the specified tutorial</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubChallengeLoader.LoadChallengeFromGitHubAsync(System.String)">
+            <summary>
+            Loads a challenge from GitHub
+            </summary>
+            <param name="path">Path to the challenge file in the repository</param>
+            <returns>The loaded challenge or null if loading failed</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.GitHubTutorialLoader">
+            <summary>
+            Loads tutorials from a GitHub repository
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubTutorialLoader.GetAllTutorialMetadataAsync">
+            <summary>
+            Gets all available tutorial metadata from GitHub
+            </summary>
+            <returns>A list of tutorial metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubTutorialLoader.GetTutorialByIdAsync(System.String)">
+            <summary>
+            Gets a specific tutorial by ID including its content from GitHub
+            </summary>
+            <param name="id">The tutorial ID</param>
+            <returns>The tutorial with content if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.GitHubTutorialLoader.LoadTutorialFromGitHubAsync(System.String)">
+            <summary>
+            Loads a tutorial from GitHub
+            </summary>
+            <param name="path">Path to the tutorial file in the repository</param>
+            <returns>The loaded tutorial or null if loading failed</returns>
+        </member>
         <member name="T:CmdShiftLearn.Api.Services.IChallengeLoader">
             <summary>
             Interface for loading challenges from various sources
@@ -638,6 +952,119 @@
             <param name="id">The tutorial ID</param>
             <returns>The tutorial with content if found, null otherwise</returns>
         </member>
+        <member name="T:CmdShiftLearn.Api.Services.ITutorialService">
+            <summary>
+            Interface for tutorial service
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ITutorialService.GetAllTutorialMetadataAsync">
+            <summary>
+            Gets all available tutorial metadata
+            </summary>
+            <returns>A list of tutorial metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ITutorialService.GetTutorialByIdAsync(System.String)">
+            <summary>
+            Gets a specific tutorial by ID including its content
+            </summary>
+            <param name="id">The tutorial ID</param>
+            <returns>The tutorial with content if found, null otherwise</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.IShelloService">
+            <summary>
+            Interface for Shello service that provides AI-powered responses
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.IShelloService.GetHintFromShelloAsync(System.String,System.String,System.String,System.String)">
+            <summary>
+            Gets a hint from Shello based on the tutorial, step, and user input
+            </summary>
+            <param name="tutorialId">The ID of the tutorial</param>
+            <param name="stepId">The ID of the step</param>
+            <param name="userInput">The user's input</param>
+            <param name="previousHint">Optional previous hint that was given</param>
+            <returns>A hint from Shello</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.ShelloService">
+            <summary>
+            Service for interacting with OpenAI to generate AI-powered responses from Shello
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ShelloService.#ctor(System.Net.Http.HttpClient,Microsoft.Extensions.Options.IOptions{CmdShiftLearn.Api.Models.OpenAISettings},Microsoft.Extensions.Logging.ILogger{CmdShiftLearn.Api.Services.ShelloService},CmdShiftLearn.Api.Services.ITutorialService)">
+            <summary>
+            Initializes a new instance of the ShelloService
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ShelloService.GetHintFromShelloAsync(System.String,System.String,System.String,System.String)">
+            <summary>
+            Gets a hint from Shello based on the tutorial, step, and user input
+            </summary>
+            <param name="tutorialId">The ID of the tutorial</param>
+            <param name="stepId">The ID of the step</param>
+            <param name="userInput">The user's input</param>
+            <param name="previousHint">Optional previous hint that was given</param>
+            <returns>A hint from Shello</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.ShelloService.SendWithRetryAsync(System.Object)">
+            <summary>
+            Sends a request to the OpenAI API with retry logic
+            </summary>
+            <param name="payload">The request payload</param>
+            <returns>The response content</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.SupabaseChallengeLoader">
+            <summary>
+            Loads challenges from Supabase
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.SupabaseChallengeLoader.GetAllChallengeMetadataAsync">
+            <summary>
+            Gets all available challenge metadata from Supabase
+            </summary>
+            <returns>A list of challenge metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.SupabaseChallengeLoader.GetChallengeByIdAsync(System.String)">
+            <summary>
+            Gets a specific challenge by ID including its script from Supabase
+            </summary>
+            <param name="id">The challenge ID</param>
+            <returns>The challenge with script if found, null otherwise</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.SupabaseChallengeLoader.GetChallengesByTutorialIdAsync(System.String)">
+            <summary>
+            Gets all challenges associated with a specific tutorial from Supabase
+            </summary>
+            <param name="tutorialId">The tutorial ID</param>
+            <returns>A list of challenge metadata for the specified tutorial</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.SupabaseChallengeLoader.SupabaseChallenge">
+            <summary>
+            Supabase challenge model for database mapping
+            </summary>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.SupabaseTutorialLoader">
+            <summary>
+            Loads tutorials from Supabase
+            </summary>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.SupabaseTutorialLoader.GetAllTutorialMetadataAsync">
+            <summary>
+            Gets all available tutorial metadata from Supabase
+            </summary>
+            <returns>A list of tutorial metadata</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.SupabaseTutorialLoader.GetTutorialByIdAsync(System.String)">
+            <summary>
+            Gets a specific tutorial by ID including its content from Supabase
+            </summary>
+            <param name="id">The tutorial ID</param>
+            <returns>The tutorial with content if found, null otherwise</returns>
+        </member>
+        <member name="T:CmdShiftLearn.Api.Services.SupabaseTutorialLoader.SupabaseTutorial">
+            <summary>
+            Supabase tutorial model for database mapping
+            </summary>
+        </member>
         <member name="T:CmdShiftLearn.Api.Services.TutorialService">
             <summary>
             Service for managing tutorials
@@ -672,6 +1099,14 @@
             </summary>
             <param name="profile">The user profile</param>
             <param name="milestoneId">Unique identifier for the milestone</param>
+            <returns>The updated user profile</returns>
+        </member>
+        <member name="M:CmdShiftLearn.Api.Services.UserProfileService.CheckAndAwardXpRewardsAsync(CmdShiftLearn.Api.Models.UserProfile,System.Int32)">
+            <summary>
+            Checks if the user has reached any XP thresholds and awards corresponding rewards
+            </summary>
+            <param name="profile">The user profile</param>
+            <param name="previousXp">The user's XP before the latest addition</param>
             <returns>The updated user profile</returns>
         </member>
     </members>

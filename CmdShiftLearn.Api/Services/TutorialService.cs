@@ -5,7 +5,7 @@ namespace CmdShiftLearn.Api.Services
     /// <summary>
     /// Service for managing tutorials
     /// </summary>
-    public class TutorialService
+    public class TutorialService : ITutorialService
     {
         private readonly ITutorialLoader _tutorialLoader;
         private readonly ILogger<TutorialService> _logger;
@@ -14,6 +14,9 @@ namespace CmdShiftLearn.Api.Services
         {
             _tutorialLoader = tutorialLoader;
             _logger = logger;
+            
+            _logger.LogInformation("TutorialService initialized with loader: {LoaderType}", 
+                tutorialLoader.GetType().Name);
         }
         
         /// <summary>
@@ -24,7 +27,13 @@ namespace CmdShiftLearn.Api.Services
         {
             try
             {
+                _logger.LogInformation("Getting all tutorial metadata using {LoaderType}", 
+                    _tutorialLoader.GetType().Name);
+                
                 var tutorials = await _tutorialLoader.GetAllTutorialMetadataAsync();
+                
+                _logger.LogInformation("Retrieved {Count} tutorials", tutorials?.Count() ?? 0);
+                
                 return tutorials;
             }
             catch (Exception ex)
@@ -43,7 +52,21 @@ namespace CmdShiftLearn.Api.Services
         {
             try
             {
+                _logger.LogInformation("Getting tutorial by ID: {Id} using {LoaderType}", 
+                    id, _tutorialLoader.GetType().Name);
+                
                 var tutorial = await _tutorialLoader.GetTutorialByIdAsync(id);
+                
+                if (tutorial != null)
+                {
+                    _logger.LogInformation("Retrieved tutorial: {Id}, Title: {Title}, Steps: {StepCount}", 
+                        tutorial.Id, tutorial.Title, tutorial.Steps?.Count ?? 0);
+                }
+                else
+                {
+                    _logger.LogWarning("Tutorial not found with ID: {Id}", id);
+                }
+                
                 return tutorial;
             }
             catch (Exception ex)

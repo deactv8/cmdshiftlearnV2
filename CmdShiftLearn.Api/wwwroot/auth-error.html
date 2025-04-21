@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #e74c3c;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .error-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .solution {
+            background-color: #f0f8ff;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Authentication Error</h1>
+    
+    <div class="error-box">
+        <h2>What happened?</h2>
+        <p>Your request could not be authenticated. This could be due to one of the following reasons:</p>
+        <ul>
+            <li>Your authentication token has expired</li>
+            <li>Your token is invalid or malformed</li>
+            <li>The server's authentication key has been rotated</li>
+            <li>You did not include an authentication token in your request</li>
+        </ul>
+    </div>
+    
+    <div class="solution">
+        <h2>How to fix it</h2>
+        <p>Here are some steps you can take to resolve this issue:</p>
+        <ol>
+            <li><strong>Log out and log back in</strong> to get a fresh authentication token</li>
+            <li>Make sure your request includes an <code>Authorization</code> header with the format <code>Bearer your-token-here</code></li>
+            <li>Check that your token hasn't expired (JWT tokens typically expire after a certain period)</li>
+            <li>If you're a developer, verify that the server's JWT secret is correctly configured</li>
+        </ol>
+    </div>
+    
+    <p>If you continue to experience issues, please contact support with the time and details of your request.</p>
+    
+    <a href="/" class="btn">Return to Home</a>
+</body>
+</html>

@@ -1,4 +1,5 @@
 using CmdShiftLearn.Api.Models;
+using CmdShiftLearn.Api.Helpers;
 using System.Text.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -146,12 +147,13 @@ namespace CmdShiftLearn.Api.Services
                 }
                 else if (fileExtension == ".yaml" || fileExtension == ".yml")
                 {
-                    // Parse YAML file
-                    var deserializer = new DeserializerBuilder()
-                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                        .Build();
+                    // Parse YAML file using our helper method
+                    tutorial = YamlHelpers.DeserializeTutorial(fileContent, _logger);
                     
-                    tutorial = deserializer.Deserialize<Tutorial>(fileContent);
+                    if (tutorial == null)
+                    {
+                        _logger.LogWarning("Failed to deserialize YAML tutorial from file: {File}", filePath);
+                    }
                 }
                 else
                 {

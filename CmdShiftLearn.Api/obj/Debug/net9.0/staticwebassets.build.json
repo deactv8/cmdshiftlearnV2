@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "US46hxu6FPrDpxoDMOsjM6d8A1MaAP+Mwi4+dVNklQ8=",
+  "Hash": "+xCRijrmqUL3lnz6O/5YBPT4q/j8HTCZ0qHGlaHs6Z0=",
   "Source": "CmdShiftLearn.Api",
   "BasePath": "_content/CmdShiftLearn.Api",
   "Mode": "Default",
@@ -16,6 +16,27 @@
     }
   ],
   "Assets": [
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\11hxk8yhe7-20nblhmc1b.gz",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "auth-error#[.{fingerprint=20nblhmc1b}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-error.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "mzdj7vkbze",
+      "Integrity": "bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-error.html"
+    },
     {
       "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
       "SourceId": "CmdShiftLearn.Api",
@@ -38,6 +59,90 @@
       "OriginalItemSpec": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html"
     },
     {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xcr8eown0y-ah5sx2g0k1.gz",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "tutorial-test#[.{fingerprint=ah5sx2g0k1}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\tutorial-test.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "clzbwwcm3q",
+      "Integrity": "EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\tutorial-test.html"
+    },
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xg8ei1utdl-n7s58qoxyf.gz",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "auth-test#[.{fingerprint=n7s58qoxyf}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-test.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "r8o2digrv8",
+      "Integrity": "xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-test.html"
+    },
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-error.html",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "auth-error#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "20nblhmc1b",
+      "Integrity": "MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\auth-error.html"
+    },
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-test.html",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "auth-test#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "n7s58qoxyf",
+      "Integrity": "E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\auth-test.html"
+    },
+    {
       "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\debug-jwt.html",
       "SourceId": "CmdShiftLearn.Api",
       "SourceType": "Discovered",
@@ -57,9 +162,626 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\debug-jwt.html"
+    },
+    {
+      "Identity": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\tutorial-test.html",
+      "SourceId": "CmdShiftLearn.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\",
+      "BasePath": "_content/CmdShiftLearn.Api",
+      "RelativePath": "tutorial-test#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "ah5sx2g0k1",
+      "Integrity": "vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\tutorial-test.html"
     }
   ],
   "Endpoints": [
+    {
+      "Route": "auth-error.20nblhmc1b.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\11hxk8yhe7-20nblhmc1b.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000967117988"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1033"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "20nblhmc1b"
+        },
+        {
+          "Name": "label",
+          "Value": "auth-error.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE="
+        }
+      ]
+    },
+    {
+      "Route": "auth-error.20nblhmc1b.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-error.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2790"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "20nblhmc1b"
+        },
+        {
+          "Name": "label",
+          "Value": "auth-error.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE="
+        }
+      ]
+    },
+    {
+      "Route": "auth-error.20nblhmc1b.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\11hxk8yhe7-20nblhmc1b.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1033"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "20nblhmc1b"
+        },
+        {
+          "Name": "label",
+          "Value": "auth-error.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk="
+        }
+      ]
+    },
+    {
+      "Route": "auth-error.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\11hxk8yhe7-20nblhmc1b.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000967117988"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1033"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE="
+        }
+      ]
+    },
+    {
+      "Route": "auth-error.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-error.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2790"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-MsKKmcV2LJgV4UtD0I/9UyEB9QDX4SV2CDJFg/kckUE="
+        }
+      ]
+    },
+    {
+      "Route": "auth-error.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\11hxk8yhe7-20nblhmc1b.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1033"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-bu9fFZoNMweWLiSMrgcwtkvXRD9OqTUlNTVcNmKf2Fk="
+        }
+      ]
+    },
+    {
+      "Route": "auth-test.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xg8ei1utdl-n7s58qoxyf.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000824402308"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1212"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c="
+        }
+      ]
+    },
+    {
+      "Route": "auth-test.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-test.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5669"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c="
+        }
+      ]
+    },
+    {
+      "Route": "auth-test.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xg8ei1utdl-n7s58qoxyf.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1212"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU="
+        }
+      ]
+    },
+    {
+      "Route": "auth-test.n7s58qoxyf.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xg8ei1utdl-n7s58qoxyf.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000824402308"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1212"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "n7s58qoxyf"
+        },
+        {
+          "Name": "label",
+          "Value": "auth-test.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c="
+        }
+      ]
+    },
+    {
+      "Route": "auth-test.n7s58qoxyf.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\auth-test.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5669"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "n7s58qoxyf"
+        },
+        {
+          "Name": "label",
+          "Value": "auth-test.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-E47D8y6+jY5pozJWMxVAO2Ofohb4jzXRGP6H81V8Z0c="
+        }
+      ]
+    },
+    {
+      "Route": "auth-test.n7s58qoxyf.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xg8ei1utdl-n7s58qoxyf.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1212"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "n7s58qoxyf"
+        },
+        {
+          "Name": "label",
+          "Value": "auth-test.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-xaNwX5RWCpePeyxUcr1C1Fvdj/u6Vr853Xpo4pc7fYU="
+        }
+      ]
+    },
     {
       "Route": "debug-jwt.8y555m3ir4.html",
       "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\ewqxg9a5zw-8y555m3ir4.gz",
@@ -355,6 +1077,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-0QlfztrMJPbqLzn17gECslqB2/dCb8K4N27Ky44CvM0="
+        }
+      ]
+    },
+    {
+      "Route": "tutorial-test.ah5sx2g0k1.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xcr8eown0y-ah5sx2g0k1.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000815660685"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1225"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ah5sx2g0k1"
+        },
+        {
+          "Name": "label",
+          "Value": "tutorial-test.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU="
+        }
+      ]
+    },
+    {
+      "Route": "tutorial-test.ah5sx2g0k1.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\tutorial-test.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4153"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ah5sx2g0k1"
+        },
+        {
+          "Name": "label",
+          "Value": "tutorial-test.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU="
+        }
+      ]
+    },
+    {
+      "Route": "tutorial-test.ah5sx2g0k1.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xcr8eown0y-ah5sx2g0k1.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1225"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ah5sx2g0k1"
+        },
+        {
+          "Name": "label",
+          "Value": "tutorial-test.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic="
+        }
+      ]
+    },
+    {
+      "Route": "tutorial-test.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xcr8eown0y-ah5sx2g0k1.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000815660685"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1225"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU="
+        }
+      ]
+    },
+    {
+      "Route": "tutorial-test.html",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\wwwroot\\tutorial-test.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4153"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-vhPgKSM4IkwEVmqayF4J28SM2WJawLVdImjTsVPk2pU="
+        }
+      ]
+    },
+    {
+      "Route": "tutorial-test.html.gz",
+      "AssetFile": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\obj\\Debug\\net9.0\\compressed\\xcr8eown0y-ah5sx2g0k1.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1225"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 20 Apr 2025 18:45:38 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-EJcFDA1WcZast14H1WXXVyF+NCovcCS65SGbRgOFiic="
         }
       ]
     }

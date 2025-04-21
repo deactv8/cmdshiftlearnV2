@@ -2,12 +2,11 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
-COPY ["CmdShiftLearn.Api/CmdShiftLearn.Api.csproj", "CmdShiftLearn.Api/"]
-RUN dotnet restore "CmdShiftLearn.Api/CmdShiftLearn.Api.csproj"
+COPY ["CmdShiftLearn.Api.csproj", "CmdShiftLearn.Api.csproj"]
+RUN dotnet restore "CmdShiftLearn.Api.csproj"
 
 # Copy the rest of the code
 COPY . .
-WORKDIR "/src/CmdShiftLearn.Api"
 
 # Build and publish
 RUN dotnet build "CmdShiftLearn.Api.csproj" -c Release -o /app/build

@@ -3,7 +3,7 @@ services:
     name: cmdshiftlearn-api
     env: docker
     dockerfilePath: ./CmdShiftLearn.Api/Dockerfile
-    dockerContext: .
+    dockerContext: ./CmdShiftLearn.Api
     plan: starter
     healthCheckPath: /health
     envVars:

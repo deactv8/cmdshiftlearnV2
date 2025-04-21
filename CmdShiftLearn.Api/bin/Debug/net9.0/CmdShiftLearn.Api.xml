@@ -169,7 +169,7 @@
              <summary>
              Processes a user's input for a specific step in an interactive tutorial
              </summary>
-             <param name="request">The request containing tutorial ID, step index, and user input</param>
+             <param name="request">The request containing tutorial ID, step index, user input, and optional requestHint flag</param>
              <remarks>
              Sample request:
             
@@ -177,7 +177,18 @@
                  {
                    "tutorialId": "powershell-basics-1",
                    "stepIndex": 0,
-                   "userInput": "Write-Host \"Hello, PowerShell!\""
+                   "userInput": "Write-Host \"Hello, PowerShell!\"",
+                   "requestHint": false
+                 }
+            
+             Sample request with hint:
+            
+                 POST /api/tutorials/run-step
+                 {
+                   "tutorialId": "powershell-basics-1",
+                   "stepIndex": 2,
+                   "userInput": "Write-Host 'hi'",
+                   "requestHint": true
                  }
             
              Sample response (correct):
@@ -186,6 +197,7 @@
                    "isCorrect": true,
                    "message": "Great job! That's the correct command.",
                    "hint": null,
+                   "hintFromShello": null,
                    "nextStepIndex": 1,
                    "isComplete": false
                  }
@@ -196,6 +208,18 @@
                    "isCorrect": false,
                    "message": "That's not quite right. Try again!",
                    "hint": "Make sure to use Write-Host with proper quotes.",
+                   "hintFromShello": null,
+                   "nextStepIndex": null,
+                   "isComplete": false
+                 }
+            
+             Sample response (incorrect with Shello hint):
+            
+                 {
+                   "isCorrect": false,
+                   "message": "That's not quite right. Try again!",
+                   "hint": "Make sure to use Write-Host with proper quotes.",
+                   "hintFromShello": "It looks like you're close! Remember to use double quotes and match the expected phrase exactly.",
                    "nextStepIndex": null,
                    "isComplete": false
                  }
@@ -206,6 +230,7 @@
                    "isCorrect": true,
                    "message": "Congratulations! You've completed the tutorial.",
                    "hint": null,
+                   "hintFromShello": null,
                    "nextStepIndex": null,
                    "isComplete": true
                  }
@@ -710,6 +735,11 @@
             The user's input command or code
             </summary>
         </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepRequest.RequestHint">
+            <summary>
+            Whether to request a hint from Shello
+            </summary>
+        </member>
         <member name="T:CmdShiftLearn.Api.Models.RunTutorialStepResponse">
             <summary>
             Response model for the result of running a tutorial step
@@ -728,6 +758,11 @@
         <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.Hint">
             <summary>
             Hint to help the user if they got it wrong
+            </summary>
+        </member>
+        <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.HintFromShello">
+            <summary>
+            AI-generated hint from Shello if requested
             </summary>
         </member>
         <member name="P:CmdShiftLearn.Api.Models.RunTutorialStepResponse.NextStepIndex">

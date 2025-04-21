@@ -10,11 +10,16 @@ namespace CmdShiftLearn.Api.Controllers
     public class TutorialsController : ControllerBase
     {
         private readonly ITutorialService _tutorialService;
+        private readonly IShelloService _shelloService;
         private readonly ILogger<TutorialsController> _logger;
         
-        public TutorialsController(ITutorialService tutorialService, ILogger<TutorialsController> logger)
+        public TutorialsController(
+            ITutorialService tutorialService, 
+            IShelloService shelloService,
+            ILogger<TutorialsController> logger)
         {
             _tutorialService = tutorialService;
+            _shelloService = shelloService;
             _logger = logger;
         }
         
@@ -119,7 +124,7 @@ namespace CmdShiftLearn.Api.Controllers
         /// <summary>
         /// Processes a user's input for a specific step in an interactive tutorial
         /// </summary>
-        /// <param name="request">The request containing tutorial ID, step index, and user input</param>
+        /// <param name="request">The request containing tutorial ID, step index, user input, and optional requestHint flag</param>
         /// <remarks>
         /// Sample request:
         ///
@@ -127,7 +132,18 @@ namespace CmdShiftLearn.Api.Controllers
         ///     {
         ///       "tutorialId": "powershell-basics-1",
         ///       "stepIndex": 0,
-        ///       "userInput": "Write-Host \"Hello, PowerShell!\""
+        ///       "userInput": "Write-Host \"Hello, PowerShell!\"",
+        ///       "requestHint": false
+        ///     }
+        ///
+        /// Sample request with hint:
+        ///
+        ///     POST /api/tutorials/run-step
+        ///     {
+        ///       "tutorialId": "powershell-basics-1",
+        ///       "stepIndex": 2,
+        ///       "userInput": "Write-Host 'hi'",
+        ///       "requestHint": true
         ///     }
         ///
         /// Sample response (correct):
@@ -136,6 +152,7 @@ namespace CmdShiftLearn.Api.Controllers
         ///       "isCorrect": true,
         ///       "message": "Great job! That's the correct command.",
         ///       "hint": null,
+        ///       "hintFromShello": null,
         ///       "nextStepIndex": 1,
         ///       "isComplete": false
         ///     }
@@ -146,6 +163,18 @@ namespace CmdShiftLearn.Api.Controllers
         ///       "isCorrect": false,
         ///       "message": "That's not quite right. Try again!",
         ///       "hint": "Make sure to use Write-Host with proper quotes.",
+        ///       "hintFromShello": null,
+        ///       "nextStepIndex": null,
+        ///       "isComplete": false
+        ///     }
+        ///
+        /// Sample response (incorrect with Shello hint):
+        ///
+        ///     {
+        ///       "isCorrect": false,
+        ///       "message": "That's not quite right. Try again!",
+        ///       "hint": "Make sure to use Write-Host with proper quotes.",
+        ///       "hintFromShello": "It looks like you're close! Remember to use double quotes and match the expected phrase exactly.",
         ///       "nextStepIndex": null,
         ///       "isComplete": false
         ///     }
@@ -156,6 +185,7 @@ namespace CmdShiftLearn.Api.Controllers
         ///       "isCorrect": true,
         ///       "message": "Congratulations! You've completed the tutorial.",
         ///       "hint": null,
+        ///       "hintFromShello": null,
         ///       "nextStepIndex": null,
         ///       "isComplete": true
         ///     }
@@ -274,6 +304,37 @@ namespace CmdShiftLearn.Api.Controllers
                 {
                     response.Message = "That's not quite right. Try again!";
                     response.Hint = currentStep.Hint;
+                }
+                
+                // If a hint from Shello was requested, get it
+                if (request.RequestHint)
+                {
+                    _logger.LogInformation("Requesting hint from Shello for tutorial: {TutorialId}, step: {StepId}", 
+                        request.TutorialId, currentStep.Id);
+                    
+                    try
+                    {
+                        // Get hint from Shello
+                        string hintFromShello = await _shelloService.GetHintFromShelloAsync(
+                            request.TutorialId,
+                            currentStep.Id,
+                            request.UserInput,
+                            response.Hint);
+                        
+                        // Add the hint to the response
+                        response.HintFromShello = hintFromShello;
+                        
+                        _logger.LogInformation("Successfully added Shello hint to response for tutorial: {TutorialId}, step: {StepId}", 
+                            request.TutorialId, currentStep.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error getting hint from Shello for tutorial: {TutorialId}, step: {StepId}", 
+                            request.TutorialId, currentStep.Id);
+                        
+                        // Don't fail the whole request if Shello hint fails
+                        response.HintFromShello = "I'm having trouble thinking of a hint right now. Please try again later.";
+                    }
                 }
                 
                 return Ok(response);

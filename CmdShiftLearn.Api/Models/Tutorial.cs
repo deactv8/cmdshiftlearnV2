@@ -143,6 +143,11 @@ namespace CmdShiftLearn.Api.Models
         /// The user's input command or code
         /// </summary>
         public string UserInput { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Whether to request a hint from Shello
+        /// </summary>
+        public bool RequestHint { get; set; } = false;
     }
     
     /// <summary>
@@ -164,6 +169,11 @@ namespace CmdShiftLearn.Api.Models
         /// Hint to help the user if they got it wrong
         /// </summary>
         public string? Hint { get; set; }
+        
+        /// <summary>
+        /// AI-generated hint from Shello if requested
+        /// </summary>
+        public string? HintFromShello { get; set; }
         
         /// <summary>
         /// The index of the next step (null if this was the last step)

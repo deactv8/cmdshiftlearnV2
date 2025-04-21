@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: cmdshiftlearn-api
+    env: docker
+    dockerfilePath: ./CmdShiftLearn.Api/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Supabase__Url
+        sync: false
+      - key: Supabase__ApiKey
+        sync: false
+      - key: Supabase__JwtSecret
+        sync: false
+      - key: GitHub__AccessToken
+        sync: false
+      - key: AllowedOrigins
+        value: "*"
+    autoDeploy: true

@@ -34,8 +34,21 @@ namespace CmdShiftLearn.Api.Services
             var token = configuration["GitHub:AccessToken"];
             if (!string.IsNullOrEmpty(token))
             {
-                _gitHubClient.Credentials = new Credentials(token);
-                _logger.LogInformation("GitHub client initialized with authentication token");
+                try
+                {
+                    _gitHubClient.Credentials = new Credentials(token);
+                    _logger.LogInformation("GitHub client initialized with authentication token (length: {Length})", token.Length);
+                    
+                    // Test the token by making a simple API call
+                    var user = _gitHubClient.User.Current().GetAwaiter().GetResult();
+                    _logger.LogInformation("GitHub token validated successfully. Authenticated as: {User}", user.Login);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error validating GitHub token. Token may be invalid or have insufficient permissions.");
+                    // Continue with unauthenticated access as fallback
+                    _gitHubClient.Credentials = null;
+                }
             }
             else
             {
@@ -254,33 +267,39 @@ namespace CmdShiftLearn.Api.Services
                 
                 _logger.LogInformation("No direct file match found for ID: {Id}, searching all files", id);
                 
-                // If no direct match, search all files for a tutorial with the given ID
-                var contents = await _gitHubClient.Repository.Content.GetAllContents(
-                    _owner, _repo, _tutorialsPath);
-                
-                _logger.LogDebug("Found {Count} files in tutorials directory", contents.Count);
-                
-                foreach (var content in contents)
-                {
-                    // Skip directories and non-JSON/YAML files
-                    if (content.Type == ContentType.Dir || 
-                        (!content.Name.EndsWith(".json") && 
-                         !content.Name.EndsWith(".yaml") && 
-                         !content.Name.EndsWith(".yml")))
-                    {
-                        continue;
-                    }
+                try {
+                    // If no direct match, search all files for a tutorial with the given ID
+                    var contents = await _gitHubClient.Repository.Content.GetAllContents(
+                        _owner, _repo, _tutorialsPath);
                     
-                    _logger.LogDebug("Checking file for matching ID: {Path}", content.Path);
-                    var tutorial = await LoadTutorialFromGitHubAsync(content.Path);
-                    if (tutorial != null && tutorial.Id == id)
+                    _logger.LogDebug("Found {Count} files in tutorials directory", contents.Count);
+                    
+                    foreach (var content in contents)
                     {
-                        _logger.LogInformation("Found matching tutorial in file: {Path}", content.Path);
-                        return tutorial;
+                        // Skip directories and non-JSON/YAML files
+                        if (content.Type == ContentType.Dir || 
+                            (!content.Name.EndsWith(".json") && 
+                             !content.Name.EndsWith(".yaml") && 
+                             !content.Name.EndsWith(".yml")))
+                        {
+                            continue;
+                        }
+                        
+                        _logger.LogDebug("Checking file for matching ID: {Path}", content.Path);
+                        var tutorial = await LoadTutorialFromGitHubAsync(content.Path);
+                        if (tutorial != null && tutorial.Id == id)
+                        {
+                            _logger.LogInformation("Found matching tutorial in file: {Path}", content.Path);
+                            return tutorial;
+                        }
                     }
                 }
+                catch (Exception ex) {
+                    _logger.LogError(ex, "Error searching all files in GitHub repository: {Owner}/{Repo}/{Path}", 
+                        _owner, _repo, _tutorialsPath);
+                }
                 
-                _logger.LogWarning("No tutorial found with ID: {Id}", id);
+                _logger.LogWarning("No tutorial found with ID: {Id} in GitHub repository", id);
             }
             catch (Exception ex)
             {
@@ -302,20 +321,50 @@ namespace CmdShiftLearn.Api.Services
                 _logger.LogInformation("Fetching content from GitHub: {Path}", path);
                 
                 // Get the file content from GitHub
-                var fileContent = await _gitHubClient.Repository.Content.GetRawContent(
-                    _owner, _repo, path);
+                byte[] fileContent;
+                try
+                {
+                    fileContent = await _gitHubClient.Repository.Content.GetRawContent(
+                        _owner, _repo, path);
+                    
+                    _logger.LogInformation("Successfully fetched {Length} bytes from {Path}", fileContent.Length, path);
+                }
+                catch (NotFoundException ex)
+                {
+                    _logger.LogWarning("File not found on GitHub: {Path}. Error: {Message}", path, ex.Message);
+                    return null;
+                }
+                catch (RateLimitExceededException ex)
+                {
+                    _logger.LogError("GitHub API rate limit exceeded. Reset at: {ResetTime}. Error: {Message}", 
+                        ex.Reset, ex.Message);
+                    return null;
+                }
+                catch (AuthorizationException ex)
+                {
+                    _logger.LogError("GitHub authorization error: {Message}. Check your access token.", ex.Message);
+                    return null;
+                }
+                catch (ApiException ex)
+                {
+                    _logger.LogError("GitHub API error: {StatusCode} - {Message}", ex.StatusCode, ex.Message);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unexpected error fetching content from GitHub: {Path}", path);
+                    return null;
+                }
                 
                 var fileExtension = Path.GetExtension(path).ToLowerInvariant();
                 var content = System.Text.Encoding.UTF8.GetString(fileContent);
-                
-                _logger.LogInformation("Successfully fetched {Length} bytes from {Path}", fileContent.Length, path);
                 
                 // Temporarily log the raw content (first 500 chars max)
                 var contentPreview = content.Length <= 500 ? content : content.Substring(0, 500) + "...";
                 _logger.LogInformation("=== RAW CONTENT PREVIEW FOR {Path} ===\n{Content}\n=== END OF CONTENT PREVIEW ===", 
                     path, contentPreview);
                 
-                Tutorial? tutorial;
+                Tutorial? tutorial = null;
                 
                 if (fileExtension == ".json")
                 {
@@ -371,12 +420,31 @@ namespace CmdShiftLearn.Api.Services
                     return null;
                 }
                 
+                // Ensure required fields are set
+                if (string.IsNullOrEmpty(tutorial.Id))
+                {
+                    _logger.LogWarning("Tutorial ID is missing in {Path}", path);
+                    tutorial.Id = Path.GetFileNameWithoutExtension(path);
+                }
+                
+                if (string.IsNullOrEmpty(tutorial.Title))
+                {
+                    _logger.LogWarning("Tutorial Title is missing in {Path}", path);
+                    tutorial.Title = tutorial.Id;
+                }
+                
+                if (tutorial.Steps == null)
+                {
+                    _logger.LogWarning("Tutorial Steps is null in {Path}", path);
+                    tutorial.Steps = new List<TutorialStep>();
+                }
+                
                 // Log successful deserialization with detailed information
                 _logger.LogInformation("Successfully deserialized tutorial: {Id}, Title: {Title}, Steps: {StepCount}", 
-                    tutorial.Id, tutorial.Title, tutorial.Steps?.Count ?? 0);
+                    tutorial.Id, tutorial.Title, tutorial.Steps.Count);
                 
                 // Log details about steps if present
-                if (tutorial.Steps != null && tutorial.Steps.Count > 0)
+                if (tutorial.Steps.Count > 0)
                 {
                     _logger.LogInformation("Tutorial {Id} has {Count} steps:", tutorial.Id, tutorial.Steps.Count);
                     for (int i = 0; i < tutorial.Steps.Count; i++)
@@ -388,11 +456,13 @@ namespace CmdShiftLearn.Api.Services
                 }
                 else
                 {
-                    _logger.LogInformation("Tutorial {Id} has no steps (Steps array is empty or null)", tutorial.Id);
+                    _logger.LogInformation("Tutorial {Id} has no steps (Steps array is empty)", tutorial.Id);
                 }
                 
                 // If content is a file path, load the content from GitHub
-                if (tutorial.Content.EndsWith(".ps1") && !tutorial.Content.Contains("\n"))
+                if (!string.IsNullOrEmpty(tutorial.Content) && 
+                    tutorial.Content.EndsWith(".ps1") && 
+                    !tutorial.Content.Contains("\n"))
                 {
                     var contentPath = tutorial.Content;
                     if (!Path.IsPathRooted(contentPath))
@@ -415,31 +485,11 @@ namespace CmdShiftLearn.Api.Services
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, "Tutorial content file not found on GitHub: {ContentPath}", contentPath);
+                        // Don't fail if content file is missing, just leave the content as is
                     }
                 }
                 
                 return tutorial;
-            }
-            catch (NotFoundException ex)
-            {
-                _logger.LogError("File not found on GitHub: {Path}. Error: {Message}", path, ex.Message);
-                return null;
-            }
-            catch (RateLimitExceededException ex)
-            {
-                _logger.LogError("GitHub API rate limit exceeded. Reset at: {ResetTime}. Error: {Message}", 
-                    ex.Reset, ex.Message);
-                return null;
-            }
-            catch (AuthorizationException ex)
-            {
-                _logger.LogError("GitHub authorization error: {Message}. Check your access token.", ex.Message);
-                return null;
-            }
-            catch (ApiException ex)
-            {
-                _logger.LogError("GitHub API error: {StatusCode} - {Message}", ex.StatusCode, ex.Message);
-                return null;
             }
             catch (Exception ex)
             {

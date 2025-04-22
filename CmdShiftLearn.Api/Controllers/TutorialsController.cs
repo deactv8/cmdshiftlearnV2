@@ -95,29 +95,63 @@ namespace CmdShiftLearn.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Tutorial>> GetTutorialById(string id)
         {
             try
             {
                 _logger.LogInformation("API Request: GET /api/tutorials/{Id}", id);
                 
-                var tutorial = await _tutorialService.GetTutorialByIdAsync(id);
-                
-                if (tutorial == null)
+                if (string.IsNullOrWhiteSpace(id))
                 {
-                    _logger.LogWarning("Tutorial not found: {Id}", id);
-                    return NotFound();
+                    _logger.LogWarning("Invalid tutorial ID: null or empty");
+                    return BadRequest("Tutorial ID cannot be null or empty");
                 }
                 
-                _logger.LogInformation("Returning tutorial: {Id}, Title: {Title}, Steps: {StepCount}", 
-                    tutorial.Id, tutorial.Title, tutorial.Steps?.Count ?? 0);
-                
-                return Ok(tutorial);
+                try
+                {
+                    var tutorial = await _tutorialService.GetTutorialByIdAsync(id);
+                    
+                    if (tutorial == null)
+                    {
+                        _logger.LogWarning("Tutorial not found: {Id}", id);
+                        return NotFound(new { message = $"Tutorial with ID '{id}' not found" });
+                    }
+                    
+                    // Validate tutorial has required fields
+                    if (string.IsNullOrEmpty(tutorial.Id))
+                    {
+                        _logger.LogWarning("Tutorial has no ID: {Id}", id);
+                        tutorial.Id = id;
+                    }
+                    
+                    if (string.IsNullOrEmpty(tutorial.Title))
+                    {
+                        _logger.LogWarning("Tutorial has no title: {Id}", id);
+                        tutorial.Title = "Untitled Tutorial";
+                    }
+                    
+                    if (tutorial.Steps == null)
+                    {
+                        _logger.LogWarning("Tutorial has null Steps collection: {Id}", id);
+                        tutorial.Steps = new List<TutorialStep>();
+                    }
+                    
+                    _logger.LogInformation("Returning tutorial: {Id}, Title: {Title}, Steps: {StepCount}", 
+                        tutorial.Id, tutorial.Title, tutorial.Steps.Count);
+                    
+                    return Ok(tutorial);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in tutorial service when getting tutorial by ID: {Id}", id);
+                    return StatusCode(500, new { message = "An error occurred in the tutorial service", error = ex.Message });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting tutorial by ID: {Id}", id);
-                return StatusCode(500, "An error occurred while retrieving the tutorial");
+                _logger.LogError(ex, "Unhandled error getting tutorial by ID: {Id}", id);
+                return StatusCode(500, new { message = "An unhandled error occurred while retrieving the tutorial", error = ex.Message });
             }
         }
         

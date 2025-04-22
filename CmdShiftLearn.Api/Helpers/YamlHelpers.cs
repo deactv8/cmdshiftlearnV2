@@ -18,6 +18,12 @@ namespace CmdShiftLearn.Api.Helpers
         /// <returns>The deserialized Tutorial object</returns>
         public static Tutorial? DeserializeTutorial(string yamlContent, ILogger? logger = null)
         {
+            if (string.IsNullOrWhiteSpace(yamlContent))
+            {
+                logger?.LogWarning("YAML content is null or empty");
+                return null;
+            }
+            
             try
             {
                 // Log the first 500 characters of the YAML content for debugging
@@ -30,12 +36,22 @@ namespace CmdShiftLearn.Api.Helpers
                     .IgnoreUnmatchedProperties()
                     .Build();
                 
-                // Parse the YAML as a dictionary first for more control
-                var yamlObject = deserializer.Deserialize<Dictionary<string, object>>(yamlContent);
+                Dictionary<string, object>? yamlObject;
+                
+                try
+                {
+                    // Parse the YAML as a dictionary first for more control
+                    yamlObject = deserializer.Deserialize<Dictionary<string, object>>(yamlContent);
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, "Failed to deserialize YAML to dictionary. YAML content:\n{Content}", contentPreview);
+                    return null;
+                }
                 
                 if (yamlObject == null)
                 {
-                    logger?.LogWarning("Failed to deserialize YAML to dictionary");
+                    logger?.LogWarning("Failed to deserialize YAML to dictionary (result was null)");
                     return null;
                 }
                 
@@ -52,14 +68,22 @@ namespace CmdShiftLearn.Api.Helpers
                 if (yamlObject.TryGetValue("description", out var description) && description != null)
                     tutorial.Description = description.ToString() ?? string.Empty;
                 
-                if (yamlObject.TryGetValue("xp", out var xp) && xp != null && int.TryParse(xp.ToString(), out var xpValue))
-                    tutorial.Xp = xpValue;
+                if (yamlObject.TryGetValue("xp", out var xp) && xp != null)
+                {
+                    if (int.TryParse(xp.ToString(), out var xpValue))
+                        tutorial.Xp = xpValue;
+                    else
+                        logger?.LogWarning("Failed to parse XP value: {Value}", xp);
+                }
                 
                 if (yamlObject.TryGetValue("difficulty", out var difficulty) && difficulty != null)
                     tutorial.Difficulty = difficulty.ToString() ?? string.Empty;
                 
                 if (yamlObject.TryGetValue("content", out var content) && content != null)
                     tutorial.Content = content.ToString() ?? string.Empty;
+                
+                // Initialize steps list
+                tutorial.Steps = new List<TutorialStep>();
                 
                 // Process steps if they exist
                 if (yamlObject.TryGetValue("steps", out var stepsObj) && stepsObj != null)
@@ -77,8 +101,6 @@ namespace CmdShiftLearn.Api.Helpers
                         
                         if (stepDicts != null && stepDicts.Count > 0)
                         {
-                            var steps = new List<TutorialStep>();
-                            
                             foreach (var stepDict in stepDicts)
                             {
                                 var step = new TutorialStep();
@@ -90,12 +112,16 @@ namespace CmdShiftLearn.Api.Helpers
                                 if (stepDict.TryGetValue("title", out var stepTitle) && stepTitle != null)
                                     step.Title = stepTitle.ToString() ?? string.Empty;
                                 
-                                // Map 'instruction' to 'Instructions'
-                                if (stepDict.TryGetValue("instruction", out var instruction) && instruction != null)
+                                // Map 'instructions' or 'instruction' to 'Instructions'
+                                if (stepDict.TryGetValue("instructions", out var instructions) && instructions != null)
+                                    step.Instructions = instructions.ToString() ?? string.Empty;
+                                else if (stepDict.TryGetValue("instruction", out var instruction) && instruction != null)
                                     step.Instructions = instruction.ToString() ?? string.Empty;
                                 
-                                // Map 'command' to 'ExpectedCommand'
-                                if (stepDict.TryGetValue("command", out var command) && command != null)
+                                // Map 'expectedCommand' or 'command' to 'ExpectedCommand'
+                                if (stepDict.TryGetValue("expectedCommand", out var expectedCommand) && expectedCommand != null)
+                                    step.ExpectedCommand = expectedCommand.ToString() ?? string.Empty;
+                                else if (stepDict.TryGetValue("command", out var command) && command != null)
                                     step.ExpectedCommand = command.ToString() ?? string.Empty;
                                 
                                 if (stepDict.TryGetValue("hint", out var hint) && hint != null)
@@ -104,20 +130,44 @@ namespace CmdShiftLearn.Api.Helpers
                                 // Process validation if it exists
                                 if (stepDict.TryGetValue("validation", out var validationObj) && validationObj != null)
                                 {
-                                    var validationJson = JsonSerializer.Serialize(validationObj);
-                                    var validation = JsonSerializer.Deserialize<ValidationRule>(validationJson);
-                                    
-                                    if (validation != null)
+                                    try
                                     {
-                                        step.Validation = validation;
+                                        var validationJson = JsonSerializer.Serialize(validationObj);
+                                        logger?.LogDebug("Validation JSON: {Json}", validationJson);
+                                        
+                                        var validation = JsonSerializer.Deserialize<ValidationRule>(validationJson);
+                                        
+                                        if (validation != null)
+                                        {
+                                            step.Validation = validation;
+                                            logger?.LogDebug("Successfully mapped validation rule: Type={Type}, Value={Value}", 
+                                                validation.Type, validation.Value);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        logger?.LogWarning(ex, "Error deserializing validation rule");
                                     }
                                 }
                                 
-                                steps.Add(step);
+                                // Ensure required fields have at least empty values
+                                step.Id ??= string.Empty;
+                                step.Title ??= string.Empty;
+                                step.Instructions ??= string.Empty;
+                                step.ExpectedCommand ??= string.Empty;
+                                
+                                // Log step details for debugging
+                                logger?.LogDebug("Mapped step: Id={Id}, Title={Title}, Instructions={InstructionsLength}, ExpectedCommand={Command}",
+                                    step.Id, step.Title, step.Instructions.Length, step.ExpectedCommand);
+                                
+                                tutorial.Steps.Add(step);
                             }
                             
-                            logger?.LogDebug("Successfully mapped {Count} steps", steps.Count);
-                            tutorial.Steps = steps;
+                            logger?.LogDebug("Successfully mapped {Count} steps", tutorial.Steps.Count);
+                        }
+                        else
+                        {
+                            logger?.LogWarning("Steps array was empty or null after deserialization");
                         }
                     }
                     catch (Exception ex)
@@ -125,9 +175,13 @@ namespace CmdShiftLearn.Api.Helpers
                         logger?.LogWarning(ex, "Error processing steps from YAML");
                     }
                 }
+                else
+                {
+                    logger?.LogWarning("No 'steps' key found in YAML dictionary");
+                }
                 
                 logger?.LogDebug("Successfully deserialized tutorial: {Id}, Title: {Title}, Steps: {StepCount}", 
-                    tutorial.Id, tutorial.Title, tutorial.Steps?.Count ?? 0);
+                    tutorial.Id, tutorial.Title, tutorial.Steps.Count);
                 
                 return tutorial;
             }

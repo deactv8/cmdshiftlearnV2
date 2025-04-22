@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Microsoft.Extensions.Hosting;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
@@ -36,20 +36,44 @@ var tutorialCommand = new Command("tutorial", "Run an interactive tutorial")
 
 tutorialCommand.SetHandler(async (string tutorialId, string apiBase, bool verbose) =>
 {
-    var client = new HttpClient { BaseAddress = new Uri(apiBase) };
-    Tutorial? tutorial;
+    // Create HttpClient using the factory
+    var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
+    var client = httpClientFactory.CreateClient("CmdApi");
     
-    try
+    // Override the base address if provided
+    if (!string.IsNullOrEmpty(apiBase) && apiBase != client.BaseAddress?.ToString())
     {
         if (verbose)
         {
-            Console.WriteLine($"🔍 Fetching tutorial with ID: {tutorialId} from {apiBase}");
+            Console.WriteLine($"🔄 Using custom API base URL: {apiBase}");
+        }
+        client.BaseAddress = new Uri(apiBase);
+    }
+    
+    if (verbose)
+    {
+        Console.WriteLine($"🔄 Fetching tutorial from API: {client.BaseAddress}api/tutorials/{tutorialId}");
+    }
+    
+    // Fetch the tutorial from the API
+    Tutorial? tutorial;
+    try
+    {
+        var response = await client.GetAsync($"api/tutorials/{tutorialId}");
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"⚠️ API returned status code: {(int)response.StatusCode} {response.StatusCode}");
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error details: {errorContent}");
+            return;
         }
         
-        tutorial = await client.GetFromJsonAsync<Tutorial>($"api/tutorials/{tutorialId}");
-        if (tutorial?.Steps == null || tutorial.Steps.Count == 0)
+        tutorial = await response.Content.ReadFromJsonAsync<Tutorial>();
+        
+        if (tutorial == null)
         {
-            Console.WriteLine("⚠️ This tutorial has no interactive steps.");
+            Console.WriteLine("⚠️ Failed to deserialize tutorial from API response.");
             return;
         }
         
@@ -57,16 +81,22 @@ tutorialCommand.SetHandler(async (string tutorialId, string apiBase, bool verbos
         {
             Console.WriteLine($"✅ Successfully loaded tutorial: {tutorial.Title}");
             Console.WriteLine($"📋 Description: {tutorial.Description}");
-            Console.WriteLine($"🔢 Number of steps: {tutorial.Steps.Count}");
+            Console.WriteLine($"🔢 Number of steps: {tutorial.Steps?.Count ?? 0}");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Failed to load tutorial '{tutorialId}': {ex.Message}");
+        Console.WriteLine($"💥 Error fetching tutorial: {ex.Message}");
         if (verbose)
         {
             Console.WriteLine($"Exception details: {ex}");
         }
+        return;
+    }
+    
+    if (tutorial?.Steps == null || tutorial.Steps.Count == 0)
+    {
+        Console.WriteLine("⚠️ This tutorial has no interactive steps.");
         return;
     }
 
@@ -77,42 +107,38 @@ tutorialCommand.SetHandler(async (string tutorialId, string apiBase, bool verbos
         Console.Write("> ");
         var input = Console.ReadLine() ?? string.Empty;
 
-        var response = await client.PostAsJsonAsync("/api/tutorials/run-step", new
-        {
-            tutorialId = tutorial.Id,
-            stepIndex = i,
-            userInput = input,
-            requestHint = true
-        });
-
         if (verbose)
         {
-            Console.WriteLine($"📤 Sending step {i+1} response to server...");
-        }
-
-        if (!response.IsSuccessStatusCode)
-        {
-            Console.WriteLine($"❌ Server returned error: {(int)response.StatusCode} {response.ReasonPhrase}");
-            var raw = await response.Content.ReadAsStringAsync();
-            if (verbose || response.StatusCode >= System.Net.HttpStatusCode.InternalServerError)
-            {
-                Console.WriteLine($"Raw response:\n{raw}");
-            }
-            break;
+            Console.WriteLine($"📤 Sending step {i+1} to API...");
         }
 
         try
         {
-            var content = await response.Content.ReadAsStringAsync();
-            if (verbose)
+            // Send the user input to the API
+            var stepRequest = new
             {
-                Console.WriteLine($"📥 Raw server response:\n{content}");
+                TutorialId = tutorialId,
+                StepIndex = i,
+                UserInput = input,
+                RequestHint = false
+            };
+            
+            var response = await client.PostAsJsonAsync("api/tutorials/run-step", stepRequest);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"⚠️ API returned status code: {(int)response.StatusCode} {response.StatusCode}");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error details: {errorContent}");
+                continue;
             }
             
-            var result = System.Text.Json.JsonSerializer.Deserialize<StepResult>(content, new System.Text.Json.JsonSerializerOptions
+            var result = await response.Content.ReadFromJsonAsync<StepResult>();
+            
+            if (verbose)
             {
-                PropertyNameCaseInsensitive = true
-            });
+                Console.WriteLine($"📥 API response: IsCorrect={result?.IsCorrect}, IsComplete={result?.IsComplete}");
+            }
             
             if (result == null)
             {
@@ -132,12 +158,16 @@ tutorialCommand.SetHandler(async (string tutorialId, string apiBase, bool verbos
                 Console.WriteLine("\n🎉 You've completed the tutorial!");
                 break;
             }
+            
+            // If correct but not complete, move to the next step
+            if (result.IsCorrect && result.NextStepIndex.HasValue)
+            {
+                i = result.NextStepIndex.Value - 1; // -1 because the loop will increment i
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"💥 Error parsing server response: {ex.Message}");
-            var raw = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Raw response:\n{raw}");
+            Console.WriteLine($"💥 Error processing step: {ex.Message}");
             if (verbose)
             {
                 Console.WriteLine($"Exception details: {ex}");

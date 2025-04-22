@@ -17,8 +17,28 @@ services:
         sync: false
       - key: GitHub__AccessToken
         sync: false
+      - key: GitHub__Owner
+        value: "deactv8"
+      - key: GitHub__Repo
+        value: "content"
+      - key: GitHub__Branch
+        value: "master"
+      - key: GitHub__TutorialsPath
+        value: "tutorials"
+      - key: GitHub__ChallengesPath
+        value: "challenges"
+      - key: ContentSources__Tutorials__Source
+        value: "GitHub"
+      - key: ContentSources__Challenges__Source
+        value: "GitHub"
       - key: OpenAI__ApiKey
         sync: false
       - key: AllowedOrigins
         value: "*"
+      - key: Logging__LogLevel__Default
+        value: "Debug"
+      - key: Logging__LogLevel__CmdShiftLearn.Api.Services
+        value: "Debug"
+      - key: Logging__LogLevel__CmdShiftLearn.Api.Helpers
+        value: "Debug"
     autoDeploy: true

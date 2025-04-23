@@ -204,7 +204,7 @@ builder.Services.AddAuthentication(options =>
             }
         };
     })
-    .AddGoogle(options =>
+    .AddGoogle("Google", options =>
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
@@ -221,7 +221,7 @@ builder.Services.AddAuthentication(options =>
             Console.WriteLine("WARNING: Google OAuth credentials are not configured!");
         }
     })
-    .AddGitHub(options =>
+    .AddGitHub("GitHub", options =>
     {
         options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? string.Empty;
         options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? string.Empty;
@@ -234,6 +234,10 @@ builder.Services.AddAuthentication(options =>
             Console.WriteLine("WARNING: GitHub OAuth credentials are not configured!");
         }
     });
+
+// Add diagnostic logging for auth providers
+Console.WriteLine($"[Auth Setup] Google ClientId = {(string.IsNullOrEmpty(builder.Configuration["Authentication:Google:ClientId"]) ? "[MISSING]" : "[SET]")}");
+Console.WriteLine($"[Auth Setup] GitHub ClientId = {(string.IsNullOrEmpty(builder.Configuration["Authentication:GitHub:ClientId"]) ? "[MISSING]" : "[SET]")}");
 
 builder.Services.AddAuthorization();
 

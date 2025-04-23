@@ -17,8 +17,24 @@ namespace CmdShiftLearn.Api.Services
         public FileTutorialLoader(IConfiguration configuration, ILogger<FileTutorialLoader> logger)
         {
             // Get the tutorials directory from configuration or use a default path
-            _tutorialsDirectory = configuration["TutorialsDirectory"] ?? Path.Combine(AppContext.BaseDirectory, "scripts", "tutorials");
+            var configPath = configuration["ContentSources:Tutorials:Directory"];
+            
+            if (!string.IsNullOrEmpty(configPath))
+            {
+                // Handle relative paths by combining with the application base directory
+                _tutorialsDirectory = Path.IsPathRooted(configPath)
+                    ? configPath
+                    : Path.Combine(AppContext.BaseDirectory, configPath);
+            }
+            else
+            {
+                // Default path if not specified in configuration
+                _tutorialsDirectory = Path.Combine(AppContext.BaseDirectory, "scripts", "tutorials");
+            }
+            
             _logger = logger;
+            
+            _logger.LogInformation("Using tutorials directory: {Directory}", _tutorialsDirectory);
             
             // Ensure the tutorials directory exists
             if (!Directory.Exists(_tutorialsDirectory))

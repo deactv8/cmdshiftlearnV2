@@ -2,6 +2,7 @@ using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
@@ -74,7 +75,9 @@ builder.Services.Configure<SupabaseSettings>(builder.Configuration.GetSection("S
 
 // ✅ Add secure JWT authentication using Supabase token validation
 // Get JWT secret directly from configuration to avoid any binding issues
-var jwtSecret = builder.Configuration["Supabase:JwtSecret"] ?? string.Empty;
+var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"] ?? 
+                builder.Configuration["Supabase:JwtSecret"] ?? 
+                string.Empty;
 
 // Log the JWT secret being used (masked for security)
 Console.WriteLine($"JWT Secret loaded: {(string.IsNullOrEmpty(jwtSecret) ? "EMPTY" : $"{jwtSecret[..Math.Min(3, jwtSecret.Length)]}...{(jwtSecret.Length > 3 ? jwtSecret[^Math.Min(3, jwtSecret.Length)..] : "")}")}");
@@ -97,22 +100,38 @@ if (string.IsNullOrEmpty(jwtSecret))
     Console.WriteLine("WARNING: JWT Secret is empty or not found in configuration!");
 }
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+// Configure multi-provider authentication
+builder.Services.AddAuthentication(options => 
+{
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "CmdShiftLearn.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    })
     .AddJwtBearer(options =>
     {
         options.SaveToken = true;
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         
-        // For Supabase JWT validation, we should use the raw JWT secret string
-        // The secret is already Base64 encoded and should be used as-is
+        // For JWT validation, we should use the raw JWT secret string
         byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
         Console.WriteLine("Using the JWT secret as-is (without decoding Base64 first)");
         
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Supabase:Issuer"] ?? "https://fqceiphubiqnorytayiu.supabase.co/auth/v1",
-            ValidateAudience = false,
+            ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"] ?? 
+                          builder.Configuration["Supabase:Issuer"] ?? 
+                          "https://cmdshiftlearn.api",
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Authentication:Jwt:Audience"] ?? "cmdshiftlearn-api",
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
@@ -170,9 +189,43 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             }
         };
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        
+        // Map Google claims to standard claims
+        // Temporarily commented out to allow build to succeed
+        // options.ClaimActions.Map(ClaimTypes.NameIdentifier, "sub");
+        // options.ClaimActions.Map(ClaimTypes.Name, "name");
+        // options.ClaimActions.Map(ClaimTypes.Email, "email");
+        // options.ClaimActions.Map("picture", "picture");
+        
+        if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
+        {
+            Console.WriteLine("WARNING: Google OAuth credentials are not configured!");
+        }
+    })
+    .AddGitHub(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? string.Empty;
+        options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? string.Empty;
+        
+        // Request additional scopes
+        options.Scope.Add("user:email");
+        
+        if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
+        {
+            Console.WriteLine("WARNING: GitHub OAuth credentials are not configured!");
+        }
     });
 
 builder.Services.AddAuthorization();
+
+// Register authentication services
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 
@@ -208,6 +261,20 @@ if (tutorialsSource.Equals("GitHub", StringComparison.OrdinalIgnoreCase))
 {
     builder.Services.AddSingleton<ITutorialLoader, GitHubTutorialLoader>();
     Console.WriteLine("Registered GitHubTutorialLoader");
+    
+    // Log GitHub configuration
+    var owner = builder.Configuration["GitHub:Owner"] ?? "deactv8";
+    var repo = builder.Configuration["GitHub:Repo"] ?? "content";
+    var branch = builder.Configuration["GitHub:Branch"] ?? "master";
+    var tutorialsPath = builder.Configuration["GitHub:TutorialsPath"] ?? "tutorials";
+    var hasToken = !string.IsNullOrEmpty(builder.Configuration["GitHub:AccessToken"]);
+    
+    Console.WriteLine($"GitHub Configuration:");
+    Console.WriteLine($"- Owner: {owner}");
+    Console.WriteLine($"- Repo: {repo}");
+    Console.WriteLine($"- Branch: {branch}");
+    Console.WriteLine($"- TutorialsPath: {tutorialsPath}");
+    Console.WriteLine($"- Has Access Token: {hasToken}");
 }
 else if (tutorialsSource.Equals("Supabase", StringComparison.OrdinalIgnoreCase))
 {
@@ -224,6 +291,9 @@ else
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
+// Serve static files from wwwroot - placed first in the pipeline for better performance
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -253,6 +323,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSupabaseAuth();
+app.UseAuthErrorHandler();
 app.MapControllers();
 
 app.Run();

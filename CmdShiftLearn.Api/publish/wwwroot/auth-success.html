@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Success</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        .token-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .info {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .info div {
+            margin-bottom: 8px;
+        }
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
+        }
+        .bonus {
+            background-color: #FFF9C4;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #FF6F00;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authentication Successful!</h1>
+        <p>You have successfully authenticated with CmdShiftLearn.</p>
+        
+        <div id="newUserMessage" style="display: none;">
+            <p>Welcome to CmdShiftLearn! Your account has been created.</p>
+        </div>
+        
+        <div id="xpBonusMessage" style="display: none;" class="bonus">
+            <p>You earned <span id="xpBonusAmount"></span> XP bonus!</p>
+        </div>
+        
+        <div class="info">
+            <div><span class="label">Provider:</span> <span id="provider"></span></div>
+        </div>
+        
+        <div class="token-box" id="token"></div>
+        
+        <p>You can now close this window and return to the application.</p>
+        
+        <button onclick="copyToken()">Copy Token</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Parse URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const provider = urlParams.get('provider');
+            const newUser = urlParams.get('newUser') === 'true';
+            const xpBonus = urlParams.get('xpBonus');
+            
+            // Display the token and provider
+            document.getElementById('token').textContent = token;
+            document.getElementById('provider').textContent = provider;
+            
+            // Show new user message if applicable
+            if (newUser) {
+                document.getElementById('newUserMessage').style.display = 'block';
+            }
+            
+            // Show XP bonus message if applicable
+            if (xpBonus) {
+                document.getElementById('xpBonusMessage').style.display = 'block';
+                document.getElementById('xpBonusAmount').textContent = xpBonus;
+            }
+            
+            // Store the token in localStorage
+            if (token) {
+                localStorage.setItem('auth_token', token);
+                console.log('Token stored in localStorage');
+            }
+        });
+        
+        function copyToken() {
+            const token = document.getElementById('token').textContent;
+            navigator.clipboard.writeText(token)
+                .then(() => {
+                    alert('Token copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy token: ', err);
+                    alert('Failed to copy token. Please select and copy manually.');
+                });
+        }
+    </script>
+</body>
+</html>

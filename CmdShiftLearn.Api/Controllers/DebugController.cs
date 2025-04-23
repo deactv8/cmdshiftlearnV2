@@ -56,21 +56,78 @@ namespace CmdShiftLearn.Api.Controllers
             // Get JWT secret from configuration
             var jwtSecret = _configuration["Supabase:JwtSecret"] ?? "NOT FOUND";
             var settingsSecret = _supabaseSettings.Value.JwtSecret;
+            
+            // Get OAuth configuration
+            var googleClientId = _configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = _configuration["Authentication:Google:ClientSecret"];
+            var githubClientId = _configuration["Authentication:GitHub:ClientId"];
+            var githubClientSecret = _configuration["Authentication:GitHub:ClientSecret"];
+            var authJwtSecret = _configuration["Authentication:Jwt:Secret"];
 
             return Ok(new
             {
                 Environment = _environment.EnvironmentName,
-                JwtSecretFromConfig = string.IsNullOrEmpty(jwtSecret) 
-                    ? "EMPTY" 
-                    : $"{jwtSecret[..Math.Min(3, jwtSecret.Length)]}...{(jwtSecret.Length > 3 ? jwtSecret[^Math.Min(3, jwtSecret.Length)..] : "")}",
-                JwtSecretFromSettings = string.IsNullOrEmpty(settingsSecret) 
-                    ? "EMPTY" 
-                    : $"{settingsSecret[..Math.Min(3, settingsSecret.Length)]}...{(settingsSecret.Length > 3 ? settingsSecret[^Math.Min(3, settingsSecret.Length)..] : "")}",
-                JwtSecretLength = jwtSecret.Length,
-                SettingsSecretLength = settingsSecret.Length,
-                HasValidSecret = !string.IsNullOrEmpty(jwtSecret) && jwtSecret.Length > 32,
+                Authentication = new
+                {
+                    Google = new
+                    {
+                        ClientId = MaskValue(googleClientId),
+                        ClientSecret = MaskValue(googleClientSecret),
+                        IsConfigured = !string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret)
+                    },
+                    GitHub = new
+                    {
+                        ClientId = MaskValue(githubClientId),
+                        ClientSecret = MaskValue(githubClientSecret),
+                        IsConfigured = !string.IsNullOrEmpty(githubClientId) && !string.IsNullOrEmpty(githubClientSecret)
+                    },
+                    Jwt = new
+                    {
+                        Secret = MaskValue(authJwtSecret),
+                        Issuer = _configuration["Authentication:Jwt:Issuer"],
+                        Audience = _configuration["Authentication:Jwt:Audience"],
+                        ExpiryMinutes = _configuration["Authentication:Jwt:ExpiryMinutes"],
+                        IsConfigured = !string.IsNullOrEmpty(authJwtSecret)
+                    }
+                },
+                Supabase = new
+                {
+                    JwtSecretFromConfig = MaskValue(jwtSecret),
+                    JwtSecretFromSettings = MaskValue(settingsSecret),
+                    JwtSecretLength = jwtSecret?.Length ?? 0,
+                    SettingsSecretLength = settingsSecret?.Length ?? 0,
+                    HasValidSecret = !string.IsNullOrEmpty(jwtSecret) && jwtSecret.Length > 32
+                },
+                GitHub = new
+                {
+                    AccessToken = MaskValue(_configuration["GitHub:AccessToken"]),
+                    IsConfigured = !string.IsNullOrEmpty(_configuration["GitHub:AccessToken"])
+                },
+                OpenAI = new
+                {
+                    ApiKey = MaskValue(_configuration["OpenAI:ApiKey"]),
+                    IsConfigured = !string.IsNullOrEmpty(_configuration["OpenAI:ApiKey"])
+                },
                 ConfigurationSource = _configuration is IConfigurationRoot root ? root.GetDebugView() : "Debug view not available"
             });
+        }
+        
+        /// <summary>
+        /// Masks a sensitive value for display
+        /// </summary>
+        private string MaskValue(string? value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return "not set";
+            }
+
+            if (value.Length <= 8)
+            {
+                return "***" + value.Substring(value.Length - 1);
+            }
+
+            return value.Substring(0, 3) + "..." + value.Substring(value.Length - 3);
         }
         
         /// <summary>

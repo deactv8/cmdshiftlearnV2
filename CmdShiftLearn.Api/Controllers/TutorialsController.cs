@@ -93,7 +93,9 @@ namespace CmdShiftLearn.Api.Controllers
         /// <response code="200">Returns the tutorial</response>
         /// <response code="404">If the tutorial is not found</response>
         [HttpGet("{id}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Tutorial>> GetTutorialById(string id)

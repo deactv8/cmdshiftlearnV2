@@ -37,6 +37,7 @@ namespace CmdShiftLearn.Api.Services
         private readonly float _temperature;
         private readonly int _maxRetries;
         private readonly int _retryDelayMs;
+        private bool _isEnabled = true;
 
         /// <summary>
         /// Initializes a new instance of the ShelloService
@@ -61,8 +62,8 @@ namespace CmdShiftLearn.Api.Services
             
             if (string.IsNullOrEmpty(_apiKey))
             {
-                _logger.LogError("OpenAI API key not configured. Shello service will not function correctly.");
-                throw new InvalidOperationException("OpenAI API key not configured");
+                _logger.LogWarning("OpenAI API key not configured. Shello service will provide basic responses only.");
+                _isEnabled = false;
             }
             
             // Configure HttpClient
@@ -103,6 +104,19 @@ namespace CmdShiftLearn.Api.Services
                 {
                     _logger.LogWarning("Step not found: {StepId} in tutorial: {TutorialId}", stepId, tutorialId);
                     return "I'm sorry, but I couldn't find that specific step. Let's focus on what you're trying to do!";
+                }
+                
+                // If OpenAI is not configured, return the step hint if available
+                if (!_isEnabled)
+                {
+                    _logger.LogWarning("Shello service is disabled. Returning default hint.");
+                    
+                    if (!string.IsNullOrEmpty(step.Hint))
+                    {
+                        return step.Hint;
+                    }
+                    
+                    return "Try reviewing the instructions again and make sure your command matches what's expected.";
                 }
                 
                 // Create the messages for the OpenAI API
@@ -173,6 +187,21 @@ namespace CmdShiftLearn.Api.Services
         /// <returns>The response content</returns>
         private async Task<string> SendWithRetryAsync(object payload)
         {
+            // If the service is disabled, return a dummy response
+            if (!_isEnabled)
+            {
+                _logger.LogWarning("Shello service is disabled. Returning dummy response.");
+                return @"{
+                    ""choices"": [
+                        {
+                            ""message"": {
+                                ""content"": ""I'm here to help! Try reviewing the instructions again and make sure your command matches what's expected.""
+                            }
+                        }
+                    ]
+                }";
+            }
+            
             int attempts = 0;
             Exception? lastException = null;
             

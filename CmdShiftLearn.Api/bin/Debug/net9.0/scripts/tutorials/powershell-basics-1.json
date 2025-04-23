@@ -1,8 +1,0 @@
-{
-  "id": "powershell-basics-1",
-  "title": "PowerShell Basics: Part 1",
-  "description": "Learn the basics of PowerShell including commands, variables, and pipelines.",
-  "xp": 100,
-  "difficulty": "Beginner",
-  "content": "# PowerShell Basics: Part 1\n\n## Introduction\nPowerShell is a powerful scripting language and shell developed by Microsoft. It's designed for system administration and automation.\n\n## Basic Commands\n\n### Get-Command\nLists all available commands:\n```powershell\nGet-Command\n```\n\n### Get-Help\nProvides help information for commands:\n```powershell\nGet-Help Get-Process\n```\n\n## Variables\nVariables in PowerShell start with a $ symbol:\n```powershell\n$name = 'World'\nWrite-Host \"Hello, $name!\"\n```\n\n## Pipelines\nPowerShell uses pipelines (|) to pass output from one command to another:\n```powershell\nGet-Process | Sort-Object CPU -Descending | Select-Object -First 5\n```\n\n## Try It Yourself\n1. Create a variable with your name\n2. Print a greeting using that variable\n3. List the top 3 processes using the most memory on your system\n"
-}

@@ -12,6 +12,10 @@ COPY . .
 RUN dotnet build "CmdShiftLearn.Api.csproj" -c Release -o /app/build
 RUN dotnet publish "CmdShiftLearn.Api.csproj" -c Release -o /app/publish
 
+# Debug: List the contents of the publish directory
+RUN find /app/publish -type f | grep -v "\.dll\|\.exe\|\.pdb\|\.json" | sort
+RUN find /app/publish/wwwroot -type f | sort || echo "wwwroot directory not found in publish output"
+
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app

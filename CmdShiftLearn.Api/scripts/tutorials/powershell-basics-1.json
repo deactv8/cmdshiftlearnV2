@@ -4,5 +4,28 @@
   "description": "Learn the basics of PowerShell including commands, variables, and pipelines.",
   "xp": 100,
   "difficulty": "Beginner",
-  "content": "# PowerShell Basics: Part 1\n\n## Introduction\nPowerShell is a powerful scripting language and shell developed by Microsoft. It's designed for system administration and automation.\n\n## Basic Commands\n\n### Get-Command\nLists all available commands:\n```powershell\nGet-Command\n```\n\n### Get-Help\nProvides help information for commands:\n```powershell\nGet-Help Get-Process\n```\n\n## Variables\nVariables in PowerShell start with a $ symbol:\n```powershell\n$name = 'World'\nWrite-Host \"Hello, $name!\"\n```\n\n## Pipelines\nPowerShell uses pipelines (|) to pass output from one command to another:\n```powershell\nGet-Process | Sort-Object CPU -Descending | Select-Object -First 5\n```\n\n## Try It Yourself\n1. Create a variable with your name\n2. Print a greeting using that variable\n3. List the top 3 processes using the most memory on your system\n"
+  "content": "# PowerShell Basics: Part 1\n\n## Introduction\nPowerShell is a powerful scripting language and shell developed by Microsoft. It's designed for system administration and automation.\n\n## Basic Commands\n\n### Get-Command\nLists all available commands:\n```powershell\nGet-Command\n```\n\n### Get-Help\nProvides help information for commands:\n```powershell\nGet-Help Get-Process\n```\n\n## Variables\nVariables in PowerShell start with a $ symbol:\n```powershell\n$name = 'World'\nWrite-Host \"Hello, $name!\"\n```\n\n## Pipelines\nPowerShell uses pipelines (|) to pass output from one command to another:\n```powershell\nGet-Process | Sort-Object CPU -Descending | Select-Object -First 5\n```\n\n## Try It Yourself\n1. Create a variable with your name\n2. Print a greeting using that variable\n3. List the top 3 processes using the most memory on your system\n",
+  "steps": [
+    {
+      "id": "step1",
+      "title": "Create a Variable",
+      "instructions": "Create a variable named 'name' and assign your name to it. In PowerShell, variables start with a $ symbol.",
+      "expectedCommand": "$name = 'YourName'",
+      "hint": "Use the $ symbol followed by the variable name, then the = operator, and your name in quotes."
+    },
+    {
+      "id": "step2",
+      "title": "Print a Greeting",
+      "instructions": "Use Write-Host to print a greeting that includes your name variable.",
+      "expectedCommand": "Write-Host \"Hello, $name!\"",
+      "hint": "Use Write-Host with double quotes to allow variable expansion."
+    },
+    {
+      "id": "step3",
+      "title": "List Top Processes",
+      "instructions": "List the top 3 processes using the most memory on your system.",
+      "expectedCommand": "Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 3",
+      "hint": "Use Get-Process, then pipe to Sort-Object with the WorkingSet property, then pipe to Select-Object with the -First parameter."
+    }
+  ]
 }

@@ -77,11 +77,25 @@ builder.Services.Configure<SupabaseSettings>(builder.Configuration.GetSection("S
 // Get JWT secret directly from configuration to avoid any binding issues
 var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"] ?? 
                 builder.Configuration["Supabase:JwtSecret"] ?? 
+                builder.Configuration["SUPABASE__JWTSECRET"] ?? // All caps fallback
+                builder.Configuration["Supabase__JwtSecret"] ?? // Raw env var fallback
                 string.Empty;
 
 // Log the JWT secret being used (masked for security)
 Console.WriteLine($"JWT Secret loaded: {(string.IsNullOrEmpty(jwtSecret) ? "EMPTY" : $"{jwtSecret[..Math.Min(3, jwtSecret.Length)]}...{(jwtSecret.Length > 3 ? jwtSecret[^Math.Min(3, jwtSecret.Length)..] : "")}")}");
 Console.WriteLine($"JWT Secret length: {jwtSecret.Length}");
+
+// Add enhanced diagnostic logging
+Console.WriteLine($"[DEBUG] JWT Secret Length: {jwtSecret.Length}");
+Console.WriteLine($"[DEBUG] JWT Secret Present: {!string.IsNullOrEmpty(jwtSecret)}");
+Console.WriteLine("Available Configuration Keys:");
+foreach (var kv in builder.Configuration.AsEnumerable())
+{
+    if (kv.Key?.ToLower()?.Contains("jwt") == true)
+    {
+        Console.WriteLine($" {kv.Key} = {(string.IsNullOrEmpty(kv.Value) ? "[empty]" : "[set]")}");
+    }
+}
 
 // Check if the secret is Base64 encoded (Supabase JWT secrets are typically Base64 encoded)
 // This is just for informational purposes - we'll use the raw string regardless

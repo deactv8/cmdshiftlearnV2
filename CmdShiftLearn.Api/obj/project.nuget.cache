@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HTMibsJuIpM=",
+  "dgSpecHash": "PXF80YoAUXs=",
   "success": true,
-  "projectFilePath": "C:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
+  "projectFilePath": "c:\\cmdshiftlearnV2\\CmdShiftLearn.Api\\CmdShiftLearn.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\admin\\.nuget\\packages\\aspnet.security.oauth.github\\9.2.0\\aspnet.security.oauth.github.9.2.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\functions-csharp\\1.3.2\\functions-csharp.1.3.2.nupkg.sha512",

@@ -115,13 +115,15 @@ if (string.IsNullOrEmpty(jwtSecret))
 }
 
 // Configure multi-provider authentication
-builder.Services.AddAuthentication(options => 
+try
 {
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-})
-    .AddCookie(options =>
+    builder.Services.AddAuthentication(options => 
+    {
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie("Cookies", options =>
     {
         options.Cookie.Name = "CmdShiftLearn.Auth";
         options.Cookie.HttpOnly = true;
@@ -129,23 +131,42 @@ builder.Services.AddAuthentication(options =>
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     })
-    .AddJwtBearer(options =>
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.SaveToken = true;
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         
         // For JWT validation, we should use the raw JWT secret string
+        if (string.IsNullOrEmpty(jwtSecret))
+        {
+            Console.WriteLine("ERROR: JWT Secret is empty! Authentication will fail.");
+            // Provide a non-empty default for development only to prevent immediate crash
+            // This won't work for actual token validation but prevents startup errors
+            jwtSecret = builder.Environment.IsDevelopment() ? "development_fallback_key_not_for_production" : jwtSecret;
+        }
+        
         byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
+        Console.WriteLine($"Using JWT secret for validation, key size: {keyBytes.Length} bytes");
         Console.WriteLine("Using the JWT secret as-is (without decoding Base64 first)");
+        
+        // Get issuer and audience with fallbacks
+        var issuer = builder.Configuration["Authentication:Jwt:Issuer"] ?? 
+                     builder.Configuration["Supabase:Issuer"] ?? 
+                     "https://cmdshiftlearn.api";
+        
+        var audience = builder.Configuration["Authentication:Jwt:Audience"] ?? 
+                       builder.Configuration["Supabase:Audience"] ?? 
+                       "cmdshiftlearn-api";
+        
+        Console.WriteLine($"JWT Validation - Issuer: {issuer}");
+        Console.WriteLine($"JWT Validation - Audience: {audience}");
         
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"] ?? 
-                          builder.Configuration["Supabase:Issuer"] ?? 
-                          "https://cmdshiftlearn.api",
+            ValidIssuer = issuer,
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Authentication:Jwt:Audience"] ?? "cmdshiftlearn-api",
+            ValidAudience = audience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
@@ -238,6 +259,32 @@ builder.Services.AddAuthentication(options =>
 // Add diagnostic logging for auth providers
 Console.WriteLine($"[Auth Setup] Google ClientId = {(string.IsNullOrEmpty(builder.Configuration["Authentication:Google:ClientId"]) ? "[MISSING]" : "[SET]")}");
 Console.WriteLine($"[Auth Setup] GitHub ClientId = {(string.IsNullOrEmpty(builder.Configuration["Authentication:GitHub:ClientId"]) ? "[MISSING]" : "[SET]")}");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"ERROR configuring authentication: {ex.Message}");
+    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+    }
+    
+    // Fallback to minimal authentication for development only
+    if (builder.Environment.IsDevelopment())
+    {
+        Console.WriteLine("Falling back to minimal authentication for development");
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options => {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = false,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false
+                };
+            });
+    }
+}
 
 builder.Services.AddAuthorization();
 

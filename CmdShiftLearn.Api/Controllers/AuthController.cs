@@ -60,26 +60,54 @@ namespace CmdShiftLearn.Api.Controllers
         [HttpGet("google/callback")]
         public async Task<IActionResult> GoogleCallback()
         {
-            var result = await HttpContext.AuthenticateAsync("Google");
-            if (!result.Succeeded)
+            try
             {
-                Console.WriteLine("❌ Google auth failed.");
-                Console.WriteLine($"Reason: {result.Failure?.Message}");
-                Console.WriteLine($"Properties: {string.Join(", ", result.Properties?.Items?.Select(kv => $"{kv.Key}: {kv.Value}") ?? new List<string>())}");
-                return Redirect("/auth-error.html");
+                Console.WriteLine("Google callback received!");
+                var result = await HttpContext.AuthenticateAsync("Google");
+                
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine("❌ Google auth failed.");
+                    Console.WriteLine($"Reason: {result.Failure?.Message}");
+                    Console.WriteLine($"Properties: {string.Join(", ", result.Properties?.Items?.Select(kv => $"{kv.Key}: {kv.Value}") ?? new List<string>())}");
+                    return Redirect("/auth-error.html?error=google_auth_failed");
+                }
+                
+                var user = result.Principal;
+                var claims = user?.Identities?.FirstOrDefault()?.Claims;
+                
+                // Log all claims for debugging
+                Console.WriteLine("All claims from Google:");
+                foreach (var claim in claims ?? Enumerable.Empty<Claim>())
+                {
+                    Console.WriteLine($"  {claim.Type}: {claim.Value}");
+                }
+                
+                var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                
+                Console.WriteLine($"✅ Google Login Success - Email: {email}");
+                
+                // Generate JWT token for the user
+                var jwt = GenerateTestToken(email);
+                
+                // Store the JWT token in a secure cookie (belt and suspenders)
+                Response.Cookies.Append("auth_token", jwt, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.Now.AddHours(1)
+                });
+                
+                // Redirect to success page with the token
+                return Redirect($"/auth-success.html?token={jwt}&provider=Google");
             }
-            
-            var user = result.Principal;
-            var claims = user?.Identities?.FirstOrDefault()?.Claims;
-            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            
-            Console.WriteLine($"✅ Google Login Success - Email: {email}");
-            
-            // Generate JWT token for the user
-            var jwt = GenerateTestToken(email);
-            
-            // Redirect to success page with the token
-            return Redirect($"/auth-success.html?token={jwt}");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Exception in GoogleCallback: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return Redirect($"/auth-error.html?error={Uri.EscapeDataString(ex.Message)}");
+            }
         }
         
         /// <summary>

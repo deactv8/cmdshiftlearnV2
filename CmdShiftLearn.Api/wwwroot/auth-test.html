@@ -274,6 +274,7 @@
         }
         
         function loginWithGoogle() {
+            // Use the direct login path, skipping the generic callback
             window.location.href = '/auth/google/login?prompt=consent';
         }
         

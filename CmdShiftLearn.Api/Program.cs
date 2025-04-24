@@ -75,15 +75,15 @@ builder.Services.Configure<SupabaseSettings>(builder.Configuration.GetSection("S
 
 // ✅ Add secure JWT authentication using Supabase token validation
 // Get JWT secret directly from configuration to avoid any binding issues
-var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"] ?? 
-                builder.Configuration["Supabase:JwtSecret"] ?? 
-                builder.Configuration["SUPABASE__JWTSECRET"] ?? // All caps fallback
-                builder.Configuration["Supabase__JwtSecret"] ?? // Raw env var fallback
+var jwtSecret = builder.Configuration["Supabase:JwtSecret"] ?? 
+                builder.Configuration["SUPABASE__JWTSECRET"] ?? 
+                builder.Configuration["Supabase__JwtSecret"] ?? 
+                builder.Configuration["Authentication:Jwt:Secret"] ?? 
                 string.Empty;
 
 // Log the JWT secret being used (masked for security)
-Console.WriteLine($"JWT Secret loaded: {(string.IsNullOrEmpty(jwtSecret) ? "EMPTY" : $"{jwtSecret[..Math.Min(3, jwtSecret.Length)]}...{(jwtSecret.Length > 3 ? jwtSecret[^Math.Min(3, jwtSecret.Length)..] : "")}")}");
-Console.WriteLine($"JWT Secret length: {jwtSecret.Length}");
+Console.WriteLine($"DEBUG - JWT Secret Length: {jwtSecret.Length}");
+Console.WriteLine($"DEBUG - JWT Secret Preview: {(string.IsNullOrEmpty(jwtSecret) ? "[MISSING]" : jwtSecret.Substring(0, Math.Min(4, jwtSecret.Length)) + "...")}");
 
 // Add enhanced diagnostic logging
 Console.WriteLine($"[DEBUG] JWT Secret Length: {jwtSecret.Length}");

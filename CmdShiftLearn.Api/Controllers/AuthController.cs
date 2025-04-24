@@ -62,7 +62,9 @@ namespace CmdShiftLearn.Api.Controllers
             var result = await HttpContext.AuthenticateAsync("Google");
             if (!result.Succeeded)
             {
-                Console.WriteLine("Google auth failed.");
+                Console.WriteLine("❌ Google auth failed.");
+                Console.WriteLine($"Reason: {result.Failure?.Message}");
+                Console.WriteLine($"Properties: {string.Join(", ", result.Properties?.Items?.Select(kv => $"{kv.Key}: {kv.Value}") ?? new List<string>())}");
                 return Redirect("/auth-error.html");
             }
             

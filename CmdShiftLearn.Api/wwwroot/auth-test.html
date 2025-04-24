@@ -274,7 +274,7 @@
         }
         
         function loginWithGoogle() {
-            window.location.href = '/auth/google/login';
+            window.location.href = '/auth/google/login?prompt=consent';
         }
         
         function loginWithGitHub() {
@@ -290,7 +290,7 @@
             simpleLinks.style.fontSize = '14px';
             simpleLinks.innerHTML = `
                 <p>Alternative links (if buttons don't work):</p>
-                <a href="/auth/google/login">Login with Google</a> | 
+                <a href="/auth/google/login?prompt=consent">Login with Google</a> | 
                 <a href="/auth/github/login">Login with GitHub</a>
             `;
             authButtons.parentNode.insertBefore(simpleLinks, authButtons.nextSibling);

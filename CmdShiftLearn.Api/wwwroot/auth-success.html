@@ -1,58 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication Success</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login Successful</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 2rem;
+            background: #f7f7f7;
             margin: 0;
-            padding: 20px;
+            line-height: 1.6;
             color: #333;
         }
-        .container {
-            background-color: white;
+        .card {
+            background: white;
+            padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: auto;
         }
         h1 {
-            color: #4CAF50;
-            margin-bottom: 20px;
+            margin-top: 0;
+            color: #2e7d32;
         }
-        .token-box {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+        pre {
+            background: #f5f5f5;
+            padding: 1rem;
             border-radius: 4px;
-            padding: 15px;
-            margin: 20px 0;
+            overflow-x: auto;
             word-break: break-all;
-            text-align: left;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 100px;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            max-height: 150px;
             overflow-y: auto;
         }
-        .info {
-            margin: 20px 0;
-            text-align: left;
+        code {
+            background: #eee;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
         }
-        .info div {
-            margin-bottom: 8px;
+        button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .label {
+        button:hover {
+            background-color: #1b5e20;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .user-info {
+            margin-top: 2rem;
+            background: #f5f8ff;
+            padding: 1rem;
+            border-radius: 4px;
+            border-left: 4px solid #4285f4;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        .info-label {
             font-weight: bold;
-            display: inline-block;
-            width: 100px;
+            min-width: 100px;
         }
         .bonus {
             background-color: #FFF9C4;
@@ -62,25 +96,20 @@
             font-weight: bold;
             color: #FF6F00;
         }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #45a049;
+        @media (max-width: 600px) {
+            .card {
+                padding: 1.5rem;
+            }
+            .info-row {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Authentication Successful!</h1>
-        <p>You have successfully authenticated with CmdShiftLearn.</p>
+    <div class="card">
+        <h1>✅ Login Successful</h1>
+        <p>Your authentication was successful. You can now return to the application.</p>
         
         <div id="newUserMessage" style="display: none;">
             <p>Welcome to CmdShiftLearn! Your account has been created.</p>
@@ -90,29 +119,80 @@
             <p>You earned <span id="xpBonusAmount"></span> XP bonus!</p>
         </div>
         
-        <div class="info">
-            <div><span class="label">Provider:</span> <span id="provider"></span></div>
-        </div>
-        
-        <div class="token-box" id="token"></div>
-        
-        <p>You can now close this window and return to the application.</p>
-        
+        <p><strong>Token:</strong></p>
+        <pre id="token-display">[Loading token...]</pre>
         <button onclick="copyToken()">Copy Token</button>
+        
+        <div id="user-info" class="user-info" style="display: none;"></div>
     </div>
+    
+    <div id="toast" class="toast">Token copied to clipboard!</div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Parse URL parameters
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error('Error parsing JWT:', e);
+                return null;
+            }
+        }
+
+        function copyToken() {
+            const token = document.getElementById('token-display').innerText;
+            if (token === '[No token found]' || token === '[Loading token...]') {
+                showToast('No valid token to copy');
+                return;
+            }
+            
+            navigator.clipboard.writeText(token)
+                .then(() => showToast('Token copied to clipboard!'))
+                .catch(err => {
+                    console.error('Failed to copy token:', err);
+                    showToast('Failed to copy, please select and copy manually');
+                });
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            
+            const date = new Date(timestamp * 1000);
+            return new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            }).format(date);
+        }
+
+        function displayToken() {
+            // Check for token in multiple locations
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const provider = urlParams.get('provider');
+            let token = urlParams.get('token') || 
+                        sessionStorage.getItem('jwt') || 
+                        localStorage.getItem('jwt') || 
+                        localStorage.getItem('auth_token');
+            
+            const provider = urlParams.get('provider') || 'Unknown';
             const newUser = urlParams.get('newUser') === 'true';
             const xpBonus = urlParams.get('xpBonus');
-            
-            // Display the token and provider
-            document.getElementById('token').textContent = token;
-            document.getElementById('provider').textContent = provider;
             
             // Show new user message if applicable
             if (newUser) {
@@ -125,24 +205,73 @@
                 document.getElementById('xpBonusAmount').textContent = xpBonus;
             }
             
-            // Store the token in localStorage
             if (token) {
+                // Display the token
+                document.getElementById('token-display').innerText = token;
+                
+                // Store the token in multiple storage locations for maximum compatibility
                 localStorage.setItem('auth_token', token);
-                console.log('Token stored in localStorage');
+                localStorage.setItem('jwt', token);
+                sessionStorage.setItem('jwt', token);
+                
+                // Decode and display JWT information
+                const decoded = parseJwt(token);
+                if (decoded) {
+                    const userInfo = document.getElementById('user-info');
+                    userInfo.style.display = 'block';
+                    
+                    let infoHtml = '<h3>Decoded Token Information</h3>';
+                    
+                    // Display user identity
+                    const email = decoded.email || decoded.sub || decoded.user_id || 'Unknown';
+                    infoHtml += `
+                        <div class="info-row">
+                            <span class="info-label">User:</span>
+                            <span>${email}</span>
+                        </div>`;
+                    
+                    // Display expiration
+                    if (decoded.exp) {
+                        infoHtml += `
+                            <div class="info-row">
+                                <span class="info-label">Expires:</span>
+                                <span>${formatDate(decoded.exp)}</span>
+                            </div>`;
+                    }
+                    
+                    // Display provider
+                    infoHtml += `
+                        <div class="info-row">
+                            <span class="info-label">Provider:</span>
+                            <span>${provider}</span>
+                        </div>`;
+                    
+                    // Display other useful claims if available
+                    if (decoded.iat) {
+                        infoHtml += `
+                            <div class="info-row">
+                                <span class="info-label">Issued At:</span>
+                                <span>${formatDate(decoded.iat)}</span>
+                            </div>`;
+                    }
+                    
+                    if (decoded.iss) {
+                        infoHtml += `
+                            <div class="info-row">
+                                <span class="info-label">Issuer:</span>
+                                <span>${decoded.iss}</span>
+                            </div>`;
+                    }
+                    
+                    userInfo.innerHTML = infoHtml;
+                }
+            } else {
+                document.getElementById('token-display').innerText = '[No token found]';
             }
-        });
-        
-        function copyToken() {
-            const token = document.getElementById('token').textContent;
-            navigator.clipboard.writeText(token)
-                .then(() => {
-                    alert('Token copied to clipboard!');
-                })
-                .catch(err => {
-                    console.error('Failed to copy token: ', err);
-                    alert('Failed to copy token. Please select and copy manually.');
-                });
         }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', displayToken);
     </script>
 </body>
 </html>

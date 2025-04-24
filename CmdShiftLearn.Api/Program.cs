@@ -14,6 +14,12 @@ using CmdShiftLearn.Api.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
+// Configure the port for Render deployment
+// Render sets a PORT environment variable that we need to listen on
+// See: https://render.com/docs/web-services#port-binding
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://*:{port}");
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -39,9 +39,23 @@ namespace CmdShiftLearn.Api.Middleware
                         return;
                     }
                     
-                    // For browser requests, redirect to the error page
-                    _logger.LogInformation("Browser request received 401 Unauthorized, redirecting to auth-error.html");
-                    context.Response.Redirect("/auth-error.html");
+                    // Check if response has already started before attempting to redirect
+                    if (context.Response.HasStarted)
+                    {
+                        Console.WriteLine("❌ Cannot redirect, response has already started.");
+                        return;
+                    }
+                    
+                    try
+                    {
+                        // For browser requests, redirect to the error page
+                        _logger.LogInformation("Browser request received 401 Unauthorized, redirecting to auth-error.html");
+                        context.Response.Redirect("/auth-error.html");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Redirect failed: {ex.Message}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -60,9 +74,23 @@ namespace CmdShiftLearn.Api.Middleware
                     !IsApiRequest(context.Request) &&
                     (ex.Message.Contains("auth") || ex.Message.Contains("token") || ex.Message.Contains("unauthorized")))
                 {
-                    _logger.LogInformation("Authentication exception occurred, redirecting to auth-error.html");
-                    context.Response.Redirect("/auth-error.html");
-                    return;
+                    try
+                    {
+                        if (!context.Response.HasStarted)
+                        {
+                            _logger.LogInformation("Authentication exception occurred, redirecting to auth-error.html");
+                            context.Response.Redirect("/auth-error.html");
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine("❌ Cannot redirect, response has already started.");
+                        }
+                    }
+                    catch (Exception redirectEx)
+                    {
+                        Console.WriteLine($"❌ Redirect failed: {redirectEx.Message}");
+                    }
                 }
 
                 // Let other middleware handle other types of exceptions

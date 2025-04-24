@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace CmdShiftLearn.Api.Controllers
 {
     [ApiController]
     [Route("auth")]
-    public class AuthController : ControllerBase
+    public class AuthController : Controller
     {
         private readonly IAuthService _authService;
         private readonly IUserProfileService _userProfileService;
@@ -43,6 +44,27 @@ namespace CmdShiftLearn.Api.Controllers
             };
 
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+        
+        /// <summary>
+        /// Handles Google OAuth callback
+        /// </summary>
+        [HttpGet("google/callback")]
+        public async Task<IActionResult> GoogleCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync("Google");
+            if (!result.Succeeded)
+            {
+                Console.WriteLine("Google auth failed.");
+                return Redirect("/auth-error.html");
+            }
+            
+            var user = result.Principal;
+            var claims = user?.Identities?.FirstOrDefault()?.Claims;
+            Console.WriteLine($"✅ Google Login Success - Email: {claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value}");
+            
+            // TODO: Issue JWT or create user session here
+            return Redirect("/auth-success.html");
         }
 
         /// <summary>

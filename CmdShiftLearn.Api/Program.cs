@@ -233,6 +233,7 @@ try
         
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
+        options.CallbackPath = new PathString("/auth/google/callback");
         
         // Debug logs to show actual values during startup
         Console.WriteLine($"DEBUG - Google Auth - ClientId = {(string.IsNullOrEmpty(googleClientId) ? "[MISSING]" : googleClientId)}");

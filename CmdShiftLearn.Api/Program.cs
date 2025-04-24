@@ -227,8 +227,15 @@ try
     })
     .AddGoogle("Google", options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        var googleClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
+        var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
+        
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        
+        // Debug logs to show actual values during startup
+        Console.WriteLine($"DEBUG - Google Auth - ClientId = {(string.IsNullOrEmpty(googleClientId) ? "[MISSING]" : googleClientId)}");
+        Console.WriteLine($"DEBUG - Google Auth - ClientSecret = {(string.IsNullOrEmpty(googleClientSecret) ? "[MISSING]" : googleClientSecret.Substring(0, Math.Min(4, googleClientSecret.Length)) + "...")}");
         
         // Map Google claims to standard claims
         // Temporarily commented out to allow build to succeed
@@ -244,8 +251,15 @@ try
     })
     .AddGitHub("GitHub", options =>
     {
-        options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? string.Empty;
-        options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? string.Empty;
+        var githubClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? string.Empty;
+        var githubClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? string.Empty;
+        
+        options.ClientId = githubClientId;
+        options.ClientSecret = githubClientSecret;
+        
+        // Debug logs to show actual values during startup
+        Console.WriteLine($"DEBUG - GitHub Auth - ClientId = {(string.IsNullOrEmpty(githubClientId) ? "[MISSING]" : githubClientId)}");
+        Console.WriteLine($"DEBUG - GitHub Auth - ClientSecret = {(string.IsNullOrEmpty(githubClientSecret) ? "[MISSING]" : githubClientSecret.Substring(0, Math.Min(4, githubClientSecret.Length)) + "...")}");
         
         // Request additional scopes
         options.Scope.Add("user:email");

@@ -242,6 +242,9 @@ try
     })
     .AddGoogle("Google", options =>
     {
+        // Log cookie configuration
+        Console.WriteLine("🔐 Setting Google OAuth correlation cookie to SameSite=Lax, SecurePolicy=Always");
+        
         var googleClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
         var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
         
@@ -250,6 +253,10 @@ try
         
         // Use the dedicated Google callback path to avoid conflicts
         options.CallbackPath = new PathString("/auth/google/callback");
+        
+        // Configure correlation cookie settings to ensure proper OAuth flow
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         
         // Debug logs to show actual values during startup
         Console.WriteLine($"DEBUG - Google Auth - ClientId = {(string.IsNullOrEmpty(googleClientId) ? "[MISSING]" : googleClientId)}");
@@ -319,6 +326,12 @@ catch (Exception ex)
 }
 
 builder.Services.AddAuthorization();
+
+// Configure application cookie settings globally
+builder.Services.ConfigureApplicationCookie(options => {
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
 
 // Register authentication services
 builder.Services.AddHttpClient();

@@ -41,9 +41,10 @@ namespace CmdShiftLearn.Api.Controllers
         [HttpGet("google/login")]
         public IActionResult GoogleLogin()
         {
+            // Don't specify RedirectUri - let the middleware use the one from configuration
+            // This ensures consistency with the Google Cloud Console settings
             var properties = new AuthenticationProperties
             {
-                RedirectUri = Url.Action(nameof(OAuthCallback), new { provider = "google" }),
                 Items =
                 {
                     { "scheme", GoogleDefaults.AuthenticationScheme }

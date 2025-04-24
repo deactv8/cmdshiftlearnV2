@@ -247,7 +247,10 @@ try
         
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
-        options.CallbackPath = new PathString("/auth/google/callback");
+        
+        // Make sure this matches EXACTLY what's in Google Cloud Console
+        // and matches what's in your AuthController.cs
+        options.CallbackPath = new PathString("/auth/callback");
         
         // Debug logs to show actual values during startup
         Console.WriteLine($"DEBUG - Google Auth - ClientId = {(string.IsNullOrEmpty(googleClientId) ? "[MISSING]" : googleClientId)}");

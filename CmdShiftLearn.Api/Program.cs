@@ -17,7 +17,7 @@ builder.Configuration.AddEnvironmentVariables();
 // Configure the port for Render deployment
 // Render sets a PORT environment variable that we need to listen on
 // See: https://render.com/docs/web-services#port-binding
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{port}");
 
 // Add services to the container

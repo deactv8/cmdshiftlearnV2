@@ -272,6 +272,42 @@
 
         // Run on page load
         document.addEventListener('DOMContentLoaded', displayToken);
+        
+        function fetchWithToken(url, options = {}) {
+            const token = localStorage.getItem('auth_token');
+            const headers = options.headers || {};
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+        
+        // Example usage: test call to user profile or tutorials
+        setTimeout(() => {
+            fetchWithToken('/auth/me')
+                .then(res => res.json())
+                .then(data => {
+                    console.log('✅ Token worked:', data);
+                    document.getElementById('user-info').innerHTML += `<div class="info-row">
+                        <span class="info-label">API Test:</span>
+                        <span>Success! ✅</span>
+                    </div>
+                    <pre style="max-height: 200px; overflow: auto; margin-top: 10px;">${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(err => {
+                    console.error('❌ Auth failed:', err);
+                    document.getElementById('user-info').innerHTML += `<div class="info-row" style="color: #d32f2f;">
+                        <span class="info-label">API Test:</span>
+                        <span>Failed ❌</span>
+                    </div>
+                    <p>Please check browser console for details.</p>`;
+                });
+        }, 1000); // Delay by 1 second to ensure token is set
     </script>
 </body>
 </html>

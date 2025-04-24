@@ -17,6 +17,9 @@ namespace CmdShiftLearn.Api.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
+            // Debug all request headers
+            Console.WriteLine($"[DEBUG] Request Headers: {string.Join(", ", context.Request.Headers.Select(h => $"{h.Key}: {h.Value}"))}");
+            
             // Log the raw Authorization header for debugging
             if (context.Request.Headers.TryGetValue("Authorization", out var authHeader))
             {

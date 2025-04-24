@@ -122,6 +122,34 @@ namespace CmdShiftLearn.Api.Controllers
         /// <summary>
         /// Generates a test JWT token for development/testing purposes
         /// </summary>
+        /// <summary>
+        /// Simple endpoint that just returns a test token as JSON
+        /// </summary>
+        [HttpGet("token")]
+        public IActionResult GetTestToken([FromQuery] string email = "test@example.com")
+        {
+            try
+            {
+                Console.WriteLine($"🔑 GetTestToken called with email: {email}");
+                var jwt = GenerateTestToken(email);
+                Console.WriteLine($"✅ Generated test token for {email}");
+                
+                // Return JSON with the token
+                return Ok(new { 
+                    success = true, 
+                    token = jwt, 
+                    message = "Test token generated successfully",
+                    email = email,
+                    expires = DateTime.UtcNow.AddHours(1)
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error generating token: {ex.Message}");
+                return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
+
         private string GenerateTestToken(string email)
         {
             // Get JWT secret from configuration

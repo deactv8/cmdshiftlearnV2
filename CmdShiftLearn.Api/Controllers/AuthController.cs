@@ -139,11 +139,24 @@ namespace CmdShiftLearn.Api.Controllers
         {
             try
             {
-                // Ensure the user is authenticated
-                if (!User.Identity?.IsAuthenticated ?? true)
+                // Try to re-authenticate here explicitly instead of relying on User.Identity
+                var result = await HttpContext.AuthenticateAsync(provider == "google" ? "Google" : "GitHub");
+                
+                if (!result.Succeeded)
                 {
-                    _logger.LogWarning("OAuth callback received but user is not authenticated");
-                    return Unauthorized(new { error = "Authentication failed" });
+                    _logger.LogWarning($"OAuth explicit authentication failed for provider: {provider}");
+                    _logger.LogWarning($"Failure details: {result.Failure?.Message}");
+                    return Redirect("/auth-error.html?error=callback_auth_failed");
+                }
+                
+                // Use the principal from authentication result instead of HttpContext.User
+                var user = result.Principal;
+                
+                // Log claims for debugging
+                _logger.LogInformation($"OAuth callback claims for {provider}:");
+                foreach (var claim in user.Claims)
+                {
+                    _logger.LogInformation($"  {claim.Type}: {claim.Value}");
                 }
 
                 // Validate the provider
@@ -154,8 +167,8 @@ namespace CmdShiftLearn.Api.Controllers
                     return BadRequest(new { error = "Invalid provider" });
                 }
 
-                // Handle the OAuth callback
-                var response = await _authService.HandleOAuthCallbackAsync(provider.ToLower(), User);
+                // Handle the OAuth callback using the authenticated principal
+                var response = await _authService.HandleOAuthCallbackAsync(provider.ToLower(), user);
 
                 // For API clients, return the token as JSON
                 if (Request.Headers.Accept.Any(h => h.Contains("application/json")))
@@ -179,7 +192,16 @@ namespace CmdShiftLearn.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during OAuth callback");
-                return StatusCode(500, new { error = "An error occurred during authentication" });
+                _logger.LogError($"Exception type: {ex.GetType().Name}");
+                _logger.LogError($"Exception details: {ex.Message}");
+                
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                // Redirect to error page with some details
+                return Redirect($"/auth-error.html?error={Uri.EscapeDataString(ex.Message)}");
             }
         }
 

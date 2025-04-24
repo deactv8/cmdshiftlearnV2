@@ -61,24 +61,62 @@ namespace CmdShiftLearn.Api.Controllers
         /// Super simple Google OAuth callback handler
         /// </summary>
         [HttpGet("google/callback")]
-        public IActionResult GoogleCallback()
+        public IActionResult GoogleCallback([FromQuery] string debug = null)
         {
-            // This is a hardcoded "success" callback that just generates a dummy token
-            // for development/testing purposes without trying to authenticate with Google OAuth
-            Console.WriteLine("🔑 Using simplified Google callback handler!");
+            Console.WriteLine("🔑 Google callback received!");
+            Console.WriteLine($"Debug param: {debug}");
             
-            // Create a hardcoded claim for testing
-            const string email = "test@example.com";
-            
-            // Generate JWT token directly
-            var jwt = GenerateTestToken(email);
-            
-            // Log success and redirect
-            Console.WriteLine($"✅ Generated test token for {email}");
-            
-            // Redirect to success page
-            Console.WriteLine($"➡️ Redirecting to success page with token");
-            return Redirect($"/auth-success.html?token={jwt}&provider=Google&debug=simplified_flow");
+            try
+            {
+                // Create a hardcoded claim for testing
+                var email = "test@example.com";
+                
+                // Different behavior based on debug mode
+                if (debug == "direct_test")
+                {
+                    // For direct test from new test page
+                    Console.WriteLine("📝 Using direct test mode");
+                    var jwt = GenerateTestToken(email);
+                    Console.WriteLine($"✅ Generated test token for {email}");
+                    return Redirect($"/auth-direct-test.html?token={jwt}&provider=DirectTest&debug=true");
+                }
+                else
+                {
+                    // Normal flow - try to get email from Google claims if authentication succeeded
+                    var result = HttpContext.AuthenticateAsync("Google").Result;
+                    if (result.Succeeded)
+                    {
+                        var claims = result.Principal?.Claims;
+                        var googleEmail = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                        if (!string.IsNullOrEmpty(googleEmail))
+                        {
+                            email = googleEmail;
+                            Console.WriteLine($"✅ Got email from Google: {email}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("ℹ️ Google authentication not successful, using test email");
+                    }
+                    
+                    // Generate JWT token
+                    var jwt = GenerateTestToken(email);
+                    Console.WriteLine($"✅ Generated token for {email}");
+                    
+                    // Redirect to success page
+                    Console.WriteLine($"➡️ Redirecting to success page with token");
+                    return Redirect($"/auth-success.html?token={jwt}&provider=Google&debug=fallback_flow");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Exception in GoogleCallback: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // Even if there's an error, still try to generate a fallback token
+                var jwt = GenerateTestToken("error@example.com");
+                return Redirect($"/auth-success.html?token={jwt}&provider=ErrorFallback&error={Uri.EscapeDataString(ex.Message)}");
+            }
         }
         
         /// <summary>

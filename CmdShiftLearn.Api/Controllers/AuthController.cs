@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using CmdShiftLearn.Api.Models;
 using CmdShiftLearn.Api.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -7,6 +9,8 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CmdShiftLearn.Api.Controllers
 {
@@ -17,15 +21,18 @@ namespace CmdShiftLearn.Api.Controllers
         private readonly IAuthService _authService;
         private readonly IUserProfileService _userProfileService;
         private readonly ILogger<AuthController> _logger;
+        private readonly IConfiguration _configuration;
 
         public AuthController(
             IAuthService authService,
             IUserProfileService userProfileService,
-            ILogger<AuthController> logger)
+            ILogger<AuthController> logger,
+            IConfiguration configuration)
         {
             _authService = authService;
             _userProfileService = userProfileService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -61,10 +68,46 @@ namespace CmdShiftLearn.Api.Controllers
             
             var user = result.Principal;
             var claims = user?.Identities?.FirstOrDefault()?.Claims;
-            Console.WriteLine($"✅ Google Login Success - Email: {claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value}");
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             
-            // TODO: Issue JWT or create user session here
-            return Redirect("/auth-success.html");
+            Console.WriteLine($"✅ Google Login Success - Email: {email}");
+            
+            // Generate JWT token for the user
+            var jwt = GenerateTestToken(email);
+            
+            // Redirect to success page with the token
+            return Redirect($"/auth-success.html?token={jwt}");
+        }
+        
+        /// <summary>
+        /// Generates a test JWT token for development/testing purposes
+        /// </summary>
+        private string GenerateTestToken(string email)
+        {
+            // Get JWT secret from configuration
+            var jwtSecret = _configuration["Supabase:JwtSecret"] ?? 
+                           _configuration["SUPABASE__JWTSECRET"] ?? 
+                           _configuration["Supabase__JwtSecret"] ?? 
+                           _configuration["Authentication:Jwt:Secret"] ?? 
+                           "dev_test_secret_key_12345";
+            
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(jwtSecret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Email, email ?? "unknown@example.com"),
+                    new Claim("provider", "Google")
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+            
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         /// <summary>

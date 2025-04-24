@@ -11,6 +11,7 @@ using CmdShiftLearn.Api.Services;
 using CmdShiftLearn.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container
 builder.Services.AddControllers();

@@ -1,5 +1,7 @@
 using CmdAgent;
 using CmdAgent.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -9,34 +11,29 @@ namespace CmdAgent
     class Program
     {
         private static readonly string ApiBaseUrl = "https://cmdshiftlearnv2.onrender.com/";
-        private static readonly HttpClient _httpClient = new HttpClient();
-        private static LoginService? _loginService;
-        private static int _totalXp = 0;
+        private static HttpClient _httpClient = null!;
 
         static async Task Main(string[] args)
         {
             Console.WriteLine("CmdShiftLearn CLI");
             Console.WriteLine("=================");
             
-            // Initialize login service
-            _loginService = new LoginService(ApiBaseUrl);
+            // Build host with HttpClientFactory
+            var host = CreateHostBuilder(args).Build();
+            
+            // Get HttpClient from DI
+            _httpClient = host.Services.GetRequiredService<IHttpClientFactory>()
+                .CreateClient("CmdShiftLearnApi");
+            
+            // Get LoginService from DI
+            var loginService = host.Services.GetRequiredService<LoginService>();
             
             // Login flow
-            if (!await LoginFlow())
+            if (!await LoginFlow(loginService))
             {
                 Console.WriteLine("\nLogin failed. Press any key to exit...");
                 Console.ReadKey();
                 return;
-            }
-            
-            // Set auth header for future requests
-            _loginService.SetAuthHeader();
-            
-            // Set auth header on the static HttpClient
-            if (!string.IsNullOrEmpty(_loginService.GetToken()))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = 
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _loginService.GetToken());
             }
             
             // Tutorial flow
@@ -46,7 +43,21 @@ namespace CmdAgent
             Console.ReadKey();
         }
         
-        static async Task<bool> LoginFlow()
+        static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((hostContext, services) =>
+                {
+                    // Register HttpClient with base address
+                    services.AddHttpClient("CmdShiftLearnApi", client =>
+                    {
+                        client.BaseAddress = new Uri(ApiBaseUrl);
+                    });
+                    
+                    // Register LoginService
+                    services.AddSingleton<LoginService>();
+                });
+        
+        static async Task<bool> LoginFlow(LoginService loginService)
         {
             Console.WriteLine("\n📝 Login to CmdShiftLearn");
             Console.WriteLine("------------------------");
@@ -64,13 +75,18 @@ namespace CmdAgent
                 Console.WriteLine();
                 
                 Console.WriteLine("Logging in...");
-                var token = await _loginService!.LoginAsync(username, password);
+                var token = await loginService.LoginAsync(username, password);
                 
                 if (!string.IsNullOrEmpty(token))
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("✅ Login successful!");
                     Console.ResetColor();
+                    
+                    // Set auth header on the HttpClient
+                    _httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    
                     return true;
                 }
                 
@@ -112,52 +128,87 @@ namespace CmdAgent
             Console.WriteLine("----------------------------------------");
             
             // Process each step
-            for (int i = 0; i < tutorial.Steps.Count; i++)
+            int currentStepIndex = 0;
+            bool tutorialComplete = false;
+            
+            while (!tutorialComplete && currentStepIndex < tutorial.Steps.Count)
             {
-                var step = tutorial.Steps[i];
+                var step = tutorial.Steps[currentStepIndex];
                 
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"\n📝 Step {i + 1}/{tutorial.Steps.Count}: {step.Instruction}");
+                Console.WriteLine($"\n📝 Step {currentStepIndex + 1}/{tutorial.Steps.Count}: {step.Instructions}");
                 Console.ResetColor();
                 
                 // Get user input
                 Console.Write("PS> ");
                 string userInput = Console.ReadLine() ?? "";
                 
-                // Validate step
-                var result = await ValidateStepAsync(tutorial.Id, i, userInput);
+                // Run step
+                var result = await RunStepAsync(tutorial.Id, currentStepIndex, userInput);
                 
                 if (result != null)
                 {
-                    if (result.Correct)
+                    if (result.IsCorrect)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"✅ Correct! Earned {result.XP} XP");
-                        _totalXp += result.XP;
+                        Console.WriteLine($"✅ Correct! {result.Message}");
+                        Console.ResetColor();
+                        
+                        // Move to next step or complete tutorial
+                        if (result.IsComplete)
+                        {
+                            tutorialComplete = true;
+                        }
+                        else if (result.NextStepIndex.HasValue)
+                        {
+                            currentStepIndex = result.NextStepIndex.Value;
+                        }
+                        else
+                        {
+                            currentStepIndex++;
+                        }
                     }
                     else
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"❌ Incorrect: {result.Message}");
+                        Console.ResetColor();
+                        
+                        // Show hint if available
+                        if (!string.IsNullOrEmpty(result.Hint))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"💡 Hint: {result.Hint}");
+                            Console.ResetColor();
+                        }
+                        
+                        // Show Shello hint if available
+                        if (!string.IsNullOrEmpty(result.HintFromShello))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine($"🤖 Shello says: {result.HintFromShello}");
+                            Console.ResetColor();
+                        }
                     }
-                    
-                    Console.ResetColor();
                 }
             }
             
             // Celebrate completion
-            Console.WriteLine("\n----------------------------------------");
-            Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine($"🎉 Tutorial Complete! Total XP earned: {_totalXp}");
-            Console.ResetColor();
+            if (tutorialComplete)
+            {
+                Console.WriteLine("\n----------------------------------------");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine($"🎉 Tutorial Complete! Congratulations!");
+                Console.WriteLine($"🏆 You've earned XP and improved your command line skills!");
+                Console.ResetColor();
+            }
         }
         
         static async Task<Tutorial?> LoadTutorialAsync(string tutorialId)
         {
             try
             {
-                // Use the HttpClient from the LoginService which already has the auth header set
-                var response = await _httpClient.GetAsync($"{ApiBaseUrl}api/tutorials/{tutorialId}");
+                var response = await _httpClient.GetAsync($"api/tutorials/{tutorialId}");
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -180,7 +231,7 @@ namespace CmdAgent
             }
         }
         
-        static async Task<StepValidationResult?> ValidateStepAsync(string tutorialId, int stepIndex, string userInput)
+        static async Task<StepResult?> RunStepAsync(string tutorialId, int stepIndex, string userInput)
         {
             try
             {
@@ -195,17 +246,16 @@ namespace CmdAgent
                     Encoding.UTF8,
                     "application/json");
                 
-                // Use the HttpClient from the LoginService which already has the auth header set
-                var response = await _httpClient.PostAsync($"{ApiBaseUrl}api/tutorials/{tutorialId}/validate-step", content);
+                var response = await _httpClient.PostAsync($"api/tutorials/run-step", content);
                 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<StepValidationResult>();
+                    return await response.Content.ReadFromJsonAsync<StepResult>();
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"❌ Failed to validate step. Status code: {response.StatusCode}");
+                    Console.WriteLine($"❌ Failed to run step. Status code: {response.StatusCode}");
                     Console.ResetColor();
                     return null;
                 }
@@ -213,7 +263,7 @@ namespace CmdAgent
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"❌ Error validating step: {ex.Message}");
+                Console.WriteLine($"❌ Error running step: {ex.Message}");
                 Console.ResetColor();
                 return null;
             }

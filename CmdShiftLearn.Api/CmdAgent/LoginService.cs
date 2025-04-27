@@ -9,15 +9,12 @@ namespace CmdAgent
 {
     public class LoginService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private string? _authToken;
 
-        public LoginService(string baseUrl)
+        public LoginService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(baseUrl)
-            };
+            _httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
@@ -30,6 +27,8 @@ namespace CmdAgent
         {
             try
             {
+                var httpClient = _httpClientFactory.CreateClient("CmdShiftLearnApi");
+                
                 var loginRequest = new
                 {
                     username,
@@ -41,7 +40,7 @@ namespace CmdAgent
                     Encoding.UTF8,
                     "application/json");
 
-                var response = await _httpClient.PostAsync("api/auth/login", content);
+                var response = await httpClient.PostAsync("api/auth/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -74,18 +73,6 @@ namespace CmdAgent
         /// Gets the current authentication token
         /// </summary>
         public string? GetToken() => _authToken;
-
-        /// <summary>
-        /// Adds the authentication token to the HttpClient as a default header
-        /// </summary>
-        public void SetAuthHeader()
-        {
-            if (!string.IsNullOrEmpty(_authToken))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = 
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _authToken);
-            }
-        }
     }
 
     /// <summary>

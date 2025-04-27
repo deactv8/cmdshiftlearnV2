@@ -12,6 +12,26 @@ namespace CmdShiftLearn.Api.Models
         public BlueskyAuthSettings? Bluesky { get; set; }
         public JwtSettings? Jwt { get; set; }
     }
+    
+    /// <summary>
+    /// Simple username/password login request
+    /// </summary>
+    public class LoginRequest
+    {
+        [Required]
+        public string Username { get; set; } = string.Empty;
+        
+        [Required]
+        public string Password { get; set; } = string.Empty;
+    }
+    
+    /// <summary>
+    /// Simple login response with token
+    /// </summary>
+    public class LoginResponse
+    {
+        public string Token { get; set; } = string.Empty;
+    }
 
     /// <summary>
     /// Google OAuth settings

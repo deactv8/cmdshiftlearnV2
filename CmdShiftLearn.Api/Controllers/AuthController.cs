@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace CmdShiftLearn.Api.Controllers
 {
     [ApiController]
-    [Route("auth")]
+    [Route("api/auth")]
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
@@ -176,6 +176,45 @@ namespace CmdShiftLearn.Api.Controllers
             
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+        
+        /// <summary>
+        /// Simple username/password login endpoint
+        /// </summary>
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            // Simple hardcoded authentication for MVP
+            if (request.Username == "admin" && request.Password == "password123")
+            {
+                // Generate JWT token with supersecret key
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes("supersecret");
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, request.Username),
+                        new Claim("provider", "Basic")
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(key),
+                        SecurityAlgorithms.HmacSha256Signature)
+                };
+                
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+                
+                return Ok(new LoginResponse { Token = tokenString });
+            }
+            
+            return Unauthorized(new { error = "Invalid username or password" });
         }
 
         /// <summary>

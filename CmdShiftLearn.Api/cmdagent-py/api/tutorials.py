@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 
 from utils.config import API_BASE_URL, USE_MOCK_DATA
 from api.mock_data import TUTORIALS as MOCK_TUTORIALS
-from api.auth import get_auth_header
+from api.auth import get_auth_header, SUPABASE_API_KEY
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +36,7 @@ class TutorialClient:
         
         try:
             # Get authentication headers
+            # Get authentication headers (includes apikey)
             headers = get_auth_header()
             
             # Use httpx with a 10-second timeout
@@ -98,7 +99,7 @@ class TutorialClient:
         logger.info(f"Fetching tutorial {tutorial_id} from {url}")
         
         try:
-            # Get authentication headers
+            # Get authentication headers (includes apikey)
             headers = get_auth_header()
             
             # Use httpx with a 10-second timeout

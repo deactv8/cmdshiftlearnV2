@@ -17,7 +17,8 @@ logging.basicConfig(
 logger = logging.getLogger('api.auth')
 
 # Supabase configuration
-SUPABASE_URL = "https://fqceiphubiqnorytayiu.supabase.co/auth/v1/token"
+SUPABASE_PROJECT_URL = "https://fqceiphubiqnorytayiu.supabase.co"
+SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1/token"
 SUPABASE_API_KEY = "nC4RzhuZ+4JirlRrrIW9D57pAXh48Ghj5xHJw3ri68Ut6Dmto+tmHDhzj1f5dGSzBUCWAukD9EjKvT0teUwmHw=="
 TOKEN_FILE = "token.json"
 
@@ -73,7 +74,8 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
     """
     headers = {
         "Content-Type": "application/json",
-        "apiKey": SUPABASE_API_KEY
+        "apikey": SUPABASE_API_KEY,
+        "Authorization": f"Bearer {SUPABASE_API_KEY}"
     }
     
     payload = {
@@ -85,7 +87,7 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
         logger.info(f"Attempting to login with email: {email}")
         with httpx.Client(timeout=10.0) as client:
             response = client.post(
-                f"{SUPABASE_URL}?grant_type=password", 
+                f"{SUPABASE_AUTH_URL}?grant_type=password", 
                 headers=headers,
                 json=payload
             )
@@ -133,20 +135,24 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
 
 def get_auth_header(token: Optional[str] = None) -> Dict[str, str]:
     """
-    Get authorization header with token.
+    Get authorization headers with token.
     Loads token from file if not provided.
+    For Supabase, both apikey and Authorization headers are needed.
     
     Args:
         token: Optional token to use
         
     Returns:
-        Dict[str, str]: Headers dictionary with Authorization
+        Dict[str, str]: Headers dictionary with Authorization and apikey
     """
     if not token:
         token = load_token()
     
     if not token:
         logger.warning("No token available for authorization header")
-        return {}
+        return {"apikey": SUPABASE_API_KEY}  # Return at least the apikey for anonymous access
     
-    return {"Authorization": f"Bearer {token}"}
+    return {
+        "apikey": SUPABASE_API_KEY,
+        "Authorization": f"Bearer {token}"
+    }

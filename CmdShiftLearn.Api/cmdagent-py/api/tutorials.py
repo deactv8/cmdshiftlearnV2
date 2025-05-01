@@ -102,11 +102,39 @@ class TutorialClient:
             # Get authentication headers (includes apikey)
             headers = get_auth_header()
             
+            # Log the headers being sent (excluding sensitive parts)
+            logger.debug(f"Request headers: {headers.keys()}")
+            
             # Use httpx with a 10-second timeout
             with httpx.Client(timeout=10.0) as client:
                 response = client.get(url, headers=headers)
             
             logger.info(f"API response status code: {response.status_code}")
+            
+            # Log the response headers for debugging
+            logger.debug(f"Response headers: {dict(response.headers)}")
+            
+            # If we got a 401, log more detailed information
+            if response.status_code == 401:
+                logger.error(f"Authorization failed. Response details: {response.text}")
+                error_msg = "Authentication failed. This could be because:"
+                error_msg += "\n1. Your token is invalid or expired"
+                error_msg += "\n2. The API expects a different authentication format"
+                error_msg += "\n3. You need to confirm your email first"
+                logger.error(error_msg)
+                
+                # Check if we have mock data to use as fallback
+                if USE_MOCK_DATA:
+                    logger.info("Falling back to mock data due to authentication failure")
+                    for mock_tutorial in MOCK_TUTORIALS:
+                        if mock_tutorial.get('id') == tutorial_id:
+                            logger.info(f"Found mock data for {tutorial_id}")
+                            return mock_tutorial
+                    
+                    logger.warning(f"No mock data found for tutorial ID: {tutorial_id}")
+                    return None
+                
+            # Continue with the normal flow if no 401 error
             response.raise_for_status()
             
             tutorial = response.json()
@@ -121,8 +149,22 @@ class TutorialClient:
                 logger.warning(f"Tutorial with ID '{tutorial_id}' not found")
             elif e.response.status_code == 401:
                 logger.error("Authentication required. Please log in first.")
+                # Log additional information about authentication headers
+                try:
+                    www_authenticate = e.response.headers.get('www-authenticate', '')
+                    logger.error(f"Authentication challenge: {www_authenticate}")
+                except Exception as header_error:
+                    logger.error(f"Error extracting headers: {str(header_error)}")
             else:
                 logger.error(f"HTTP Error: {e.response.status_code} - {e.response.reason_phrase}")
+                
+            # Fall back to mock data if available
+            if USE_MOCK_DATA:
+                logger.info(f"Attempting to use mock data for tutorial {tutorial_id}")
+                for mock in MOCK_TUTORIALS:
+                    if mock["id"] == tutorial_id:
+                        logger.info(f"Found mock data for {tutorial_id}")
+                        return mock
                 
         except httpx.RequestError as e:
             logger.error(f"Error fetching tutorial {tutorial_id}: {e}")

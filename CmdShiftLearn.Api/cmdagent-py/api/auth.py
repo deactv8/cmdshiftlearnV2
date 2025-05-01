@@ -55,8 +55,17 @@ def save_token(token_data: Dict[str, Any]) -> bool:
         bool: True if successful, False otherwise
     """
     try:
+        # Extract the necessary information from token data
+        # Make sure we save the full response for better debugging
         with open(TOKEN_FILE, 'w') as f:
             json.dump(token_data, f)
+            
+        # Also log the token type and some metadata to help debug
+        if 'access_token' in token_data:
+            token = token_data['access_token']
+            logger.debug(f"Saved token (first 10 chars): {token[:10]}...")
+            logger.debug(f"Token data keys: {token_data.keys()}")
+            
         return True
     except Exception as e:
         logger.error(f"Error saving token: {e}")
@@ -260,13 +269,32 @@ def get_auth_header(token: Optional[str] = None) -> Dict[str, str]:
         Dict[str, str]: Headers dictionary with Authorization and apikey
     """
     if not token:
-        token = load_token()
+        # Try to load the full token data, not just the token
+        try:
+            if os.path.exists(TOKEN_FILE):
+                with open(TOKEN_FILE, 'r') as f:
+                    token_data = json.load(f)
+                    token = token_data.get('access_token')
+                    
+                    # Log the full token data types
+                    logger.debug(f"Loaded token data keys: {token_data.keys()}")
+        except Exception as e:
+            logger.error(f"Error loading token data: {e}")
+            token = None
     
     if not token:
         logger.warning("No token available for authorization header")
         return {"apikey": SUPABASE_API_KEY}  # Return at least the apikey for anonymous access
     
-    return {
+    # Add debug logging to trace the token
+    if token:
+        logger.debug(f"Using auth token (first 10 chars): {token[:10]}...")
+    
+    # Create headers with both formats - for both Supabase and our API
+    headers = {
         "apikey": SUPABASE_API_KEY,
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "X-Auth-Token": token  # Try an alternative format that might be expected by the API
     }
+    
+    return headers

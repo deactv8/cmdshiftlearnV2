@@ -19,7 +19,8 @@ logger = logging.getLogger('api.auth')
 # Supabase configuration
 SUPABASE_PROJECT_URL = "https://fqceiphubiqnorytayiu.supabase.co"
 SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1/token"
-SUPABASE_API_KEY = "nC4RzhuZ+4JirlRrrIW9D57pAXh48Ghj5xHJw3ri68Ut6Dmto+tmHDhzj1f5dGSzBUCWAukD9EjKvT0teUwmHw=="
+# The ANON key should start with "eyJ..." and be a JWT token
+SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI1MDg4MDAsImV4cCI6MTk5ODA4NDgwMH0.eDEEKWkaFqqAXyFiYQGXUq0nwAfkdEg-3TRbmMOxvB0"
 TOKEN_FILE = "token.json"
 
 

@@ -9,16 +9,17 @@ import logging
 import httpx
 from typing import Dict, Any, Optional, Tuple
 
-# Configure logging
+# Configure logging with more details
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Change to DEBUG for more detailed logs
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger('api.auth')
 
 # Supabase configuration
 SUPABASE_PROJECT_URL = "https://fqceiphubiqnorytayiu.supabase.co"
-SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1/token"
+SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1"
+SUPABASE_SIGNIN_URL = f"{SUPABASE_AUTH_URL}/token?grant_type=password"
 # The correct anon key from Supabase project
 SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ3NzcyMjAsImV4cCI6MjA2MDM1MzIyMH0.iXTLdfgAZZzcoeO7P9k4Z81yiqhrm-GztgxxzUYg-14"
 TOKEN_FILE = "token.json"
@@ -75,25 +76,38 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
     """
     headers = {
         "Content-Type": "application/json",
-        "apikey": SUPABASE_API_KEY,
-        "Authorization": f"Bearer {SUPABASE_API_KEY}"
+        "apikey": SUPABASE_API_KEY
     }
     
+    # Fix payload format according to Supabase documentation
     payload = {
         "email": email,
-        "password": password
+        "password": password,
+        "grant_type": "password"  # Include grant_type in payload as well
     }
     
     try:
         logger.info(f"Attempting to login with email: {email}")
+        logger.debug(f"Authentication URL: {SUPABASE_PROJECT_URL}/auth/v1/token?grant_type=password")
+        logger.debug(f"Request headers: {headers}")
+        logger.debug(f"Request payload: {payload}")
+        
         with httpx.Client(timeout=10.0) as client:
+            # Use the signin URL
             response = client.post(
-                f"{SUPABASE_AUTH_URL}?grant_type=password", 
+                SUPABASE_SIGNIN_URL, 
                 headers=headers,
                 json=payload
             )
         
         logger.info(f"Login response status code: {response.status_code}")
+        # Log the entire response for debugging
+        try:
+            response_data = response.json()
+            logger.debug(f"Response data: {response_data}")
+        except:
+            logger.debug(f"Response text: {response.text}")
+        
         
         if response.status_code == 200:
             data = response.json()

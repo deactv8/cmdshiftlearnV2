@@ -50,8 +50,11 @@ namespace CmdShiftLearn.Api.Controllers
         /// </remarks>
         /// <returns>A list of tutorial metadata</returns>
         /// <response code="200">Returns the list of tutorials</response>
+        /// <response code="401">If the user is not authenticated</response>
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<TutorialMetadata>>> GetAllTutorials()
         {
             try

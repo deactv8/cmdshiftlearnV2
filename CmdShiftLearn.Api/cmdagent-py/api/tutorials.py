@@ -59,6 +59,12 @@ class TutorialClient:
             
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
+            if e.response.status_code == 401:
+                error_msg = "Authentication failed. Please check your login or contact support."
+                logger.error(error_msg)
+                print(error_msg)
+            
+            # Only fall back to mock data if USE_MOCK_DATA is explicitly set to True
             if USE_MOCK_DATA:
                 logger.info("Using mock data as fallback")
                 return MOCK_TUTORIALS
@@ -114,16 +120,14 @@ class TutorialClient:
             # Log the response headers for debugging
             logger.debug(f"Response headers: {dict(response.headers)}")
             
-            # If we got a 401, log more detailed information
+            # If we got a 401, log more detailed information and show clear error message
             if response.status_code == 401:
                 logger.error(f"Authorization failed. Response details: {response.text}")
-                error_msg = "Authentication failed. This could be because:"
-                error_msg += "\n1. Your token is invalid or expired"
-                error_msg += "\n2. The API expects a different authentication format"
-                error_msg += "\n3. You need to confirm your email first"
+                error_msg = "Authentication failed. Please check your login or contact support."
                 logger.error(error_msg)
+                print(error_msg)
                 
-                # Check if we have mock data to use as fallback
+                # Only fall back to mock data if USE_MOCK_DATA is explicitly set to True
                 if USE_MOCK_DATA:
                     logger.info("Falling back to mock data due to authentication failure")
                     for mock_tutorial in MOCK_TUTORIALS:
@@ -133,6 +137,7 @@ class TutorialClient:
                     
                     logger.warning(f"No mock data found for tutorial ID: {tutorial_id}")
                     return None
+                return None
                 
             # Continue with the normal flow if no 401 error
             response.raise_for_status()
@@ -148,7 +153,9 @@ class TutorialClient:
             if e.response.status_code == 404:
                 logger.warning(f"Tutorial with ID '{tutorial_id}' not found")
             elif e.response.status_code == 401:
-                logger.error("Authentication required. Please log in first.")
+                error_msg = "Authentication failed. Please check your login or contact support."
+                logger.error(error_msg)
+                print(error_msg)
                 # Log additional information about authentication headers
                 try:
                     www_authenticate = e.response.headers.get('www-authenticate', '')
@@ -158,7 +165,7 @@ class TutorialClient:
             else:
                 logger.error(f"HTTP Error: {e.response.status_code} - {e.response.reason_phrase}")
                 
-            # Fall back to mock data if available
+            # Fall back to mock data only if USE_MOCK_DATA is explicitly set to True
             if USE_MOCK_DATA:
                 logger.info(f"Attempting to use mock data for tutorial {tutorial_id}")
                 for mock in MOCK_TUTORIALS:

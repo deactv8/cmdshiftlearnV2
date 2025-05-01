@@ -19,8 +19,8 @@ logger = logging.getLogger('api.auth')
 # Supabase configuration
 SUPABASE_PROJECT_URL = "https://fqceiphubiqnorytayiu.supabase.co"
 SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1/token"
-# The correct anon key from Supabase project settings
-SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI1MDg4MDAsImV4cCI6MTk5ODA4NDgwMH0.eyJpcCJ3OiCII6IjY1LjEwOC4yMDAuOTAiLCJpYXQiOjE2ODI1MDkwMzF9"
+# The correct anon key from Supabase project
+SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ3NzcyMjAsImV4cCI6MjA2MDM1MzIyMH0.iXTLdfgAZZzcoeO7P9k4Z81yiqhrm-GztgxxzUYg-14"
 TOKEN_FILE = "token.json"
 
 

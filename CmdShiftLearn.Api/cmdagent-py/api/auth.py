@@ -19,8 +19,8 @@ logger = logging.getLogger('api.auth')
 # Supabase configuration
 SUPABASE_PROJECT_URL = "https://fqceiphubiqnorytayiu.supabase.co"
 SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1/token"
-# The ANON key should start with "eyJ..." and be a JWT token
-SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI1MDg4MDAsImV4cCI6MTk5ODA4NDgwMH0.eDEEKWkaFqqAXyFiYQGXUq0nwAfkdEg-3TRbmMOxvB0"
+# The correct anon key from Supabase project settings
+SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI1MDg4MDAsImV4cCI6MTk5ODA4NDgwMH0.eyJpcCJ3OiCII6IjY1LjEwOC4yMDAuOTAiLCJpYXQiOjE2ODI1MDkwMzF9"
 TOKEN_FILE = "token.json"
 
 
@@ -72,28 +72,6 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
     Returns:
         Tuple[bool, Optional[str], Optional[str]]: 
             (success, token, error_message)
-    """
-    # TEMPORARY DEVELOPMENT MODE: Skip actual authentication for testing
-    # Create a mock token for testing purposes
-    logger.info(f"DEVELOPMENT MODE: Bypassing authentication for {email}")
-    
-    # Create a mock token response
-    mock_token_data = {
-        "access_token": "mock_access_token_for_development_only",
-        "token_type": "bearer",
-        "expires_in": 3600,
-        "refresh_token": "mock_refresh_token",
-        "user": {
-            "id": "mock_user_id",
-            "email": email
-        }
-    }
-    
-    # Save the mock token to file
-    save_token(mock_token_data)
-    return True, mock_token_data["access_token"], None
-    
-    # The original implementation is commented out for now
     """
     headers = {
         "Content-Type": "application/json",
@@ -154,13 +132,13 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
         error_msg = f"Authentication failed: {str(e)}"
         logger.error(error_msg)
         return False, None, error_msg
-    """
 
 
 def get_auth_header(token: Optional[str] = None) -> Dict[str, str]:
     """
     Get authorization headers with token.
-    In development mode, it returns mock headers.
+    Loads token from file if not provided.
+    For Supabase, both apikey and Authorization headers are needed.
     
     Args:
         token: Optional token to use
@@ -173,10 +151,8 @@ def get_auth_header(token: Optional[str] = None) -> Dict[str, str]:
     
     if not token:
         logger.warning("No token available for authorization header")
-        # In development mode, use a mock token instead of returning empty headers
-        token = "mock_access_token_for_development_only"
+        return {"apikey": SUPABASE_API_KEY}  # Return at least the apikey for anonymous access
     
-    # For development mode, we'll just use consistent headers
     return {
         "apikey": SUPABASE_API_KEY,
         "Authorization": f"Bearer {token}"

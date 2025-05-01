@@ -1,5 +1,5 @@
 # API configuration
 API_BASE_URL = "https://cmdshiftlearnv2.onrender.com/api"
 
-# Enable mock mode for development until API auth is fixed
-USE_MOCK_DATA = True
+# Disable mock mode (we're using real API now!)
+USE_MOCK_DATA = False

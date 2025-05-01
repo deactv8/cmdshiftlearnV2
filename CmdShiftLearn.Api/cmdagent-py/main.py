@@ -7,7 +7,11 @@ A command-line tool for interacting with the CmdShiftLearn platform.
 
 import sys
 import time
+import logging
 from typing import List, Dict, Any, Optional, Tuple
+
+# Get the logger
+logger = logging.getLogger('main')
 
 try:
     from rich.console import Console
@@ -95,19 +99,50 @@ def try_signup(email: str, password: str) -> bool:
     else:
         print("Creating a new account...")
     
-    success, token, error_msg = signup(email, password)
+    success, token, message = signup(email, password)
     
     if success:
         if RICH_AVAILABLE:
             console.print("[bold green]Signup successful![/bold green]")
+            if message:
+                console.print(f"[green]{message}[/green]")
+                
+            # If we have a token, we're already logged in
+            if token:
+                return True
+            else:
+                # Try to login immediately after signup (some Supabase configurations allow this)
+                console.print("[italic]Attempting to log in with your new account...[/italic]")
+                login_success, login_token, login_error, _ = login(email, password)
+                if login_success:
+                    console.print("[bold green]Login successful![/bold green]")
+                    return True
+                else:
+                    console.print("[yellow]You'll need to log in after confirming your email.[/yellow]")
+                    return False
         else:
             print("Signup successful!")
-        return True
+            if message:
+                print(message)
+                
+            # If we have a token, we're already logged in
+            if token:
+                return True
+            else:
+                # Try to login immediately after signup (some Supabase configurations allow this)
+                print("Attempting to log in with your new account...")
+                login_success, login_token, login_error, _ = login(email, password)
+                if login_success:
+                    print("Login successful!")
+                    return True
+                else:
+                    print("You'll need to log in after confirming your email.")
+                    return False
     else:
         if RICH_AVAILABLE:
-            console.print(f"[bold red]Signup failed:[/bold red] {error_msg}")
+            console.print(f"[bold red]Signup failed:[/bold red] {message}")
         else:
-            print(f"Signup failed: {error_msg}")
+            print(f"Signup failed: {message}")
         return False
 
 
@@ -142,6 +177,7 @@ def authenticate() -> bool:
                 
                 console.print("[italic]Authenticating...[/italic]")
                 success, token, error_msg, error_details = login(email, password)
+                logger.debug(f"Error details: {error_details}")
                 
                 if success:
                     console.print("[bold green]Login successful![/bold green]")
@@ -149,17 +185,33 @@ def authenticate() -> bool:
                 else:
                     console.print(f"[bold red]Login failed:[/bold red] {error_msg}")
                     
-                    # Check if the error is due to invalid credentials
+                    # Check if the error is due to invalid credentials or email not confirmed
                     is_invalid_credentials = (
                         error_details and 
                         (
                             error_details.get('error') == 'invalid_credentials' or
+                            error_details.get('error_code') == 'invalid_credentials' or
                             'invalid credentials' in error_details.get('error_description', '').lower() or
                             'user not found' in error_details.get('error_description', '').lower()
                         )
                     )
                     
-                    if is_invalid_credentials:
+                    is_email_not_confirmed = (
+                        error_details and
+                        (
+                            error_details.get('error_code') == 'email_not_confirmed' or
+                            'email not confirmed' in error_details.get('msg', '').lower()
+                        )
+                    )
+                    
+                    if is_email_not_confirmed:
+                        # Inform the user to check their email
+                        console.print("[yellow]Your account exists but the email is not confirmed. Please check your inbox for a confirmation email.[/yellow]")
+                        if Confirm.ask("[yellow]Would you like to try a different email address?[/yellow]"):
+                            continue
+                        else:
+                            return False
+                    elif is_invalid_credentials:
                         # Offer to create an account
                         if Confirm.ask("[yellow]No account found with that email. Would you like to create one?[/yellow]"):
                             if try_signup(email, password):
@@ -191,17 +243,34 @@ def authenticate() -> bool:
                 else:
                     print(f"Login failed: {error_msg}")
                     
-                    # Check if the error is due to invalid credentials
+                    # Check if the error is due to invalid credentials or email not confirmed
                     is_invalid_credentials = (
                         error_details and 
                         (
                             error_details.get('error') == 'invalid_credentials' or
+                            error_details.get('error_code') == 'invalid_credentials' or
                             'invalid credentials' in error_details.get('error_description', '').lower() or
                             'user not found' in error_details.get('error_description', '').lower()
                         )
                     )
                     
-                    if is_invalid_credentials:
+                    is_email_not_confirmed = (
+                        error_details and
+                        (
+                            error_details.get('error_code') == 'email_not_confirmed' or
+                            'email not confirmed' in error_details.get('msg', '').lower()
+                        )
+                    )
+                    
+                    if is_email_not_confirmed:
+                        # Inform the user to check their email
+                        print("Your account exists but the email is not confirmed. Please check your inbox for a confirmation email.")
+                        try_different = input("Would you like to try a different email address? (y/n): ").lower()
+                        if try_different == 'y':
+                            continue
+                        else:
+                            return False
+                    elif is_invalid_credentials:
                         # Offer to create an account
                         create_account = input("No account found with that email. Would you like to create one? (y/n): ").lower()
                         if create_account == 'y':

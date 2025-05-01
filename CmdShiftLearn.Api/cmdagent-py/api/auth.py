@@ -134,8 +134,12 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
                 error_data = response.json()
                 if 'error' in error_data:
                     error_msg = f"Authentication failed: {error_data['error']}"
+                elif 'error_code' in error_data:
+                    error_msg = f"Authentication failed: {error_data['error_code']}"
                 elif 'message' in error_data:
                     error_msg = f"Authentication failed: {error_data['message']}"
+                elif 'msg' in error_data:
+                    error_msg = f"Authentication failed: {error_data['msg']}"
             except:
                 pass
                 
@@ -201,8 +205,13 @@ def signup(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str
             data = response.json()
             access_token = data.get('access_token')
             
-            if access_token:
-                # Save token data to file
+            # For Supabase, signup doesn't return an access token immediately if email confirmation is enabled
+            # Instead, it returns user data with confirmation_sent_at field
+            if 'confirmation_sent_at' in data:
+                logger.info("Signup successful, confirmation email sent")
+                return True, None, "Account created successfully! Please check your email to confirm your account, then log in."
+            elif access_token:
+                # If email confirmation is not required, we might get an access token
                 save_token(data)
                 logger.info("Signup successful, token saved")
                 return True, access_token, None

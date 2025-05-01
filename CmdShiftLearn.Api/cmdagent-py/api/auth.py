@@ -20,6 +20,7 @@ logger = logging.getLogger('api.auth')
 SUPABASE_PROJECT_URL = "https://fqceiphubiqnorytayiu.supabase.co"
 SUPABASE_AUTH_URL = f"{SUPABASE_PROJECT_URL}/auth/v1"
 SUPABASE_SIGNIN_URL = f"{SUPABASE_AUTH_URL}/token?grant_type=password"
+SUPABASE_SIGNUP_URL = f"{SUPABASE_AUTH_URL}/signup"
 # The correct anon key from Supabase project
 SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxY2VpcGh1Ymlxbm9yeXRheWl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ3NzcyMjAsImV4cCI6MjA2MDM1MzIyMH0.iXTLdfgAZZzcoeO7P9k4Z81yiqhrm-GztgxxzUYg-14"
 TOKEN_FILE = "token.json"
@@ -62,7 +63,7 @@ def save_token(token_data: Dict[str, Any]) -> bool:
         return False
 
 
-def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]]:
+def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str], Optional[Dict]]:
     """
     Log in using Supabase authentication.
     
@@ -71,8 +72,8 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
         password: User's password
         
     Returns:
-        Tuple[bool, Optional[str], Optional[str]]: 
-            (success, token, error_message)
+        Tuple[bool, Optional[str], Optional[str], Optional[Dict]]: 
+            (success, token, error_message, error_details)
     """
     headers = {
         "Content-Type": "application/json",
@@ -102,12 +103,16 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
         
         logger.info(f"Login response status code: {response.status_code}")
         # Log the entire response for debugging
+        error_details = None
         try:
             response_data = response.json()
             logger.debug(f"Response data: {response_data}")
+            
+            # Extract error details if available
+            if response.status_code != 200:
+                error_details = response_data
         except:
             logger.debug(f"Response text: {response.text}")
-        
         
         if response.status_code == 200:
             data = response.json()
@@ -117,10 +122,10 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
                 # Save token data to file
                 save_token(data)
                 logger.info("Login successful, token saved")
-                return True, access_token, None
+                return True, access_token, None, None
             else:
                 logger.error("No access token in response")
-                return False, None, "Authentication failed: No access token received"
+                return False, None, "Authentication failed: No access token received", None
         else:
             error_msg = f"Authentication failed: {response.status_code}"
             
@@ -135,15 +140,100 @@ def login(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]
                 pass
                 
             logger.error(error_msg)
-            return False, None, error_msg
+            return False, None, error_msg, error_details
             
     except httpx.TimeoutException:
         error_msg = "Authentication failed: Request timed out"
         logger.error(error_msg)
-        return False, None, error_msg
+        return False, None, error_msg, None
         
     except Exception as e:
         error_msg = f"Authentication failed: {str(e)}"
+        logger.error(error_msg)
+        return False, None, error_msg, None
+
+
+def signup(email: str, password: str) -> Tuple[bool, Optional[str], Optional[str]]:
+    """
+    Sign up a new user with Supabase authentication.
+    
+    Args:
+        email: User's email
+        password: User's password
+        
+    Returns:
+        Tuple[bool, Optional[str], Optional[str]]: 
+            (success, token, error_message)
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_API_KEY
+    }
+    
+    payload = {
+        "email": email,
+        "password": password
+    }
+    
+    try:
+        logger.info(f"Attempting to sign up with email: {email}")
+        logger.debug(f"Signup URL: {SUPABASE_SIGNUP_URL}")
+        logger.debug(f"Request headers: {headers}")
+        logger.debug(f"Request payload: {payload}")
+        
+        with httpx.Client(timeout=10.0) as client:
+            response = client.post(
+                SUPABASE_SIGNUP_URL, 
+                headers=headers,
+                json=payload
+            )
+        
+        logger.info(f"Signup response status code: {response.status_code}")
+        
+        # Log the response for debugging
+        try:
+            response_data = response.json()
+            logger.debug(f"Response data: {response_data}")
+        except:
+            logger.debug(f"Response text: {response.text}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            access_token = data.get('access_token')
+            
+            if access_token:
+                # Save token data to file
+                save_token(data)
+                logger.info("Signup successful, token saved")
+                return True, access_token, None
+            else:
+                logger.error("No access token in response")
+                return False, None, "Signup successful but no access token received. Try logging in."
+        else:
+            error_msg = f"Signup failed: {response.status_code}"
+            
+            # Try to extract error message from response
+            try:
+                error_data = response.json()
+                if 'error' in error_data:
+                    error_msg = f"Signup failed: {error_data['error']}"
+                elif 'message' in error_data:
+                    error_msg = f"Signup failed: {error_data['message']}"
+                elif 'msg' in error_data:
+                    error_msg = f"Signup failed: {error_data['msg']}"
+            except:
+                pass
+                
+            logger.error(error_msg)
+            return False, None, error_msg
+            
+    except httpx.TimeoutException:
+        error_msg = "Signup failed: Request timed out"
+        logger.error(error_msg)
+        return False, None, error_msg
+        
+    except Exception as e:
+        error_msg = f"Signup failed: {str(e)}"
         logger.error(error_msg)
         return False, None, error_msg
 

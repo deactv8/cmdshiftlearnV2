@@ -14,14 +14,14 @@ try:
     from rich.table import Table
     from rich.panel import Panel
     from rich.markdown import Markdown
-    from rich.prompt import Prompt, Password
+    from rich.prompt import Prompt, Password, Confirm
     from rich.syntax import Syntax
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
 
 from api.tutorials import TutorialClient
-from api.auth import load_token, login
+from api.auth import load_token, login, signup
 
 
 # Initialize Rich console if available
@@ -79,6 +79,38 @@ def print_tutorials(tutorials: List[Dict[str, Any]]) -> None:
             print(f"{i:<4} | {tutorial.get('id', 'N/A'):<{id_width}} | {tutorial.get('title', 'Untitled'):<{title_width}}")
 
 
+def try_signup(email: str, password: str) -> bool:
+    """
+    Attempt to sign up a new user.
+    
+    Args:
+        email: User's email
+        password: User's password
+        
+    Returns:
+        bool: True if signup and authentication was successful
+    """
+    if RICH_AVAILABLE:
+        console.print("[italic]Creating a new account...[/italic]")
+    else:
+        print("Creating a new account...")
+    
+    success, token, error_msg = signup(email, password)
+    
+    if success:
+        if RICH_AVAILABLE:
+            console.print("[bold green]Signup successful![/bold green]")
+        else:
+            print("Signup successful!")
+        return True
+    else:
+        if RICH_AVAILABLE:
+            console.print(f"[bold red]Signup failed:[/bold red] {error_msg}")
+        else:
+            print(f"Signup failed: {error_msg}")
+        return False
+
+
 def authenticate() -> bool:
     """
     Authenticate the user using Supabase.
@@ -109,13 +141,29 @@ def authenticate() -> bool:
                 password = Password.ask("Password")
                 
                 console.print("[italic]Authenticating...[/italic]")
-                success, token, error_msg = login(email, password)
+                success, token, error_msg, error_details = login(email, password)
                 
                 if success:
                     console.print("[bold green]Login successful![/bold green]")
                     return True
                 else:
                     console.print(f"[bold red]Login failed:[/bold red] {error_msg}")
+                    
+                    # Check if the error is due to invalid credentials
+                    is_invalid_credentials = (
+                        error_details and 
+                        (
+                            error_details.get('error') == 'invalid_credentials' or
+                            'invalid credentials' in error_details.get('error_description', '').lower() or
+                            'user not found' in error_details.get('error_description', '').lower()
+                        )
+                    )
+                    
+                    if is_invalid_credentials:
+                        # Offer to create an account
+                        if Confirm.ask("[yellow]No account found with that email. Would you like to create one?[/yellow]"):
+                            if try_signup(email, password):
+                                return True
             except KeyboardInterrupt:
                 console.print("\n[bold yellow]Login cancelled by user.[/bold yellow]")
                 return False
@@ -135,13 +183,30 @@ def authenticate() -> bool:
                 password = input("Password: ")
                 
                 print("Authenticating...")
-                success, token, error_msg = login(email, password)
+                success, token, error_msg, error_details = login(email, password)
                 
                 if success:
                     print("Login successful!")
                     return True
                 else:
                     print(f"Login failed: {error_msg}")
+                    
+                    # Check if the error is due to invalid credentials
+                    is_invalid_credentials = (
+                        error_details and 
+                        (
+                            error_details.get('error') == 'invalid_credentials' or
+                            'invalid credentials' in error_details.get('error_description', '').lower() or
+                            'user not found' in error_details.get('error_description', '').lower()
+                        )
+                    )
+                    
+                    if is_invalid_credentials:
+                        # Offer to create an account
+                        create_account = input("No account found with that email. Would you like to create one? (y/n): ").lower()
+                        if create_account == 'y':
+                            if try_signup(email, password):
+                                return True
             except KeyboardInterrupt:
                 print("\nLogin cancelled by user.")
                 return False

@@ -12,7 +12,10 @@ using CmdShiftLearn.Api.Services;
 using CmdShiftLearn.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddEnvironmentVariables();
+var env = builder.Environment;
+builder.Configuration
+    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 // Configure the port for Render deployment
 // Render sets a PORT environment variable that we need to listen on
@@ -129,66 +132,45 @@ if (string.IsNullOrEmpty(jwtSecret))
     Console.WriteLine("WARNING: JWT Secret is empty or not found in configuration!");
 }
 
-// Configure multi-provider authentication
+// Configure minimal authentication for MVP
 try
 {
+    // Use a fixed, simple JWT secret for the MVP
+    const string mvpJwtSecret = "supersecret_dev_key_for_mvp_testing_12345";
+    Console.WriteLine("Using fixed JWT secret for MVP");
+    
+    byte[] keyBytes = Encoding.UTF8.GetBytes(mvpJwtSecret);
+    
     builder.Services.AddAuthentication(options => 
     {
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    })
-    .AddCookie("Cookies", options =>
-    {
-        options.Cookie.Name = "CmdShiftLearn.Auth";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.SaveToken = true;
-        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.RequireHttpsMetadata = false; // For MVP, don't require HTTPS
         
-        // For JWT validation, we should use the raw JWT secret string
-        if (string.IsNullOrEmpty(jwtSecret))
-        {
-            Console.WriteLine("ERROR: JWT Secret is empty! Authentication will fail.");
-            // Provide a non-empty default for development only to prevent immediate crash
-            // This won't work for actual token validation but prevents startup errors
-            jwtSecret = builder.Environment.IsDevelopment() ? "development_fallback_key_not_for_production" : jwtSecret;
-        }
-        
-        byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
-        Console.WriteLine($"Using JWT secret for validation, key size: {keyBytes.Length} bytes");
-        Console.WriteLine("Using the JWT secret as-is (without decoding Base64 first)");
-        
-        // Get issuer and audience with fallbacks
-        var issuer = builder.Configuration["Authentication:Jwt:Issuer"] ?? 
-                     builder.Configuration["Supabase:Issuer"] ?? 
-                     "https://cmdshiftlearn.api";
-        
-        var audience = builder.Configuration["Authentication:Jwt:Audience"] ?? 
-                       builder.Configuration["Supabase:Audience"] ?? 
-                       "cmdshiftlearn-api";
-        
-        Console.WriteLine($"JWT Validation - Issuer: {issuer}");
-        Console.WriteLine($"JWT Validation - Audience: {audience}");
+        // Simplified token validation parameters for MVP
+        // Get audience from config or use default
+        var configuredAudience = builder.Configuration["Authentication:Jwt:Audience"] ?? "authenticated";
+        Console.WriteLine($"DEBUG - JWT Validation - Configured Audience: {configuredAudience}");
+        Console.WriteLine($"DEBUG - JWT Validation - Using Audience: authenticated (hardcoded for Supabase compatibility)");
         
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidIssuer = issuer,
-            ValidateAudience = true,
-            ValidAudience = audience,
-            ValidateLifetime = true,
+            ValidateIssuer = false,      // Skip issuer validation for MVP
+            ValidateAudience = true,     // Validate audience for Supabase compatibility
+            ValidAudience = "authenticated", // Set audience to match Supabase tokens
+            ValidateLifetime = true,     // Still validate token expiration
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
             ClockSkew = TimeSpan.Zero,
-            ValidAlgorithms = new[] { "HS256" },
-            NameClaimType = "sub"
+            NameClaimType = ClaimTypes.Name
         };
+        
+        // Log the actual ValidAudience value at runtime
+        Console.WriteLine($"JWT ValidAudience at runtime: {options.TokenValidationParameters.ValidAudience}");
         
         options.Events = new JwtBearerEvents
         {
@@ -202,6 +184,28 @@ try
             OnAuthenticationFailed = context =>
             {
                 Console.WriteLine($"Authentication failed: {context.Exception.GetType().Name}: {context.Exception.Message}");
+                
+                // Add more detailed logging for audience validation failures
+                if (context.Exception is SecurityTokenInvalidAudienceException audienceEx)
+                {
+                    Console.WriteLine($"AUDIENCE VALIDATION ERROR: {audienceEx.Message}");
+                    Console.WriteLine($"Expected audience: 'authenticated'");
+                    
+                    // Try to extract the actual audience from the token
+                    try
+                    {
+                        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                        var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                        var jsonToken = handler.ReadJwtToken(token);
+                        var audience = jsonToken.Audiences.FirstOrDefault() ?? "none";
+                        Console.WriteLine($"Token audience: '{audience}'");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error extracting audience from token: {ex.Message}");
+                    }
+                }
+                
                 if (context.Exception.InnerException != null)
                 {
                     Console.WriteLine($"Inner exception: {context.Exception.InnerException.GetType().Name}: {context.Exception.InnerException.Message}");
@@ -226,6 +230,19 @@ try
                         Console.WriteLine($"Token algorithm: {jsonToken.Header.Alg}");
                         Console.WriteLine($"Token issued at: {jsonToken.IssuedAt}");
                         Console.WriteLine($"Token expires at: {jsonToken.ValidTo}");
+                        
+                        // Log audience information
+                        var audience = jsonToken.Audiences.FirstOrDefault() ?? "none";
+                        Console.WriteLine($"Token audience: '{audience}'");
+                        Console.WriteLine($"Expected audience: 'authenticated'");
+                        Console.WriteLine($"Audience match: {audience == "authenticated"}");
+                        
+                        // Log all claims for debugging
+                        Console.WriteLine("Token claims:");
+                        foreach (var claim in jsonToken.Claims)
+                        {
+                            Console.WriteLine($"  {claim.Type}: {claim.Value}");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -314,13 +331,20 @@ catch (Exception ex)
         Console.WriteLine("Falling back to minimal authentication for development");
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options => {
+                // Log fallback authentication settings
+                Console.WriteLine("DEBUG - FALLBACK JWT Validation - Using Audience: authenticated (hardcoded for Supabase compatibility)");
+                
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = false,
                     ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateAudience = true,
+                    ValidAudience = "authenticated", // Set audience to match Supabase tokens
                     ValidateLifetime = false
                 };
+                
+                // Log the actual ValidAudience value at runtime for fallback configuration
+                Console.WriteLine($"JWT ValidAudience at runtime (fallback): {options.TokenValidationParameters.ValidAudience}");
             });
     }
 }

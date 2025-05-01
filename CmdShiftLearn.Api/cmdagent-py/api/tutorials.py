@@ -36,14 +36,48 @@ class TutorialClient:
         
         try:
             # Get authentication headers
-            # Get authentication headers (includes apikey)
             headers = get_auth_header()
+            
+            # Log the headers being sent (excluding sensitive parts)
+            logger.debug(f"Request headers: {headers.keys()}")
+            
+            # If Authorization header is missing, log a warning
+            if 'Authorization' not in headers:
+                logger.warning("Authorization header is missing. Authentication will likely fail.")
             
             # Use httpx with a 10-second timeout
             with httpx.Client(timeout=10.0) as client:
                 response = client.get(self.base_url, headers=headers)
             
             logger.info(f"API response status code: {response.status_code}")
+            
+            # Log the response headers for debugging
+            logger.debug(f"Response headers: {dict(response.headers)}")
+            
+            # If we got a 401, log more detailed information
+            if response.status_code == 401:
+                www_authenticate = response.headers.get('www-authenticate', '')
+                logger.error(f"Authorization failed. Response details: {response.text}")
+                logger.error(f"WWW-Authenticate header: {www_authenticate}")
+                
+                # Extract detailed error information
+                error_description = "Unknown"
+                if "error_description=" in www_authenticate:
+                    try:
+                        error_description = www_authenticate.split('error_description=')[1].split('"')[1]
+                    except:
+                        pass
+                
+                # Provide specific error messages for different token issues
+                if "signature key was not found" in error_description.lower():
+                    logger.error("SIGNATURE KEY ISSUE: The API cannot verify the token signature.")
+                    logger.error("This is likely a server-side configuration issue where the API doesn't recognize tokens issued by Supabase.")
+                    print("Authentication failed: The API cannot verify the token's signature.")
+                    print("Please contact the API administrator to resolve this issue.")
+                elif "audience" in error_description.lower():
+                    logger.error("Token audience claim issue detected! The API expects 'authenticated' as the audience.")
+                    print("Token audience issue detected. The API expects 'authenticated' as the audience.")
+            
             response.raise_for_status()  # Raise exception for 4XX/5XX responses
             
             tutorials = response.json()
@@ -111,6 +145,10 @@ class TutorialClient:
             # Log the headers being sent (excluding sensitive parts)
             logger.debug(f"Request headers: {headers.keys()}")
             
+            # If Authorization header is missing, log a warning
+            if 'Authorization' not in headers:
+                logger.warning("Authorization header is missing. Authentication will likely fail.")
+            
             # Use httpx with a 10-second timeout
             with httpx.Client(timeout=10.0) as client:
                 response = client.get(url, headers=headers)
@@ -122,10 +160,34 @@ class TutorialClient:
             
             # If we got a 401, log more detailed information and show clear error message
             if response.status_code == 401:
+                www_authenticate = response.headers.get('www-authenticate', '')
                 logger.error(f"Authorization failed. Response details: {response.text}")
-                error_msg = "Authentication failed. Please check your login or contact support."
-                logger.error(error_msg)
-                print(error_msg)
+                logger.error(f"WWW-Authenticate header: {www_authenticate}")
+                
+                # Extract detailed error information
+                error_description = "Unknown"
+                if "error_description=" in www_authenticate:
+                    try:
+                        error_description = www_authenticate.split('error_description=')[1].split('"')[1]
+                    except:
+                        pass
+                
+                # Provide specific error messages for different token issues
+                if "signature key was not found" in error_description.lower():
+                    error_msg = "Authentication failed: The API cannot verify the token's signature. This is likely a server-side configuration issue where the API doesn't recognize tokens issued by Supabase."
+                    logger.error(error_msg)
+                    print(error_msg)
+                    print("Please contact the API administrator to resolve this issue.")
+                elif "audience" in error_description.lower():
+                    error_msg = "Authentication failed: The token's audience claim is invalid."
+                    logger.error(error_msg)
+                    print(error_msg)
+                    logger.error("Token audience claim issue detected! The API expects 'authenticated' as the audience.")
+                    print("Token audience issue detected. The API expects 'authenticated' as the audience.")
+                else:
+                    error_msg = f"Authentication failed: {error_description}. Please check your login or contact support."
+                    logger.error(error_msg)
+                    print(error_msg)
                 
                 # Only fall back to mock data if USE_MOCK_DATA is explicitly set to True
                 if USE_MOCK_DATA:

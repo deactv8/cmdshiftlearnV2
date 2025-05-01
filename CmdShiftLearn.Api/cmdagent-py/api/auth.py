@@ -260,41 +260,71 @@ def get_auth_header(token: Optional[str] = None) -> Dict[str, str]:
     """
     Get authorization headers with token.
     Loads token from file if not provided.
-    For Supabase, both apikey and Authorization headers are needed.
+    Only sends the Authorization header to the API.
     
     Args:
         token: Optional token to use
         
     Returns:
-        Dict[str, str]: Headers dictionary with Authorization and apikey
+        Dict[str, str]: Headers dictionary with Authorization header
     """
+    import base64
+    
     if not token:
-        # Try to load the full token data, not just the token
-        try:
-            if os.path.exists(TOKEN_FILE):
-                with open(TOKEN_FILE, 'r') as f:
-                    token_data = json.load(f)
-                    token = token_data.get('access_token')
+        # Try to load the token from file
+        token = load_token()
+        
+        # Debug the token if we found one
+        if token:
+            try:
+                # Function to decode JWT token parts
+                def decode_jwt_part(part):
+                    # Add padding if needed
+                    padded = part + '=' * (4 - len(part) % 4)
+                    try:
+                        decoded = base64.urlsafe_b64decode(padded).decode('utf-8')
+                        return json.loads(decoded)
+                    except Exception as e:
+                        logger.error(f"Error decoding JWT part: {e}")
+                        return {}
+                
+                # Split the token into parts
+                parts = token.split('.')
+                if len(parts) >= 2:
+                    # Decode the header and payload
+                    header = decode_jwt_part(parts[0])
+                    payload = decode_jwt_part(parts[1])
                     
-                    # Log the full token data types
-                    logger.debug(f"Loaded token data keys: {token_data.keys()}")
-        except Exception as e:
-            logger.error(f"Error loading token data: {e}")
-            token = None
+                    # Log the important parts
+                    logger.debug(f"JWT header: {header}")
+                    logger.debug(f"JWT payload: {payload}")
+                    
+                    # Check for the audience claim
+                    if 'aud' in payload:
+                        logger.debug(f"JWT audience: {payload['aud']}")
+                    
+                    # Check for issuer
+                    if 'iss' in payload:
+                        logger.debug(f"JWT issuer: {payload['iss']}")
+                        
+                    # Log signature verification info
+                    if 'kid' in header:
+                        logger.debug(f"JWT key ID: {header['kid']}")
+                        logger.debug("NOTE: API needs this key ID to verify the token")
+            except Exception as e:
+                logger.error(f"Error parsing JWT token: {e}")
     
     if not token:
         logger.warning("No token available for authorization header")
-        return {"apikey": SUPABASE_API_KEY}  # Return at least the apikey for anonymous access
+        return {}  # Return empty headers if no token is available
     
     # Add debug logging to trace the token
-    if token:
-        logger.debug(f"Using auth token (first 10 chars): {token[:10]}...")
+    logger.debug(f"Using auth token (first 10 chars): {token[:10]}...")
     
-    # Create headers with both formats - for both Supabase and our API
+    # Create headers with only Authorization as required by the API
+    # The token is correctly formatted with Bearer prefix
     headers = {
-        "apikey": SUPABASE_API_KEY,
-        "Authorization": f"Bearer {token}",
-        "X-Auth-Token": token  # Try an alternative format that might be expected by the API
+        "Authorization": f"Bearer {token}"
     }
     
     return headers

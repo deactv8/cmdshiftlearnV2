@@ -132,14 +132,10 @@ if (string.IsNullOrEmpty(jwtSecret))
     Console.WriteLine("WARNING: JWT Secret is empty or not found in configuration!");
 }
 
-// Configure minimal authentication for MVP
+// Configure JWT authentication with Supabase JWKS
 try
 {
-    // Use a fixed, simple JWT secret for the MVP
-    const string mvpJwtSecret = "supersecret_dev_key_for_mvp_testing_12345";
-    Console.WriteLine("Using fixed JWT secret for MVP");
-    
-    byte[] keyBytes = Encoding.UTF8.GetBytes(mvpJwtSecret);
+    Console.WriteLine("Configuring JWT authentication with Supabase JWKS");
     
     builder.Services.AddAuthentication(options => 
     {
@@ -149,24 +145,87 @@ try
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.SaveToken = true;
-        options.RequireHttpsMetadata = false; // For MVP, don't require HTTPS
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         
-        // Simplified token validation parameters for MVP
-        // Get audience from config or use default
-        var configuredAudience = builder.Configuration["Authentication:Jwt:Audience"] ?? "authenticated";
-        Console.WriteLine($"DEBUG - JWT Validation - Configured Audience: {configuredAudience}");
-        Console.WriteLine($"DEBUG - JWT Validation - Using Audience: authenticated (hardcoded for Supabase compatibility)");
+        // Define the Supabase JWKS URL
+        string jwksUrl = "https://fqceiphubiqnorytayiu.supabase.co/auth/v1/keys";
+        Console.WriteLine($"Using Supabase JWKS URL: {jwksUrl}");
         
+        // Log audience configuration
+        Console.WriteLine($"DEBUG - JWT Validation - Using Audience: authenticated (for Supabase compatibility)");
+        
+        // Configure to use Microsoft's JWKS handling
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,      // Skip issuer validation for MVP
-            ValidateAudience = true,     // Validate audience for Supabase compatibility
+            ValidateIssuer = false,        // Skip issuer validation 
+            ValidateAudience = true,       // Validate audience for Supabase compatibility
             ValidAudience = "authenticated", // Set audience to match Supabase tokens
-            ValidateLifetime = true,     // Still validate token expiration
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+            ValidateLifetime = true,       // Validate token expiration
+            ValidateIssuerSigningKey = true, // Validate signature
             ClockSkew = TimeSpan.Zero,
             NameClaimType = ClaimTypes.Name
+        };
+        
+        // Configure the JWKS retrieval
+        options.MetadataAddress = jwksUrl;
+        options.RequireHttpsMetadata = true;
+        
+        // Use a custom signing key resolver for JWKS
+        options.TokenValidationParameters.IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) =>
+        {
+            // Create a logger for key resolution
+            var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Resolving signing key using JWKS endpoint: {JwksUrl}", jwksUrl);
+            
+            try
+            {
+                // Create a HttpClient to fetch the JWKS
+                var httpClient = new HttpClient();
+                var jwksJson = httpClient.GetStringAsync(jwksUrl).Result;
+                logger.LogInformation("JWKS response received from Supabase");
+                
+                // Parse the JWKS response
+                var jwks = System.Text.Json.JsonDocument.Parse(jwksJson).RootElement;
+                var keys = jwks.GetProperty("keys");
+                
+                // Create signing keys from the JWKS
+                var signingKeys = new List<SecurityKey>();
+                foreach (var key in keys.EnumerateArray())
+                {
+                    if (key.TryGetProperty("kty", out var kty) && 
+                        key.TryGetProperty("kid", out var keyId))
+                    {
+                        var jwk = new JsonWebKey
+                        {
+                            Kty = kty.GetString(),
+                            Kid = keyId.GetString(),
+                        };
+                        
+                        // Add required parameters based on key type
+                        if (kty.GetString() == "RSA")
+                        {
+                            // Add required RSA parameters
+                            if (key.TryGetProperty("n", out var n)) jwk.N = n.GetString();
+                            if (key.TryGetProperty("e", out var e)) jwk.E = e.GetString();
+                            if (key.TryGetProperty("use", out var use)) jwk.Use = use.GetString();
+                            if (key.TryGetProperty("alg", out var alg)) jwk.Alg = alg.GetString();
+                            
+                            logger.LogInformation("Added RSA key with kid: {KeyId}, alg: {Algorithm}", 
+                                keyId.GetString(), jwk.Alg ?? "unknown");
+                        }
+                        
+                        signingKeys.Add(jwk);
+                    }
+                }
+                
+                logger.LogInformation("Successfully loaded {KeyCount} keys from JWKS endpoint", signingKeys.Count);
+                return signingKeys;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error fetching or parsing JWKS from Supabase");
+                throw;
+            }
         };
         
         // Log the actual ValidAudience value at runtime
@@ -176,7 +235,7 @@ try
         {
             OnTokenValidated = context =>
             {
-                Console.WriteLine("Token validated successfully!");
+                Console.WriteLine("Token validated successfully using JWKS!");
                 Console.WriteLine($"User: {context.Principal?.Identity?.Name}");
                 Console.WriteLine($"Claims: {string.Join(", ", context.Principal?.Claims.Select(c => $"{c.Type}: {c.Value}") ?? Array.Empty<string>())}");
                 return Task.CompletedTask;
@@ -206,6 +265,12 @@ try
                     }
                 }
                 
+                if (context.Exception is SecurityTokenSignatureKeyNotFoundException)
+                {
+                    Console.WriteLine("SIGNATURE KEY NOT FOUND ERROR - This may indicate the token was signed with a key not present in the JWKS");
+                    Console.WriteLine("Please ensure the JWKS endpoint is correct and contains all necessary keys");
+                }
+                
                 if (context.Exception.InnerException != null)
                 {
                     Console.WriteLine($"Inner exception: {context.Exception.InnerException.GetType().Name}: {context.Exception.InnerException.Message}");
@@ -228,6 +293,7 @@ try
                         var jsonToken = handler.ReadJwtToken(context.Token);
                         Console.WriteLine($"Token issuer: {jsonToken.Issuer}");
                         Console.WriteLine($"Token algorithm: {jsonToken.Header.Alg}");
+                        Console.WriteLine($"Token key ID (kid): {jsonToken.Header.Kid}");
                         Console.WriteLine($"Token issued at: {jsonToken.IssuedAt}");
                         Console.WriteLine($"Token expires at: {jsonToken.ValidTo}");
                         

@@ -4,3 +4,29 @@ description: "Learn how to work with files, directories, CSV, and JSON in PowerS
 xp: 200
 difficulty: "Intermediate"
 content: powershell-basics-3.ps1
+steps:
+  - id: step1
+    title: "Create a Directory"
+    instructions: "Create a directory named 'TestFolder' in your temp directory."
+    expectedCommand: "New-Item -Path 'C:\Temp\TestFolder' -ItemType Directory -Force"
+    hint: "Use New-Item with the -ItemType Directory parameter to create a directory."
+  
+  - id: step2
+    title: "Create a Text File"
+    instructions: "Create a text file named 'test.txt' in your TestFolder with the content 'Hello, PowerShell!'."
+    expectedCommand: "New-Item -Path 'C:\Temp\TestFolder\test.txt' -ItemType File -Value 'Hello, PowerShell!' -Force"
+    hint: "Use New-Item with the -ItemType File parameter to create a file, and -Value to set its content."
+  
+  - id: step3
+    title: "Read File Content" 
+    instructions: "Read the content of the text file you created."
+    expectedCommand: "Get-Content -Path 'C:\Temp\TestFolder\test.txt'"
+    hint: "Use Get-Content with the path to your file to read its contents."
+  
+  - id: step4
+    title: "Create a CSV File"
+    instructions: "Create an example CSV with at least one data row."
+    validation:
+      type: "contains"
+      value: "Export-Csv"
+    hint: "Create a PowerShell custom object and use Export-Csv to save it."

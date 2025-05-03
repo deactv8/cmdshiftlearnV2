@@ -27,6 +27,7 @@
     <Content Include="wwwroot\auth-error.html" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="PreserveNewest" DependentUpon="appsettings.json" />
+    <Content Include="scripts\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

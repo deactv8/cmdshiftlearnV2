@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using CmdShiftLearn.Api.Models;
 using System.Security.Claims;
 using Octokit;
 
@@ -12,18 +10,15 @@ namespace CmdShiftLearn.Api.Controllers
     public class DebugController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly IOptions<SupabaseSettings> _supabaseSettings;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<DebugController> _logger;
 
         public DebugController(
             IConfiguration configuration,
-            IOptions<SupabaseSettings> supabaseSettings,
             IWebHostEnvironment environment,
             ILogger<DebugController> logger)
         {
             _configuration = configuration;
-            _supabaseSettings = supabaseSettings;
             _environment = environment;
             _logger = logger;
         }
@@ -34,7 +29,7 @@ namespace CmdShiftLearn.Api.Controllers
         {
             // This endpoint will only be accessible if authentication works
             var claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList();
-            var userId = User.FindFirstValue("sub");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
             return Ok(new
             {
@@ -52,10 +47,6 @@ namespace CmdShiftLearn.Api.Controllers
             {
                 return NotFound();
             }
-
-            // Get JWT secret from configuration
-            var jwtSecret = _configuration["Supabase:JwtSecret"] ?? "NOT FOUND";
-            var settingsSecret = _supabaseSettings.Value.JwtSecret;
             
             // Get OAuth configuration
             var googleClientId = _configuration["Authentication:Google:ClientId"];
@@ -90,13 +81,10 @@ namespace CmdShiftLearn.Api.Controllers
                         IsConfigured = !string.IsNullOrEmpty(authJwtSecret)
                     }
                 },
-                Supabase = new
+                ApiKey = new
                 {
-                    JwtSecretFromConfig = MaskValue(jwtSecret),
-                    JwtSecretFromSettings = MaskValue(settingsSecret),
-                    JwtSecretLength = jwtSecret?.Length ?? 0,
-                    SettingsSecretLength = settingsSecret?.Length ?? 0,
-                    HasValidSecret = !string.IsNullOrEmpty(jwtSecret) && jwtSecret.Length > 32
+                    Enabled = true,
+                    DefaultKeys = new[] { "devkey123", "testkey456" }
                 },
                 GitHub = new
                 {

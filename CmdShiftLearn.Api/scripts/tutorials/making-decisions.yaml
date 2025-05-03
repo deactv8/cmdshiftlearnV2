@@ -1,0 +1,185 @@
+id: making-decisions
+title: "Making Decisions: PowerShell Conditionals"
+description: "Learn how to make PowerShell take different actions based on conditions."
+xp: 200
+difficulty: "Beginner"
+content: |
+  # Making Decisions: PowerShell Conditionals
+
+  ## Welcome to Decision-Making in PowerShell!
+
+  You've learned to run commands, store information, and build pipelines. Now, let's teach PowerShell how to make decisions!
+
+  ## What Are Conditionals?
+
+  Think of conditionals like a fork in the road:
+  - You check if a condition is true
+  - If it is, you take one path
+  - If not, you take a different path
+  
+  In real life, you make decisions this way all the time:
+  - **IF** it's raining, **THEN** bring an umbrella, **ELSE** wear sunglasses
+
+  ## Why Use Conditionals?
+
+  Conditionals let your scripts:
+  - Adapt to different situations
+  - Handle errors gracefully
+  - Process data differently depending on its value
+  - Automate decision-making
+
+  ## What You'll Learn
+
+  In this tutorial, you'll:
+  - Compare values using comparison operators
+  - Write your first if statement
+  - Add else branches for alternative actions
+  - Test multiple conditions
+  - Use conditionals with variables and commands
+
+  Ready to start making decisions? Let's go!
+
+steps:
+  - id: step1
+    title: "Understanding Comparison Operators"
+    instructions: |
+      Before we can make decisions, we need to compare things. PowerShell has special operators for comparisons.
+      
+      Let's try a simple comparison. Type '5 -eq 5' to check if 5 equals 5.
+      
+      Note: PowerShell uses -eq instead of = for equality testing. The -eq stands for "equals".
+    expectedCommand: "5 -eq 5"
+    hint: "Type '5 -eq 5' exactly as shown. This checks if the two values are equal."
+    xp: 20
+    
+  - id: step2
+    title: "Trying Different Comparisons"
+    instructions: |
+      Great! The result was 'True' because 5 does equal 5.
+      
+      Let's try another comparison. Type '10 -gt 5' to check if 10 is greater than 5.
+      
+      Note: -gt stands for "greater than"
+    expectedCommand: "10 -gt 5"
+    hint: "Type '10 -gt 5' exactly as shown. This checks if 10 is greater than 5."
+    xp: 20
+    
+  - id: step3
+    title: "Creating Your First If Statement"
+    instructions: |
+      Now let's use comparisons to make decisions! Let's create a variable and use an if statement with it.
+      
+      Type the following (press Enter after each line):
+      ```
+      $weather = "rainy"
+      if ($weather -eq "rainy") {
+          Write-Host "Bring an umbrella!"
+      }
+      ```
+      
+      Note: After typing the first line, PowerShell will know you're not done and will show a >> prompt for the remaining lines.
+    expectedCommand: "if ($weather -eq \"rainy\") {\n    Write-Host \"Bring an umbrella!\"\n}"
+    hint: |
+      First, type: $weather = "rainy" and press Enter
+      Then type the if statement exactly as shown, including the curly braces on separate lines:
+      if ($weather -eq "rainy") {
+          Write-Host "Bring an umbrella!"
+      }
+    xp: 40
+    validation:
+      type: "contains"
+      value: "if"
+    
+  - id: step4
+    title: "Adding an Else Branch"
+    instructions: |
+      Nice work! Now let's add an alternative action using an 'else' branch.
+      
+      Type the following (press Enter after each line):
+      ```
+      $weather = "sunny"
+      if ($weather -eq "rainy") {
+          Write-Host "Bring an umbrella!"
+      } else {
+          Write-Host "Wear sunglasses!"
+      }
+      ```
+      
+      This will do one thing if it's rainy, and a different thing if it's not.
+    expectedCommand: "if ($weather -eq \"rainy\") {\n    Write-Host \"Bring an umbrella!\"\n} else {\n    Write-Host \"Wear sunglasses!\"\n}"
+    hint: |
+      First, type: $weather = "sunny" and press Enter
+      Then type the if/else statement exactly as shown, including the curly braces on separate lines:
+      if ($weather -eq "rainy") {
+          Write-Host "Bring an umbrella!"
+      } else {
+          Write-Host "Wear sunglasses!"
+      }
+    xp: 40
+    validation:
+      type: "contains"
+      value: "else"
+    
+  - id: step5
+    title: "Testing Multiple Conditions"
+    instructions: |
+      What if we have more than two options? Let's use 'elseif' to check multiple conditions.
+      
+      Type the following (press Enter after each line):
+      ```
+      $weather = "cloudy"
+      if ($weather -eq "rainy") {
+          Write-Host "Bring an umbrella!"
+      } elseif ($weather -eq "sunny") {
+          Write-Host "Wear sunglasses!"
+      } else {
+          Write-Host "Check the forecast again later."
+      }
+      ```
+      
+      This allows for three different paths depending on the weather.
+    expectedCommand: "if ($weather -eq \"rainy\") {\n    Write-Host \"Bring an umbrella!\"\n} elseif ($weather -eq \"sunny\") {\n    Write-Host \"Wear sunglasses!\"\n} else {\n    Write-Host \"Check the forecast again later.\"\n}"
+    hint: |
+      First, type: $weather = "cloudy" and press Enter
+      Then type the if/elseif/else statement exactly as shown:
+      if ($weather -eq "rainy") {
+          Write-Host "Bring an umbrella!"
+      } elseif ($weather -eq "sunny") {
+          Write-Host "Wear sunglasses!"
+      } else {
+          Write-Host "Check the forecast again later."
+      }
+    xp: 40
+    validation:
+      type: "contains"
+      value: "elseif"
+    
+  - id: step6
+    title: "Using Conditionals with Commands"
+    instructions: |
+      Let's use conditionals with the output of a command. We'll check if a specific process is running.
+      
+      Type the following (press Enter after each line):
+      ```
+      $notepad = Get-Process notepad -ErrorAction SilentlyContinue
+      if ($notepad) {
+          Write-Host "Notepad is running!"
+      } else {
+          Write-Host "Notepad is not running."
+      }
+      ```
+      
+      This will tell you if Notepad is currently running on your computer. The -ErrorAction SilentlyContinue prevents an error if Notepad isn't running.
+    expectedCommand: "if ($notepad) {\n    Write-Host \"Notepad is running!\"\n} else {\n    Write-Host \"Notepad is not running.\"\n}"
+    hint: |
+      First, type: $notepad = Get-Process notepad -ErrorAction SilentlyContinue
+      Then type the if/else statement exactly as shown:
+      if ($notepad) {
+          Write-Host "Notepad is running!"
+      } else {
+          Write-Host "Notepad is not running."
+      }
+    xp: 40
+    validation:
+      type: "contains"
+      value: "if ($notepad)"

@@ -1,0 +1,109 @@
+id: first-steps-welcome
+title: "First Steps: Welcome to PowerShell"
+description: "Your very first adventure with PowerShell. No experience required!"
+xp: 100
+difficulty: "Beginner"
+content: |
+  # First Steps: Welcome to PowerShell!
+
+  ## Welcome, Explorer!
+
+  **Hi there!** I'm your PowerShell guide. If this is your first time seeing PowerShell, don't worry - we'll take this one tiny step at a time.
+
+  ## What is this blue screen?
+
+  What you're looking at is called a "command line" or "terminal." Think of it as a text-based way to talk to your computer. 
+  
+  The blinking cursor is waiting for you to type something. It's like a conversation:
+  - You type a message
+  - You press Enter to send it
+  - Your computer responds
+  
+  ## Let's start our adventure!
+
+  In this tutorial, you'll:
+  - Send your first message to PowerShell
+  - Learn what the "PS" prompt means
+  - Use your first real PowerShell command
+  - Discover how to find more commands
+
+  Ready to begin? Let's go!
+
+steps:
+  - id: step1
+    title: "Say Hello to PowerShell"
+    instructions: |
+      Let's start with something super simple! Type 'hello' and press Enter.
+      
+      Don't worry about getting things "right" - this is just to get comfortable typing in PowerShell.
+    expectedCommand: "hello"
+    hint: "Just type the word 'hello' (without quotes) and press the Enter key."
+    xp: 10
+    
+  - id: step2
+    title: "Understanding the Prompt"
+    instructions: |
+      Great job sending your first command! 
+      
+      Let's look at what's on your screen. You should see something like:
+      
+      ```
+      PS C:\Users\YourName>
+      ```
+      
+      This is called the "prompt" and it tells you:
+      - "PS" means you're in PowerShell
+      - "C:\Users\YourName" shows where you are in your computer (like which room you're in)
+      - ">" is where you type your commands
+      
+      Let's try our first real PowerShell command. Type 'Get-Date' exactly as shown (capital G and D, with a hyphen) and press Enter.
+    expectedCommand: "Get-Date"
+    hint: "Type 'Get-Date' with the capital letters and hyphen exactly as shown."
+    xp: 15
+    
+  - id: step3
+    title: "Your First Real Command"
+    instructions: |
+      Excellent! You just used a real PowerShell command!
+      
+      Let's understand what you did:
+      
+      'Get-Date' follows the 'Verb-Noun' pattern that most PowerShell commands use:
+      - 'Get' (the verb) means to retrieve something
+      - 'Date' (the noun) is what you want to get
+      
+      So 'Get-Date' means "Hey computer, fetch me the current date and time!"
+      
+      Now let's try another 'Get' command. Type 'Get-Location' to see where you are in your computer.
+    expectedCommand: "Get-Location"
+    hint: "Type 'Get-Location' with capital G and L, with a hyphen between them."
+    xp: 20
+    
+  - id: step4
+    title: "Discovering Commands"
+    instructions: |
+      Wonderful! 'Get-Location' showed you which 'folder' (or directory) you're currently in.
+      
+      PowerShell has hundreds of commands, but you don't need to memorize them! You can discover commands as you need them.
+      
+      Let's use a command that shows what other commands are available. Type 'Get-Command -Verb Get -Noun *'
+      
+      This will show all commands that start with 'Get-'
+    expectedCommand: "Get-Command -Verb Get -Noun *"
+    hint: "Type 'Get-Command -Verb Get -Noun *' exactly as shown. The * is a 'wildcard' that means 'match anything'."
+    xp: 25
+    
+  - id: step5
+    title: "Getting Help"
+    instructions: |
+      Amazing progress! You're now discovering PowerShell commands on your own!
+      
+      One last important thing to learn: how to get help when you need it.
+      
+      Type 'Get-Help Get-Date' to see instructions for the Get-Date command.
+    expectedCommand: "Get-Help Get-Date"
+    hint: "Type 'Get-Help Get-Date' exactly as shown to see the help information for the Get-Date command."
+    xp: 30
+    validation:
+      type: "contains"
+      value: "Get-Help"

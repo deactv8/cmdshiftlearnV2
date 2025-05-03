@@ -1,0 +1,117 @@
+id: building-command-chains
+title: "Building Command Chains: PowerShell Pipelines"
+description: "Learn how to connect commands together to accomplish more complex tasks."
+xp: 175
+difficulty: "Beginner"
+content: |
+  # Building Command Chains: PowerShell Pipelines
+
+  ## Welcome to the Power of Pipelines!
+
+  So far, you've learned to use individual commands and store information in variables. Now, it's time to unlock one of PowerShell's most powerful features: **pipelines**!
+
+  ## What is a Pipeline?
+
+  Think of a pipeline like an assembly line in a factory:
+  - The output from one machine becomes the input for the next machine
+  - Each step in the line does one specific job
+  - Complex products can be created by connecting simple machines
+  
+  In PowerShell, the pipeline symbol is the vertical bar: `|` (usually found above the Enter key)
+
+  ## Why Use Pipelines?
+
+  Pipelines let you:
+  - Break complex tasks into simple steps
+  - Filter, sort, and transform information
+  - Accomplish in one line what might take many lines in other languages
+  - Create powerful command combinations without programming
+
+  ## What You'll Learn
+
+  In this tutorial, you'll:
+  - Connect commands with the pipeline symbol
+  - Filter objects to find what you need
+  - Sort information in different ways
+  - Select just the properties you want to see
+  - Create a multi-step pipeline to solve a problem
+
+  Ready to build your first command chain? Let's go!
+
+steps:
+  - id: step1
+    title: "Understanding Pipeline Input and Output"
+    instructions: |
+      Let's start by understanding what gets passed through a pipeline. When you run Get-Process, it outputs a list of processes (programs) running on your computer.
+      
+      Type 'Get-Process | Get-Member' to see what information is available for each process.
+      
+      This passes the process list through the pipeline to Get-Member, which tells you what properties and methods these objects have.
+    expectedCommand: "Get-Process | Get-Member"
+    hint: "Type 'Get-Process | Get-Member' exactly as shown. The | symbol is the pipeline that connects the two commands."
+    xp: 25
+    
+  - id: step2
+    title: "Filtering Information"
+    instructions: |
+      Now that you know what information is available, let's filter the process list to find specific processes.
+      
+      Type 'Get-Process | Where-Object { $_.ProcessName -like "*s*" }'
+      
+      This finds all processes with the letter 's' in their name.
+      
+      Note: The $_ is a special variable that represents each object coming through the pipeline. The -like operator does pattern matching with wildcards (*).
+    expectedCommand: "Get-Process | Where-Object { $_.ProcessName -like \"*s*\" }"
+    hint: "Type 'Get-Process | Where-Object { $_.ProcessName -like \"*s*\" }' exactly as shown. Make sure to include the curly braces { } around the condition."
+    xp: 35
+    validation:
+      type: "contains"
+      value: "Where-Object"
+    
+  - id: step3
+    title: "Sorting Information"
+    instructions: |
+      Great job filtering! Now let's sort the processes by how much memory they're using.
+      
+      Type 'Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5'
+      
+      This will:
+      1. Get all processes
+      2. Sort them by memory usage (highest first)
+      3. Select only the top 5
+    expectedCommand: "Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5"
+    hint: "Type 'Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5' exactly as shown. This is a three-part pipeline that connects three commands."
+    xp: 35
+    validation:
+      type: "contains"
+      value: "Sort-Object"
+    
+  - id: step4
+    title: "Selecting Specific Properties"
+    instructions: |
+      That's a lot of information! Let's clean it up by selecting only the properties we want to see.
+      
+      Type 'Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5 -Property ProcessName, Id, WorkingSet'
+      
+      This shows just the name, ID, and memory usage for the top 5 processes.
+    expectedCommand: "Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5 -Property ProcessName, Id, WorkingSet"
+    hint: "Type 'Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5 -Property ProcessName, Id, WorkingSet' exactly as shown."
+    xp: 40
+    validation:
+      type: "contains"
+      value: "Select-Object -First 5"
+    
+  - id: step5
+    title: "Formatting the Output"
+    instructions: |
+      Let's make our output even more readable by formatting it as a table.
+      
+      Type 'Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5 -Property ProcessName, Id, WorkingSet | Format-Table'
+      
+      The Format-Table command arranges the output in neat columns.
+    expectedCommand: "Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 5 -Property ProcessName, Id, WorkingSet | Format-Table"
+    hint: "Take the previous command and add ' | Format-Table' at the end."
+    xp: 40
+    validation:
+      type: "contains"
+      value: "Format-Table"

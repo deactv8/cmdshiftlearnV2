@@ -1,0 +1,106 @@
+id: exploring-your-computer
+title: "Exploring Your Computer: Finding Your Way"
+description: "Learn to navigate through your computer using PowerShell commands."
+xp: 125
+difficulty: "Beginner"
+content: |
+  # Exploring Your Computer: Finding Your Way
+
+  ## Welcome back, explorer!
+
+  In your last adventure, you learned how to talk to PowerShell and use your first commands. Now, let's explore your computer!
+
+  ## Your Computer is Like a Building
+
+  Think of your computer like a big building with many rooms (folders):
+  - Each room (folder) can contain items (files) and doors to other rooms (subfolders)
+  - You need to know where you are (your location)
+  - You need to know what's around you (files and folders)
+  - You need to know how to move between rooms (navigation)
+
+  ## What You'll Learn
+
+  In this tutorial, you'll:
+  - Find your current location in the computer
+  - Look around to see what's in your current location
+  - Move to a different location
+  - Find important information about files and folders
+
+  Ready to start exploring? Let's go!
+
+steps:
+  - id: step1
+    title: "Where Am I?"
+    instructions: |
+      Just like in real life, when exploring your computer, it's important to know where you are!
+      
+      Type 'Get-Location' to see your current location in the computer.
+      
+      (You can also use the shorter alias 'pwd' which stands for "print working directory")
+    expectedCommand: "Get-Location"
+    hint: "Type 'Get-Location' with capital G and L, with a hyphen between them."
+    xp: 15
+    
+  - id: step2
+    title: "What's Around Me?"
+    instructions: |
+      Great! Now you know where you are. Let's see what's in this location.
+      
+      Type 'Get-ChildItem' to see all the files and folders in your current location.
+      
+      (You can also use the shorter aliases 'dir' or 'ls')
+    expectedCommand: "Get-ChildItem"
+    hint: "Type 'Get-ChildItem' with capital G, C, and I, with a hyphen after 'Get'."
+    xp: 20
+    
+  - id: step3
+    title: "Moving to a Different Location"
+    instructions: |
+      Wonderful! You can now see what files and folders are in your current location.
+      
+      Let's move to a different location. We'll use a safe place that exists on all Windows computers: the Desktop.
+      
+      Type 'Set-Location $HOME\\Desktop' to go to your Desktop folder.
+      
+      (Note: $HOME is a variable that represents your user folder, and the double backslash \\\\ is needed because a single backslash has a special meaning in PowerShell)
+    expectedCommand: "Set-Location $HOME\\Desktop"
+    hint: "Type 'Set-Location $HOME\\Desktop' exactly as shown. Make sure to use TWO backslashes (\\\\) between $HOME and Desktop."
+    xp: 25
+    validation:
+      type: "contains"
+      value: "Set-Location"
+    
+  - id: step4
+    title: "Check Your New Location"
+    instructions: |
+      Excellent navigation! Now, let's confirm that we actually moved to the Desktop folder.
+      
+      Type 'Get-Location' again to see your new location.
+    expectedCommand: "Get-Location"
+    hint: "Type 'Get-Location' just like you did before to see where you are now."
+    xp: 15
+    
+  - id: step5
+    title: "Looking Around Your Desktop"
+    instructions: |
+      Now that we're on the Desktop, let's see what files and folders are here.
+      
+      Type 'Get-ChildItem' to see the contents of your Desktop.
+    expectedCommand: "Get-ChildItem"
+    hint: "Type 'Get-ChildItem' just like you did before to see what's on your Desktop."
+    xp: 15
+    
+  - id: step6
+    title: "Getting More Information"
+    instructions: |
+      Let's get more detailed information about the files on your Desktop.
+      
+      Type 'Get-ChildItem | Select-Object Name, Length, LastWriteTime' to see the name, size, and when each file was last modified.
+      
+      The '|' symbol (called a "pipe") connects commands together, sending the output of the first command as input to the second command.
+    expectedCommand: "Get-ChildItem | Select-Object Name, Length, LastWriteTime"
+    hint: "Type 'Get-ChildItem | Select-Object Name, Length, LastWriteTime' exactly as shown. The | symbol is usually above the Enter key on your keyboard."
+    xp: 35
+    validation:
+      type: "contains"
+      value: "Select-Object"

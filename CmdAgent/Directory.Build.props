@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Disable automatic TargetFrameworkAttribute generation -->
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+</Project>

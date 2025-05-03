@@ -18,17 +18,33 @@ The API backend for the CmdShiftLearn platform, providing authentication, tutori
    cd cmdshiftlearn/CmdShiftLearn.Api
    ```
 
-2. Restore dependencies:
+2. Set up Git hooks to prevent broken builds:
+   ```
+   git config core.hooksPath .githooks
+   ```
+
+3. Restore dependencies:
    ```
    dotnet restore
    ```
 
-3. Configure environment variables (see below)
+4. Configure environment variables (see below)
 
-4. Run the application:
+5. Run the application:
    ```
    dotnet run
    ```
+
+### Development Workflow
+
+The project includes a build script and Git hooks to ensure code quality:
+
+- **build.ps1**: Cleans, restores, formats, and builds the solution
+  ```
+  ./build.ps1
+  ```
+
+- **Git pre-commit hook**: Automatically runs the build script before each commit to prevent broken builds from being committed
 
 ## 🔐 Authentication
 
@@ -114,6 +130,19 @@ You can test authentication using the included test page:
 - [Render Deployment Guide](../docs/render-deployment.md)
 
 ## 🔄 Continuous Integration
+
+### GitHub Actions
+
+The project uses GitHub Actions for continuous integration:
+
+- **Build Validation**: Automatically runs on push and pull requests to the main branch
+  - Builds the project
+  - Verifies code formatting with dotnet format
+  - Fails if build errors or formatting issues are found
+
+This ensures code quality and prevents broken builds from being merged.
+
+### Deployment
 
 The API is automatically deployed to Render on push to the main branch.
 

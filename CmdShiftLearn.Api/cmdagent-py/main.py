@@ -6,7 +6,6 @@ A command-line tool for interacting with the CmdShiftLearn platform.
 """
 
 import sys
-import time
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -18,14 +17,14 @@ try:
     from rich.table import Table
     from rich.panel import Panel
     from rich.markdown import Markdown
-    from rich.prompt import Prompt, Password, Confirm
+    from rich.prompt import Prompt, Confirm
     from rich.syntax import Syntax
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
 
 from api.tutorials import TutorialClient
-from api.auth import load_token, login, signup
+from api.auth import login, load_api_key
 
 
 # Initialize Rich console if available
@@ -81,207 +80,6 @@ def print_tutorials(tutorials: List[Dict[str, Any]]) -> None:
         # Print table rows
         for i, tutorial in enumerate(tutorials, 1):
             print(f"{i:<4} | {tutorial.get('id', 'N/A'):<{id_width}} | {tutorial.get('title', 'Untitled'):<{title_width}}")
-
-
-def try_signup(email: str, password: str) -> bool:
-    """
-    Attempt to sign up a new user.
-    
-    Args:
-        email: User's email
-        password: User's password
-        
-    Returns:
-        bool: True if signup and authentication was successful
-    """
-    if RICH_AVAILABLE:
-        console.print("[italic]Creating a new account...[/italic]")
-    else:
-        print("Creating a new account...")
-    
-    success, token, message = signup(email, password)
-    
-    if success:
-        if RICH_AVAILABLE:
-            console.print("[bold green]Signup successful![/bold green]")
-            if message:
-                console.print(f"[green]{message}[/green]")
-                
-            # If we have a token, we're already logged in
-            if token:
-                return True
-            else:
-                # Try to login immediately after signup (some Supabase configurations allow this)
-                console.print("[italic]Attempting to log in with your new account...[/italic]")
-                login_success, login_token, login_error, _ = login(email, password)
-                if login_success:
-                    console.print("[bold green]Login successful![/bold green]")
-                    return True
-                else:
-                    console.print("[yellow]You'll need to log in after confirming your email.[/yellow]")
-                    return False
-        else:
-            print("Signup successful!")
-            if message:
-                print(message)
-                
-            # If we have a token, we're already logged in
-            if token:
-                return True
-            else:
-                # Try to login immediately after signup (some Supabase configurations allow this)
-                print("Attempting to log in with your new account...")
-                login_success, login_token, login_error, _ = login(email, password)
-                if login_success:
-                    print("Login successful!")
-                    return True
-                else:
-                    print("You'll need to log in after confirming your email.")
-                    return False
-    else:
-        if RICH_AVAILABLE:
-            console.print(f"[bold red]Signup failed:[/bold red] {message}")
-        else:
-            print(f"Signup failed: {message}")
-        return False
-
-
-def authenticate() -> bool:
-    """
-    Authenticate the user using Supabase.
-    
-    Returns:
-        bool: True if authentication was successful, False otherwise
-    """
-    # First check if we already have a token
-    token = load_token()
-    if token:
-        if RICH_AVAILABLE:
-            console.print("[green]Authentication token found.[/green]")
-        else:
-            print("Authentication token found.")
-        return True
-    
-    # No token, so we need to authenticate
-    if RICH_AVAILABLE:
-        console.print("[yellow]No authentication token found. Please log in:[/yellow]")
-        
-        # Try up to 3 times to authenticate
-        for attempt in range(3):
-            if attempt > 0:
-                console.print(f"[yellow]Login attempt {attempt + 1}/3[/yellow]")
-            
-            try:
-                email = Prompt.ask("Email")
-                password = Password.ask("Password")
-                
-                console.print("[italic]Authenticating...[/italic]")
-                success, token, error_msg, error_details = login(email, password)
-                logger.debug(f"Error details: {error_details}")
-                
-                if success:
-                    console.print("[bold green]Login successful![/bold green]")
-                    return True
-                else:
-                    console.print(f"[bold red]Login failed:[/bold red] {error_msg}")
-                    
-                    # Check if the error is due to invalid credentials or email not confirmed
-                    is_invalid_credentials = (
-                        error_details and 
-                        (
-                            error_details.get('error') == 'invalid_credentials' or
-                            error_details.get('error_code') == 'invalid_credentials' or
-                            'invalid credentials' in error_details.get('error_description', '').lower() or
-                            'user not found' in error_details.get('error_description', '').lower()
-                        )
-                    )
-                    
-                    is_email_not_confirmed = (
-                        error_details and
-                        (
-                            error_details.get('error_code') == 'email_not_confirmed' or
-                            'email not confirmed' in error_details.get('msg', '').lower()
-                        )
-                    )
-                    
-                    if is_email_not_confirmed:
-                        # Inform the user to check their email
-                        console.print("[yellow]Your account exists but the email is not confirmed. Please check your inbox for a confirmation email.[/yellow]")
-                        if Confirm.ask("[yellow]Would you like to try a different email address?[/yellow]"):
-                            continue
-                        else:
-                            return False
-                    elif is_invalid_credentials:
-                        # Offer to create an account
-                        if Confirm.ask("[yellow]No account found with that email. Would you like to create one?[/yellow]"):
-                            if try_signup(email, password):
-                                return True
-            except KeyboardInterrupt:
-                console.print("\n[bold yellow]Login cancelled by user.[/bold yellow]")
-                return False
-        
-        console.print("[bold red]Too many failed login attempts.[/bold red]")
-        return False
-    else:
-        # Plain text version
-        print("No authentication token found. Please log in:")
-        
-        for attempt in range(3):
-            if attempt > 0:
-                print(f"Login attempt {attempt + 1}/3")
-            
-            try:
-                email = input("Email: ")
-                password = input("Password: ")
-                
-                print("Authenticating...")
-                success, token, error_msg, error_details = login(email, password)
-                
-                if success:
-                    print("Login successful!")
-                    return True
-                else:
-                    print(f"Login failed: {error_msg}")
-                    
-                    # Check if the error is due to invalid credentials or email not confirmed
-                    is_invalid_credentials = (
-                        error_details and 
-                        (
-                            error_details.get('error') == 'invalid_credentials' or
-                            error_details.get('error_code') == 'invalid_credentials' or
-                            'invalid credentials' in error_details.get('error_description', '').lower() or
-                            'user not found' in error_details.get('error_description', '').lower()
-                        )
-                    )
-                    
-                    is_email_not_confirmed = (
-                        error_details and
-                        (
-                            error_details.get('error_code') == 'email_not_confirmed' or
-                            'email not confirmed' in error_details.get('msg', '').lower()
-                        )
-                    )
-                    
-                    if is_email_not_confirmed:
-                        # Inform the user to check their email
-                        print("Your account exists but the email is not confirmed. Please check your inbox for a confirmation email.")
-                        try_different = input("Would you like to try a different email address? (y/n): ").lower()
-                        if try_different == 'y':
-                            continue
-                        else:
-                            return False
-                    elif is_invalid_credentials:
-                        # Offer to create an account
-                        create_account = input("No account found with that email. Would you like to create one? (y/n): ").lower()
-                        if create_account == 'y':
-                            if try_signup(email, password):
-                                return True
-            except KeyboardInterrupt:
-                print("\nLogin cancelled by user.")
-                return False
-        
-        print("Too many failed login attempts.")
-        return False
 
 
 def display_tutorial_header(tutorial: Dict[str, Any]) -> None:
@@ -486,7 +284,7 @@ def prompt_for_tutorial_selection(tutorials: List[Dict[str, Any]]) -> Optional[D
         sys.exit(0)
 
 
-def run_tutorial(tutorial: Dict[str, Any]) -> None:
+def run_tutorial(tutorial: Dict[str, Any], tutorial_client: TutorialClient) -> None:
     """Run an interactive tutorial with all its steps."""
     if not tutorial:
         if RICH_AVAILABLE:
@@ -511,24 +309,36 @@ def run_tutorial(tutorial: Dict[str, Any]) -> None:
     first_step = steps[0]
     success = run_tutorial_step(first_step, 1)
     
-    if success and RICH_AVAILABLE:
-        console.print("\n[bold green]Congratulations on completing the first step![/bold green]")
-        console.print("[italic]In a full tutorial, you would continue with more steps.[/italic]")
-    elif success:
-        print("\nCongratulations on completing the first step!")
-        print("In a full tutorial, you would continue with more steps.")
+    if success:
+        if RICH_AVAILABLE:
+            console.print("\n[bold green]Congratulations on completing the first step![/bold green]")
+            console.print("[italic]In a full tutorial, you would continue with more steps.[/italic]")
+            
+            # Report progress to the API
+            tutorial_client.complete_tutorial(tutorial.get('id'), 10)
+        else:
+            print("\nCongratulations on completing the first step!")
+            print("In a full tutorial, you would continue with more steps.")
 
 
 def main():
     """Main entry point for the CLI application."""
+    # Define API base URL
+    from utils.config import API_BASE_URL
+    
     print_header("CmdShiftLearn CLI Agent")
     
-    # Authenticate the user before proceeding
-    if not authenticate():
+    # Authenticate with API key
+    success, api_key, error = login()
+    if not success or not api_key:
         if RICH_AVAILABLE:
             console.print("[bold red]Authentication required to use CmdShiftLearn CLI.[/bold red]")
+            if error:
+                console.print(f"[red]{error}[/red]")
         else:
             print("Authentication required to use CmdShiftLearn CLI.")
+            if error:
+                print(error)
         sys.exit(1)
     
     if RICH_AVAILABLE:
@@ -536,12 +346,20 @@ def main():
     else:
         print("Connecting to CmdShiftLearn API...\n")
     
-    # Create tutorial client and fetch tutorials
-    tutorial_client = TutorialClient()
+    # Create tutorial client with the API key
+    tutorial_client = TutorialClient(api_key)
     
     try:
         # Fetch and display the list of tutorials
         tutorials = tutorial_client.get_tutorials()
+        
+        if not tutorials:
+            if RICH_AVAILABLE:
+                console.print("[red]Failed to retrieve tutorials from the API. Please check your API key.[/red]")
+            else:
+                print("Failed to retrieve tutorials from the API. Please check your API key.")
+            sys.exit(1)
+            
         print_header("Available Tutorials")
         print_tutorials(tutorials)
         
@@ -557,9 +375,21 @@ def main():
             
             full_tutorial = tutorial_client.get_tutorial_by_id(tutorial_id)
             
-            # Run the interactive tutorial
-            run_tutorial(full_tutorial)
+            if full_tutorial:
+                # Run the interactive tutorial
+                run_tutorial(full_tutorial, tutorial_client)
+            else:
+                if RICH_AVAILABLE:
+                    console.print(f"[red]Failed to load tutorial {tutorial_id}. Please try again later.[/red]")
+                else:
+                    print(f"Failed to load tutorial {tutorial_id}. Please try again later.")
         
+    except KeyboardInterrupt:
+        if RICH_AVAILABLE:
+            console.print("\n[bold yellow]Operation cancelled by user.[/bold yellow]")
+        else:
+            print("\nOperation cancelled by user.")
+        sys.exit(0)
     except Exception as e:
         if RICH_AVAILABLE:
             console.print(f"[bold red]Error:[/bold red] {str(e)}")

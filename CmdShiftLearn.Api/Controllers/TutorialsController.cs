@@ -2,11 +2,13 @@ using CmdShiftLearn.Api.Models;
 using CmdShiftLearn.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CmdShiftLearn.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // This ensures all methods require authentication
     public class TutorialsController : ControllerBase
     {
         private readonly ITutorialService _tutorialService;
@@ -16,7 +18,7 @@ namespace CmdShiftLearn.Api.Controllers
         public TutorialsController(
             ITutorialService tutorialService, 
             IShelloService shelloService,
-            ILogger<TutorialsController> logger)
+            ILogger<TutorialController> logger)
         {
             _tutorialService = tutorialService;
             _shelloService = shelloService;
@@ -52,18 +54,18 @@ namespace CmdShiftLearn.Api.Controllers
         /// <response code="200">Returns the list of tutorials</response>
         /// <response code="401">If the user is not authenticated</response>
         [HttpGet]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<TutorialMetadata>>> GetAllTutorials()
         {
             try
             {
-                _logger.LogInformation("API Request: GET /api/tutorials");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _logger.LogInformation("API Request: GET /api/tutorials for user {UserId}", userId);
                 
                 var tutorials = await _tutorialService.GetAllTutorialMetadataAsync();
                 
-                _logger.LogInformation("Returning {Count} tutorials", tutorials?.Count() ?? 0);
+                _logger.LogInformation("Returning {Count} tutorials for user {UserId}", tutorials?.Count() ?? 0, userId);
                 
                 return Ok(tutorials);
             }
@@ -96,7 +98,6 @@ namespace CmdShiftLearn.Api.Controllers
         /// <response code="200">Returns the tutorial</response>
         /// <response code="404">If the tutorial is not found</response>
         [HttpGet("{id}")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -105,7 +106,8 @@ namespace CmdShiftLearn.Api.Controllers
         {
             try
             {
-                _logger.LogInformation("API Request: GET /api/tutorials/{Id}", id);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _logger.LogInformation("API Request: GET /api/tutorials/{Id} for user {UserId}", id, userId);
                 
                 if (string.IsNullOrWhiteSpace(id))
                 {
@@ -142,8 +144,8 @@ namespace CmdShiftLearn.Api.Controllers
                         tutorial.Steps = new List<TutorialStep>();
                     }
                     
-                    _logger.LogInformation("Returning tutorial: {Id}, Title: {Title}, Steps: {StepCount}", 
-                        tutorial.Id, tutorial.Title, tutorial.Steps.Count);
+                    _logger.LogInformation("Returning tutorial: {Id}, Title: {Title}, Steps: {StepCount} for user {UserId}", 
+                        tutorial.Id, tutorial.Title, tutorial.Steps.Count, userId);
                     
                     return Ok(tutorial);
                 }
@@ -236,7 +238,6 @@ namespace CmdShiftLearn.Api.Controllers
         /// <response code="401">If the user is not authenticated</response>
         /// <response code="404">If the tutorial or step is not found</response>
         [HttpPost("run-step")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -245,12 +246,8 @@ namespace CmdShiftLearn.Api.Controllers
         {
             try
             {
-                // Log authentication status
-                _logger.LogInformation($"RunTutorialStep: User is authenticated: {User.Identity?.IsAuthenticated}");
-                if (User.Identity?.IsAuthenticated == true)
-                {
-                    _logger.LogInformation($"RunTutorialStep: User ID: {User.FindFirst("sub")?.Value}");
-                }
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _logger.LogInformation("RunTutorialStep: User ID: {UserId}", userId);
                 
                 // Validate request
                 if (string.IsNullOrEmpty(request.TutorialId))
@@ -348,8 +345,8 @@ namespace CmdShiftLearn.Api.Controllers
                 // If a hint from Shello was requested, get it
                 if (request.RequestHint)
                 {
-                    _logger.LogInformation("Requesting hint from Shello for tutorial: {TutorialId}, step: {StepId}", 
-                        request.TutorialId, currentStep.Id);
+                    _logger.LogInformation("Requesting hint from Shello for tutorial: {TutorialId}, step: {StepId}, user: {UserId}", 
+                        request.TutorialId, currentStep.Id, userId);
                     
                     try
                     {
@@ -363,13 +360,13 @@ namespace CmdShiftLearn.Api.Controllers
                         // Add the hint to the response
                         response.HintFromShello = hintFromShello;
                         
-                        _logger.LogInformation("Successfully added Shello hint to response for tutorial: {TutorialId}, step: {StepId}", 
-                            request.TutorialId, currentStep.Id);
+                        _logger.LogInformation("Successfully added Shello hint to response for tutorial: {TutorialId}, step: {StepId}, user: {UserId}", 
+                            request.TutorialId, currentStep.Id, userId);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error getting hint from Shello for tutorial: {TutorialId}, step: {StepId}", 
-                            request.TutorialId, currentStep.Id);
+                        _logger.LogError(ex, "Error getting hint from Shello for tutorial: {TutorialId}, step: {StepId}, user: {UserId}", 
+                            request.TutorialId, currentStep.Id, userId);
                         
                         // Don't fail the whole request if Shello hint fails
                         response.HintFromShello = "I'm having trouble thinking of a hint right now. Please try again later.";

@@ -184,37 +184,71 @@ namespace CmdShiftLearn.Api.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-            
-            // Simple hardcoded authentication for MVP
-            if (request.Username == "admin" && request.Password == "password123")
-            {
-                // Generate JWT token with supersecret key
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes("supersecret");
-                var tokenDescriptor = new SecurityTokenDescriptor
+                _logger.LogInformation("Login attempt received for username: {Username}", request.Username);
+                
+                if (!ModelState.IsValid)
                 {
-                    Subject = new ClaimsIdentity(new[]
+                    _logger.LogWarning("Invalid model state for login request");
+                    return BadRequest(ModelState);
+                }
+                
+                // Simple hardcoded authentication for MVP
+                if (request.Username == "admin" && request.Password == "password123")
+                {
+                    try
                     {
-                        new Claim(ClaimTypes.Name, request.Username),
-                        new Claim("provider", "Basic")
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(1),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(key),
-                        SecurityAlgorithms.HmacSha256Signature)
-                };
+                        // Use a fixed, simple JWT secret for the MVP
+                        // This eliminates configuration issues while we debug
+                        const string jwtSecret = "supersecret_dev_key_for_mvp_testing_12345";
+                        
+                        _logger.LogInformation("Using fixed JWT secret for MVP");
+                        
+                        // Generate JWT token with the fixed key
+                        var tokenHandler = new JwtSecurityTokenHandler();
+                        var key = Encoding.UTF8.GetBytes(jwtSecret);
+                        
+                        var tokenDescriptor = new SecurityTokenDescriptor
+                        {
+                            Subject = new ClaimsIdentity(new[]
+                            {
+                                new Claim(ClaimTypes.Name, request.Username),
+                                new Claim(ClaimTypes.NameIdentifier, request.Username),
+                                new Claim("sub", request.Username),
+                                new Claim("provider", "Basic")
+                            }),
+                            // Skip setting issuer and audience for MVP simplicity
+                            Expires = DateTime.UtcNow.AddHours(1),
+                            SigningCredentials = new SigningCredentials(
+                                new SymmetricSecurityKey(key),
+                                SecurityAlgorithms.HmacSha256Signature)
+                        };
+                        
+                        var token = tokenHandler.CreateToken(tokenDescriptor);
+                        var tokenString = tokenHandler.WriteToken(token);
+                        
+                        _logger.LogInformation("Login successful for user: {Username}", request.Username);
+                        _logger.LogInformation("Generated token: {TokenPreview}...", tokenString.Substring(0, Math.Min(10, tokenString.Length)));
+                        
+                        // Return a simple token response for the MVP
+                        return Ok(new { token = tokenString, username = request.Username });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error generating token for user: {Username}", request.Username);
+                        return StatusCode(500, new { error = "Internal server error", message = "Error generating authentication token" });
+                    }
+                }
                 
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var tokenString = tokenHandler.WriteToken(token);
-                
-                return Ok(new LoginResponse { Token = tokenString });
+                _logger.LogWarning("Invalid login attempt for username: {Username}", request.Username);
+                return Unauthorized(new { error = "Invalid username or password" });
             }
-            
-            return Unauthorized(new { error = "Invalid username or password" });
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in login endpoint");
+                return StatusCode(500, new { error = "Internal server error", message = "An unexpected error occurred" });
+            }
         }
 
         /// <summary>

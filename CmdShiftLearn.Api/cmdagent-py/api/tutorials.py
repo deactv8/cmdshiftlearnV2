@@ -6,10 +6,11 @@ import json
 import logging
 import httpx
 from typing import List, Dict, Any, Optional
+from rich.console import Console
 
 from utils.config import API_BASE_URL, USE_MOCK_DATA
 from api.mock_data import TUTORIALS as MOCK_TUTORIALS
-from api.auth import get_auth_header, SUPABASE_API_KEY
+from api.auth import get_auth_header
 
 # Configure logging
 logging.basicConfig(
@@ -17,13 +18,15 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger('api.tutorials')
+console = Console()
 
 
 class TutorialClient:
     """Client for interacting with the tutorials API."""
     
-    def __init__(self):
+    def __init__(self, api_key=None):
         self.base_url = f"{API_BASE_URL}/tutorials"
+        self.api_key = api_key
     
     def get_tutorials(self) -> List[Dict[str, Any]]:
         """
@@ -35,8 +38,8 @@ class TutorialClient:
         logger.info(f"Fetching tutorials from {self.base_url}")
         
         try:
-            # Get authentication headers
-            headers = get_auth_header()
+            # Get authentication headers with API key
+            headers = get_auth_header(self.api_key)
             
             # Log the headers being sent (excluding sensitive parts)
             logger.debug(f"Request headers: {headers.keys()}")
@@ -51,34 +54,18 @@ class TutorialClient:
             
             logger.info(f"API response status code: {response.status_code}")
             
-            # Log the response headers for debugging
-            logger.debug(f"Response headers: {dict(response.headers)}")
-            
-            # If we got a 401, log more detailed information
+            # Handle authentication failure
             if response.status_code == 401:
-                www_authenticate = response.headers.get('www-authenticate', '')
-                logger.error(f"Authorization failed. Response details: {response.text}")
-                logger.error(f"WWW-Authenticate header: {www_authenticate}")
+                logger.error(f"Authentication failed. Response: {response.text}")
+                console.print("[red]Authentication failed: Invalid API key[/red]")
                 
-                # Extract detailed error information
-                error_description = "Unknown"
-                if "error_description=" in www_authenticate:
-                    try:
-                        error_description = www_authenticate.split('error_description=')[1].split('"')[1]
-                    except:
-                        pass
+                # Fall back to mock data if needed
+                if USE_MOCK_DATA:
+                    logger.info("Using mock data as fallback")
+                    return MOCK_TUTORIALS
+                return []
                 
-                # Provide specific error messages for different token issues
-                if "signature key was not found" in error_description.lower():
-                    logger.error("SIGNATURE KEY ISSUE: The API cannot verify the token signature.")
-                    logger.error("This is likely a server-side configuration issue where the API doesn't recognize tokens issued by Supabase.")
-                    print("Authentication failed: The API cannot verify the token's signature.")
-                    print("Please contact the API administrator to resolve this issue.")
-                elif "audience" in error_description.lower():
-                    logger.error("Token audience claim issue detected! The API expects 'authenticated' as the audience.")
-                    print("Token audience issue detected. The API expects 'authenticated' as the audience.")
-            
-            response.raise_for_status()  # Raise exception for 4XX/5XX responses
+            response.raise_for_status()  # Raise exception for other 4XX/5XX responses
             
             tutorials = response.json()
             logger.info(f"Successfully fetched {len(tutorials)} tutorials")
@@ -86,6 +73,7 @@ class TutorialClient:
             
         except httpx.TimeoutException:
             logger.error("Request timed out while fetching tutorials")
+            console.print("[red]Request timed out. Please try again later.[/red]")
             if USE_MOCK_DATA:
                 logger.info("Using mock data as fallback")
                 return MOCK_TUTORIALS
@@ -93,10 +81,7 @@ class TutorialClient:
             
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
-            if e.response.status_code == 401:
-                error_msg = "Authentication failed. Please check your login or contact support."
-                logger.error(error_msg)
-                print(error_msg)
+            console.print(f"[red]Error: {e.response.reason_phrase}[/red]")
             
             # Only fall back to mock data if USE_MOCK_DATA is explicitly set to True
             if USE_MOCK_DATA:
@@ -104,22 +89,9 @@ class TutorialClient:
                 return MOCK_TUTORIALS
             return []
             
-        except httpx.RequestError as e:
-            logger.error(f"Error fetching tutorials: {e}")
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_TUTORIALS
-            return []
-            
-        except json.JSONDecodeError:
-            logger.error("Invalid JSON response received from API")
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_TUTORIALS
-            return []
-            
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
+            console.print(f"[red]Error connecting to CmdShiftLearn API: {str(e)}[/red]")
             if USE_MOCK_DATA:
                 logger.info("Using mock data as fallback")
                 return MOCK_TUTORIALS
@@ -139,8 +111,8 @@ class TutorialClient:
         logger.info(f"Fetching tutorial {tutorial_id} from {url}")
         
         try:
-            # Get authentication headers (includes apikey)
-            headers = get_auth_header()
+            # Get authentication headers with API key
+            headers = get_auth_header(self.api_key)
             
             # Log the headers being sent (excluding sensitive parts)
             logger.debug(f"Request headers: {headers.keys()}")
@@ -155,41 +127,12 @@ class TutorialClient:
             
             logger.info(f"API response status code: {response.status_code}")
             
-            # Log the response headers for debugging
-            logger.debug(f"Response headers: {dict(response.headers)}")
-            
-            # If we got a 401, log more detailed information and show clear error message
+            # Handle authentication failure
             if response.status_code == 401:
-                www_authenticate = response.headers.get('www-authenticate', '')
-                logger.error(f"Authorization failed. Response details: {response.text}")
-                logger.error(f"WWW-Authenticate header: {www_authenticate}")
+                logger.error(f"Authentication failed. Response: {response.text}")
+                console.print("[red]Authentication failed: Invalid API key[/red]")
                 
-                # Extract detailed error information
-                error_description = "Unknown"
-                if "error_description=" in www_authenticate:
-                    try:
-                        error_description = www_authenticate.split('error_description=')[1].split('"')[1]
-                    except:
-                        pass
-                
-                # Provide specific error messages for different token issues
-                if "signature key was not found" in error_description.lower():
-                    error_msg = "Authentication failed: The API cannot verify the token's signature. This is likely a server-side configuration issue where the API doesn't recognize tokens issued by Supabase."
-                    logger.error(error_msg)
-                    print(error_msg)
-                    print("Please contact the API administrator to resolve this issue.")
-                elif "audience" in error_description.lower():
-                    error_msg = "Authentication failed: The token's audience claim is invalid."
-                    logger.error(error_msg)
-                    print(error_msg)
-                    logger.error("Token audience claim issue detected! The API expects 'authenticated' as the audience.")
-                    print("Token audience issue detected. The API expects 'authenticated' as the audience.")
-                else:
-                    error_msg = f"Authentication failed: {error_description}. Please check your login or contact support."
-                    logger.error(error_msg)
-                    print(error_msg)
-                
-                # Only fall back to mock data if USE_MOCK_DATA is explicitly set to True
+                # Fall back to mock data if needed
                 if USE_MOCK_DATA:
                     logger.info("Falling back to mock data due to authentication failure")
                     for mock_tutorial in MOCK_TUTORIALS:
@@ -198,11 +141,15 @@ class TutorialClient:
                             return mock_tutorial
                     
                     logger.warning(f"No mock data found for tutorial ID: {tutorial_id}")
-                    return None
                 return None
                 
-            # Continue with the normal flow if no 401 error
-            response.raise_for_status()
+            # Handle not found
+            if response.status_code == 404:
+                logger.warning(f"Tutorial with ID '{tutorial_id}' not found")
+                console.print(f"[yellow]Tutorial with ID '{tutorial_id}' not found[/yellow]")
+                return None
+                
+            response.raise_for_status()  # Raise exception for other 4XX/5XX responses
             
             tutorial = response.json()
             logger.info(f"Successfully fetched tutorial: {tutorial.get('title', 'Unknown')}")
@@ -210,39 +157,15 @@ class TutorialClient:
             
         except httpx.TimeoutException:
             logger.error(f"Request timed out while fetching tutorial {tutorial_id}")
+            console.print("[red]Request timed out. Please try again later.[/red]")
             
         except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                logger.warning(f"Tutorial with ID '{tutorial_id}' not found")
-            elif e.response.status_code == 401:
-                error_msg = "Authentication failed. Please check your login or contact support."
-                logger.error(error_msg)
-                print(error_msg)
-                # Log additional information about authentication headers
-                try:
-                    www_authenticate = e.response.headers.get('www-authenticate', '')
-                    logger.error(f"Authentication challenge: {www_authenticate}")
-                except Exception as header_error:
-                    logger.error(f"Error extracting headers: {str(header_error)}")
-            else:
-                logger.error(f"HTTP Error: {e.response.status_code} - {e.response.reason_phrase}")
-                
-            # Fall back to mock data only if USE_MOCK_DATA is explicitly set to True
-            if USE_MOCK_DATA:
-                logger.info(f"Attempting to use mock data for tutorial {tutorial_id}")
-                for mock in MOCK_TUTORIALS:
-                    if mock["id"] == tutorial_id:
-                        logger.info(f"Found mock data for {tutorial_id}")
-                        return mock
-                
-        except httpx.RequestError as e:
-            logger.error(f"Error fetching tutorial {tutorial_id}: {e}")
-            
-        except json.JSONDecodeError:
-            logger.error(f"Invalid JSON response received for tutorial {tutorial_id}")
+            logger.error(f"HTTP Error: {e.response.status_code} - {e.response.reason_phrase}")
+            console.print(f"[red]Error: {e.response.reason_phrase}[/red]")
             
         except Exception as e:
             logger.error(f"Unexpected error fetching tutorial {tutorial_id}: {str(e)}")
+            console.print(f"[red]Error connecting to CmdShiftLearn API: {str(e)}[/red]")
         
         # Return mock tutorial if it exists in our fallback data and USE_MOCK_DATA is True
         if USE_MOCK_DATA:
@@ -255,3 +178,49 @@ class TutorialClient:
             logger.warning(f"No mock data available for tutorial {tutorial_id}")
         
         return None
+        
+    def complete_tutorial(self, tutorial_id: str, xp_earned: int) -> bool:
+        """
+        Report tutorial completion to the API.
+        
+        Args:
+            tutorial_id: The ID of the completed tutorial
+            xp_earned: The amount of XP earned
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        url = f"{API_BASE_URL}/progress/tutorial-complete"
+        logger.info(f"Reporting completion of tutorial {tutorial_id} to {url}")
+        
+        try:
+            # Get authentication headers with API key
+            headers = get_auth_header(self.api_key)
+            
+            # Prepare the payload
+            payload = {
+                "tutorialId": tutorial_id,
+                "xpEarned": xp_earned
+            }
+            
+            # Use httpx with a 10-second timeout
+            with httpx.Client(timeout=10.0) as client:
+                response = client.post(url, headers=headers, json=payload)
+            
+            logger.info(f"API response status code: {response.status_code}")
+            
+            # Handle authentication failure
+            if response.status_code == 401:
+                logger.error(f"Authentication failed. Response: {response.text}")
+                console.print("[red]Authentication failed: Invalid API key[/red]")
+                return False
+                
+            response.raise_for_status()  # Raise exception for other 4XX/5XX responses
+            
+            logger.info(f"Successfully reported completion of tutorial {tutorial_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error reporting tutorial completion: {str(e)}")
+            console.print(f"[yellow]Could not save progress: {str(e)}[/yellow]")
+            return False

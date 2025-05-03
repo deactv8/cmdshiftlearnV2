@@ -1,15 +1,15 @@
 using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using CmdShiftLearn.Api.Models;
 using CmdShiftLearn.Api.Services;
 using CmdShiftLearn.Api.Middleware;
+using CmdShiftLearn.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
@@ -132,288 +132,28 @@ if (string.IsNullOrEmpty(jwtSecret))
     Console.WriteLine("WARNING: JWT Secret is empty or not found in configuration!");
 }
 
-// Configure JWT authentication with Supabase JWKS
-try
-{
-    Console.WriteLine("Configuring JWT authentication with Supabase JWKS");
-    
-    builder.Services.AddAuthentication(options => 
-    {
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-    {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-        
-        // Define the Supabase JWKS URL
-        string jwksUrl = "https://fqceiphubiqnorytayiu.supabase.co/auth/v1/keys";
-        Console.WriteLine($"Using Supabase JWKS URL: {jwksUrl}");
-        
-        // Log audience configuration
-        Console.WriteLine($"DEBUG - JWT Validation - Using Audience: authenticated (for Supabase compatibility)");
-        
-        // Configure to use Microsoft's JWKS handling
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,        // Skip issuer validation 
-            ValidateAudience = true,       // Validate audience for Supabase compatibility
-            ValidAudience = "authenticated", // Set audience to match Supabase tokens
-            ValidateLifetime = true,       // Validate token expiration
-            ValidateIssuerSigningKey = true, // Validate signature
-            ClockSkew = TimeSpan.Zero,
-            NameClaimType = ClaimTypes.Name
-        };
-        
-        // Configure the JWKS retrieval
-        options.MetadataAddress = jwksUrl;
-        options.RequireHttpsMetadata = true;
-        
-        // Use a custom signing key resolver for JWKS
-        options.TokenValidationParameters.IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) =>
-        {
-            // Create a logger for key resolution
-            var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Resolving signing key using JWKS endpoint: {JwksUrl}", jwksUrl);
-            
-            try
-            {
-                // Create a HttpClient to fetch the JWKS
-                var httpClient = new HttpClient();
-                var jwksJson = httpClient.GetStringAsync(jwksUrl).Result;
-                logger.LogInformation("JWKS response received from Supabase");
-                
-                // Parse the JWKS response
-                var jwks = System.Text.Json.JsonDocument.Parse(jwksJson).RootElement;
-                var keys = jwks.GetProperty("keys");
-                
-                // Create signing keys from the JWKS
-                var signingKeys = new List<SecurityKey>();
-                foreach (var key in keys.EnumerateArray())
-                {
-                    if (key.TryGetProperty("kty", out var kty) && 
-                        key.TryGetProperty("kid", out var keyId))
-                    {
-                        var jwk = new JsonWebKey
-                        {
-                            Kty = kty.GetString(),
-                            Kid = keyId.GetString(),
-                        };
-                        
-                        // Add required parameters based on key type
-                        if (kty.GetString() == "RSA")
-                        {
-                            // Add required RSA parameters
-                            if (key.TryGetProperty("n", out var n)) jwk.N = n.GetString();
-                            if (key.TryGetProperty("e", out var e)) jwk.E = e.GetString();
-                            if (key.TryGetProperty("use", out var use)) jwk.Use = use.GetString();
-                            if (key.TryGetProperty("alg", out var alg)) jwk.Alg = alg.GetString();
-                            
-                            logger.LogInformation("Added RSA key with kid: {KeyId}, alg: {Algorithm}", 
-                                keyId.GetString(), jwk.Alg ?? "unknown");
-                        }
-                        
-                        signingKeys.Add(jwk);
-                    }
-                }
-                
-                logger.LogInformation("Successfully loaded {KeyCount} keys from JWKS endpoint", signingKeys.Count);
-                return signingKeys;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error fetching or parsing JWKS from Supabase");
-                throw;
-            }
-        };
-        
-        // Log the actual ValidAudience value at runtime
-        Console.WriteLine($"JWT ValidAudience at runtime: {options.TokenValidationParameters.ValidAudience}");
-        
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = context =>
-            {
-                Console.WriteLine("Token validated successfully using JWKS!");
-                Console.WriteLine($"User: {context.Principal?.Identity?.Name}");
-                Console.WriteLine($"Claims: {string.Join(", ", context.Principal?.Claims.Select(c => $"{c.Type}: {c.Value}") ?? Array.Empty<string>())}");
-                return Task.CompletedTask;
-            },
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine($"Authentication failed: {context.Exception.GetType().Name}: {context.Exception.Message}");
-                
-                // Add more detailed logging for audience validation failures
-                if (context.Exception is SecurityTokenInvalidAudienceException audienceEx)
-                {
-                    Console.WriteLine($"AUDIENCE VALIDATION ERROR: {audienceEx.Message}");
-                    Console.WriteLine($"Expected audience: 'authenticated'");
-                    
-                    // Try to extract the actual audience from the token
-                    try
-                    {
-                        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-                        var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                        var jsonToken = handler.ReadJwtToken(token);
-                        var audience = jsonToken.Audiences.FirstOrDefault() ?? "none";
-                        Console.WriteLine($"Token audience: '{audience}'");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error extracting audience from token: {ex.Message}");
-                    }
-                }
-                
-                if (context.Exception is SecurityTokenSignatureKeyNotFoundException)
-                {
-                    Console.WriteLine("SIGNATURE KEY NOT FOUND ERROR - This may indicate the token was signed with a key not present in the JWKS");
-                    Console.WriteLine("Please ensure the JWKS endpoint is correct and contains all necessary keys");
-                }
-                
-                if (context.Exception.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {context.Exception.InnerException.GetType().Name}: {context.Exception.InnerException.Message}");
-                }
-                return Task.CompletedTask;
-            },
-            OnChallenge = context =>
-            {
-                Console.WriteLine($"OnChallenge: {context.Error}, {context.ErrorDescription}");
-                return Task.CompletedTask;
-            },
-            OnMessageReceived = context =>
-            {
-                if (!string.IsNullOrEmpty(context.Token))
-                {
-                    Console.WriteLine($"Token received: {context.Token.Substring(0, Math.Min(10, context.Token.Length))}...");
-                    try
-                    {
-                        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-                        var jsonToken = handler.ReadJwtToken(context.Token);
-                        Console.WriteLine($"Token issuer: {jsonToken.Issuer}");
-                        Console.WriteLine($"Token algorithm: {jsonToken.Header.Alg}");
-                        Console.WriteLine($"Token key ID (kid): {jsonToken.Header.Kid}");
-                        Console.WriteLine($"Token issued at: {jsonToken.IssuedAt}");
-                        Console.WriteLine($"Token expires at: {jsonToken.ValidTo}");
-                        
-                        // Log audience information
-                        var audience = jsonToken.Audiences.FirstOrDefault() ?? "none";
-                        Console.WriteLine($"Token audience: '{audience}'");
-                        Console.WriteLine($"Expected audience: 'authenticated'");
-                        Console.WriteLine($"Audience match: {audience == "authenticated"}");
-                        
-                        // Log all claims for debugging
-                        Console.WriteLine("Token claims:");
-                        foreach (var claim in jsonToken.Claims)
-                        {
-                            Console.WriteLine($"  {claim.Type}: {claim.Value}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error decoding token: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("No token received in request");
-                }
-                return Task.CompletedTask;
-            }
-        };
-    })
-    .AddGoogle("Google", options =>
-    {
-        // Log cookie configuration
-        Console.WriteLine("🔐 Setting Google OAuth correlation cookie to SameSite=Lax, SecurePolicy=Always");
-        
-        var googleClientId = builder.Configuration["Authentication:Google:ClientId"] ?? string.Empty;
-        var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? string.Empty;
-        
-        options.ClientId = googleClientId;
-        options.ClientSecret = googleClientSecret;
-        
-        // Use the dedicated Google callback path to avoid conflicts
-        options.CallbackPath = new PathString("/auth/google/callback");
-        
-        // Configure correlation cookie settings to ensure proper OAuth flow
-        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
-        
-        // Debug logs to show actual values during startup
-        Console.WriteLine($"DEBUG - Google Auth - ClientId = {(string.IsNullOrEmpty(googleClientId) ? "[MISSING]" : googleClientId)}");
-        Console.WriteLine($"DEBUG - Google Auth - ClientSecret = {(string.IsNullOrEmpty(googleClientSecret) ? "[MISSING]" : googleClientSecret.Substring(0, Math.Min(4, googleClientSecret.Length)) + "...")}");
-        
-        // Map Google claims to standard claims
-        // Temporarily commented out to allow build to succeed
-        // options.ClaimActions.Map(ClaimTypes.NameIdentifier, "sub");
-        // options.ClaimActions.Map(ClaimTypes.Name, "name");
-        // options.ClaimActions.Map(ClaimTypes.Email, "email");
-        // options.ClaimActions.Map("picture", "picture");
-        
-        if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
-        {
-            Console.WriteLine("WARNING: Google OAuth credentials are not configured!");
-        }
-    })
-    .AddGitHub("GitHub", options =>
-    {
-        var githubClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? string.Empty;
-        var githubClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? string.Empty;
-        
-        options.ClientId = githubClientId;
-        options.ClientSecret = githubClientSecret;
-        
-        // Debug logs to show actual values during startup
-        Console.WriteLine($"DEBUG - GitHub Auth - ClientId = {(string.IsNullOrEmpty(githubClientId) ? "[MISSING]" : githubClientId)}");
-        Console.WriteLine($"DEBUG - GitHub Auth - ClientSecret = {(string.IsNullOrEmpty(githubClientSecret) ? "[MISSING]" : githubClientSecret.Substring(0, Math.Min(4, githubClientSecret.Length)) + "...")}");
-        
-        // Request additional scopes
-        options.Scope.Add("user:email");
-        
-        if (string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.ClientSecret))
-        {
-            Console.WriteLine("WARNING: GitHub OAuth credentials are not configured!");
-        }
-    });
+// Configure API Key Authentication
+Console.WriteLine("Configuring API Key authentication");
 
-// Add diagnostic logging for auth providers
-Console.WriteLine($"[Auth Setup] Google ClientId = {(string.IsNullOrEmpty(builder.Configuration["Authentication:Google:ClientId"]) ? "[MISSING]" : "[SET]")}");
-Console.WriteLine($"[Auth Setup] GitHub ClientId = {(string.IsNullOrEmpty(builder.Configuration["Authentication:GitHub:ClientId"]) ? "[MISSING]" : "[SET]")}");
-}
-catch (Exception ex)
+// Register API Key authentication services
+builder.Services.AddSingleton<IApiKeyValidator, InMemoryApiKeyValidator>();
+
+// Configure authentication
+builder.Services
+    .AddAuthentication(options => 
+    {
+        options.DefaultAuthenticateScheme = "ApiKey";
+        options.DefaultChallengeScheme = "ApiKey";
+    })
+    .AddScheme<ApiKeyAuthOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
+
+// Add global authorization policy
+builder.Services.AddAuthorization(options =>
 {
-    Console.WriteLine($"ERROR configuring authentication: {ex.Message}");
-    Console.WriteLine($"Stack trace: {ex.StackTrace}");
-    if (ex.InnerException != null)
-    {
-        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-    }
-    
-    // Fallback to minimal authentication for development only
-    if (builder.Environment.IsDevelopment())
-    {
-        Console.WriteLine("Falling back to minimal authentication for development");
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => {
-                // Log fallback authentication settings
-                Console.WriteLine("DEBUG - FALLBACK JWT Validation - Using Audience: authenticated (hardcoded for Supabase compatibility)");
-                
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = false,
-                    ValidateIssuer = false,
-                    ValidateAudience = true,
-                    ValidAudience = "authenticated", // Set audience to match Supabase tokens
-                    ValidateLifetime = false
-                };
-                
-                // Log the actual ValidAudience value at runtime for fallback configuration
-                Console.WriteLine($"JWT ValidAudience at runtime (fallback): {options.TokenValidationParameters.ValidAudience}");
-            });
-    }
-}
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 builder.Services.AddAuthorization();
 

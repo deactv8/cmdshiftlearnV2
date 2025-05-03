@@ -8,7 +8,6 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using CmdShiftLearn.Api.Models;
 using CmdShiftLearn.Api.Services;
-using CmdShiftLearn.Api.Middleware;
 using CmdShiftLearn.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);

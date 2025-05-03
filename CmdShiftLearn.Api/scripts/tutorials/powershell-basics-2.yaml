@@ -63,3 +63,21 @@ content: |
   1. Create a function that takes a number and returns its square
   2. Write a loop that prints the squares of numbers 1 through 10
   3. Create a conditional statement that checks if a number is even or odd
+steps:
+  - id: step1
+    title: "Create a Square Function"
+    instructions: "Create a function named 'Get-Square' that takes a number parameter and returns its square."
+    expectedCommand: "function Get-Square { param([int]$Number) return $Number * $Number }"
+    hint: "Use the function keyword, define a parameter with [int] type, and multiply the number by itself."
+  
+  - id: step2
+    title: "Print Squares Loop"
+    instructions: "Write a loop that prints the squares of numbers 1 through 5."
+    expectedCommand: "1..5 | ForEach-Object { Write-Host \"$_ squared is $($_ * $_)\" }"
+    hint: "Use the range operator 1..5 and pipe it to ForEach-Object. Inside the script block, calculate the square."
+  
+  - id: step3
+    title: "Check Even or Odd"
+    instructions: "Write a conditional statement that checks if a number is even or odd. Use $number = 7 as your test value."
+    expectedCommand: "$number = 7; if ($number % 2 -eq 0) { Write-Host \"$number is even\" } else { Write-Host \"$number is odd\" }"
+    hint: "Use the modulo operator % to check if a number divided by 2 has a remainder of 0 (even)."

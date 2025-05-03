@@ -147,6 +147,27 @@ Console.WriteLine("Registered FileTutorialLoader");
 
 var app = builder.Build();
 
+// Add global exception handler
+app.Use(async (context, next) => {
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"CRITICAL ERROR: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            Console.WriteLine($"Inner stack trace: {ex.InnerException.StackTrace}");
+        }
+        
+        throw;
+    }
+});
+
 // Configure the HTTP request pipeline
 // Serve static files from wwwroot - placed first in the pipeline for better performance
 app.UseStaticFiles();

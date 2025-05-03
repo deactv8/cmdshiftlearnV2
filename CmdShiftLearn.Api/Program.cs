@@ -87,8 +87,6 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-// Configure API Key authentication
-
 // Configure API Key Authentication
 Console.WriteLine("Configuring API Key authentication");
 
@@ -118,9 +116,8 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
-// Register authentication services
+// Register services
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 
@@ -144,44 +141,10 @@ builder.Services.AddHttpClient<IShelloService, ShelloService>(client =>
     }
 });
 
-// Register the appropriate content loader based on configuration
-var tutorialsSource = builder.Configuration.GetValue<string>("ContentSources:Tutorials:Source") ?? "File";
-var challengesSource = builder.Configuration.GetValue<string>("ContentSources:Challenges:Source") ?? "File";
-
-Console.WriteLine($"Using {tutorialsSource} as the source for tutorials");
-Console.WriteLine($"Using {challengesSource} as the source for challenges");
-
-// Register tutorial loader
-if (tutorialsSource.Equals("GitHub", StringComparison.OrdinalIgnoreCase))
-{
-    builder.Services.AddSingleton<ITutorialLoader, GitHubTutorialLoader>();
-    Console.WriteLine("Registered GitHubTutorialLoader");
-    
-    // Log GitHub configuration
-    var owner = builder.Configuration["GitHub:Owner"] ?? "deactv8";
-    var repo = builder.Configuration["GitHub:Repo"] ?? "content";
-    var branch = builder.Configuration["GitHub:Branch"] ?? "master";
-    var tutorialsPath = builder.Configuration["GitHub:TutorialsPath"] ?? "tutorials";
-    var hasToken = !string.IsNullOrEmpty(builder.Configuration["GitHub:AccessToken"]);
-    
-    Console.WriteLine($"GitHub Configuration:");
-    Console.WriteLine($"- Owner: {owner}");
-    Console.WriteLine($"- Repo: {repo}");
-    Console.WriteLine($"- Branch: {branch}");
-    Console.WriteLine($"- TutorialsPath: {tutorialsPath}");
-    Console.WriteLine($"- Has Access Token: {hasToken}");
-}
-else if (tutorialsSource.Equals("Supabase", StringComparison.OrdinalIgnoreCase))
-{
-    builder.Services.AddSingleton<ITutorialLoader, SupabaseTutorialLoader>();
-    Console.WriteLine("Registered SupabaseTutorialLoader");
-}
-else
-{
-    // Default to file-based loader
-    builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
-    Console.WriteLine("Registered FileTutorialLoader");
-}
+// Only register the file-based content loaders
+Console.WriteLine("Using File as the source for tutorials");
+builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
+Console.WriteLine("Registered FileTutorialLoader");
 
 var app = builder.Build();
 

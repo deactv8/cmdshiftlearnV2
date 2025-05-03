@@ -3,21 +3,18 @@ WORKDIR /src
 
 # Copy csproj and restore dependencies
 COPY ["CmdShiftLearn.Api.csproj", "CmdShiftLearn.Api.csproj"]
-RUN dotnet restore "CmdShiftLearn.Api.csproj"
+COPY ["global.json", "global.json"]
 
-# Copy the rest of the code
+# Force SDK to ignore version constraints
+ENV DOTNET_ROLL_FORWARD=Major
+
+# Restore and build
+RUN dotnet restore "CmdShiftLearn.Api.csproj" --disable-parallel
 COPY . .
-
-# Build and publish
-RUN dotnet build "CmdShiftLearn.Api.csproj" -c Release -o /app/build
-RUN dotnet publish "CmdShiftLearn.Api.csproj" -c Release -o /app/publish
-
-# Debug: List the contents of the publish directory
-RUN find /app/publish -type f | grep -v "\.dll\|\.exe\|\.pdb\|\.json" | sort
-RUN find /app/publish/wwwroot -type f | sort || echo "wwwroot directory not found in publish output"
+RUN dotnet publish "CmdShiftLearn.Api.csproj" -c Release -o /app/publish --no-restore
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 

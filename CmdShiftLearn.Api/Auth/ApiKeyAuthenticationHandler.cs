@@ -30,7 +30,8 @@ namespace CmdShiftLearn.Api.Auth
             // Check if Authorization header exists
             if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
             {
-                Logger.LogWarning("Authentication failed for request {Path}: Missing Authorization header", Request.Path);
+                // Changed from LogWarning to LogDebug to reduce log noise for unauthenticated requests
+                Logger.LogDebug("Authentication failed for request {Path}: Missing Authorization header", Request.Path);
                 return Task.FromResult(AuthenticateResult.Fail("Missing Authorization header"));
             }
                 

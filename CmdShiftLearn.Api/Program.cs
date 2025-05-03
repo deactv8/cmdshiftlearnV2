@@ -101,12 +101,17 @@ builder.Services
     })
     .AddScheme<ApiKeyAuthOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
 
-// Add global authorization policy
+// Add authorization policy
 builder.Services.AddAuthorization(options =>
 {
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+    // Set a default policy that requires authentication for most endpoints
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+    
+    // But don't use the default policy as a fallback policy
+    // This allows [AllowAnonymous] to work correctly
+    options.FallbackPolicy = null;
 });
 
 // Configure application cookie settings globally
@@ -194,7 +199,8 @@ else
 // Add health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
    .WithName("HealthCheck")
-   .WithOpenApi();
+   .WithOpenApi()
+   .AllowAnonymous();
 
 app.UseHttpsRedirection();
 app.UseForwardedHeaders();

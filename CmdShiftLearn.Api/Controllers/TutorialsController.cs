@@ -18,7 +18,7 @@ namespace CmdShiftLearn.Api.Controllers
         public TutorialsController(
             ITutorialService tutorialService, 
             IShelloService shelloService,
-            ILogger<TutorialController> logger)
+            ILogger<TutorialsController> logger)
         {
             _tutorialService = tutorialService;
             _shelloService = shelloService;

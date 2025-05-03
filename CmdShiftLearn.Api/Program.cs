@@ -67,12 +67,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configure Swagger with JWT support
+// Configure Swagger with API Key support
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
-        Description = "Standard Authorization header using the Bearer scheme (\"Bearer {token}\")",
+        Description = "API Key Authentication. Example: \"ApiKey {key}\"",
         In = ParameterLocation.Header,
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
@@ -87,50 +87,7 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-// Load Supabase settings
-var supabaseSettings = builder.Configuration.GetSection("Supabase").Get<SupabaseSettings>();
-builder.Services.Configure<SupabaseSettings>(builder.Configuration.GetSection("Supabase"));
-
-// ✅ Add secure JWT authentication using Supabase token validation
-// Get JWT secret directly from configuration to avoid any binding issues
-var jwtSecret = builder.Configuration["Supabase:JwtSecret"] ?? 
-                builder.Configuration["SUPABASE__JWTSECRET"] ?? 
-                builder.Configuration["Supabase__JwtSecret"] ?? 
-                builder.Configuration["Authentication:Jwt:Secret"] ?? 
-                string.Empty;
-
-// Log the JWT secret being used (masked for security)
-Console.WriteLine($"DEBUG - JWT Secret Length: {jwtSecret.Length}");
-Console.WriteLine($"DEBUG - JWT Secret Preview: {(string.IsNullOrEmpty(jwtSecret) ? "[MISSING]" : jwtSecret.Substring(0, Math.Min(4, jwtSecret.Length)) + "...")}");
-
-// Add enhanced diagnostic logging
-Console.WriteLine($"[DEBUG] JWT Secret Length: {jwtSecret.Length}");
-Console.WriteLine($"[DEBUG] JWT Secret Present: {!string.IsNullOrEmpty(jwtSecret)}");
-Console.WriteLine("Available Configuration Keys:");
-foreach (var kv in builder.Configuration.AsEnumerable())
-{
-    if (kv.Key?.ToLower()?.Contains("jwt") == true)
-    {
-        Console.WriteLine($" {kv.Key} = {(string.IsNullOrEmpty(kv.Value) ? "[empty]" : "[set]")}");
-    }
-}
-
-// Check if the secret is Base64 encoded (Supabase JWT secrets are typically Base64 encoded)
-// This is just for informational purposes - we'll use the raw string regardless
-bool isBase64 = false;
-try {
-    var decodedBytes = Convert.FromBase64String(jwtSecret);
-    isBase64 = true;
-    Console.WriteLine($"JWT Secret is valid Base64, decoded length: {decodedBytes.Length} bytes");
-    Console.WriteLine("Note: We'll use the raw Base64 string as-is for JWT validation");
-} catch {
-    Console.WriteLine("JWT Secret is NOT valid Base64 - this might be a problem as Supabase typically uses Base64 encoded secrets");
-}
-
-if (string.IsNullOrEmpty(jwtSecret))
-{
-    Console.WriteLine("WARNING: JWT Secret is empty or not found in configuration!");
-}
+// Configure API Key authentication
 
 // Configure API Key Authentication
 Console.WriteLine("Configuring API Key authentication");
@@ -154,8 +111,6 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 });
-
-builder.Services.AddAuthorization();
 
 // Configure application cookie settings globally
 builder.Services.ConfigureApplicationCookie(options => {
@@ -263,8 +218,6 @@ app.UseForwardedHeaders();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSupabaseAuth();
-app.UseAuthErrorHandler();
 app.MapControllers();
 
 app.Run();

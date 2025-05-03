@@ -316,7 +316,8 @@ namespace CmdShiftLearn.Api.Controllers
                 // Prepare the response
                 var response = new RunTutorialStepResponse
                 {
-                    IsCorrect = isCorrect
+                    IsCorrect = isCorrect,
+                    XpEarned = 0 // Default to 0 XP
                 };
                 
                 if (isCorrect)
@@ -335,6 +336,9 @@ namespace CmdShiftLearn.Api.Controllers
                     {
                         response.NextStepIndex = request.StepIndex + 1;
                     }
+                    
+                    // Add XP reward for completing the step
+                    response.XpEarned = currentStep.Xp > 0 ? currentStep.Xp : 10; // Default to 10 XP if not specified
                 }
                 else
                 {

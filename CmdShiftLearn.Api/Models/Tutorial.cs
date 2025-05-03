@@ -75,6 +75,11 @@ namespace CmdShiftLearn.Api.Models
         /// Validation rules for the step
         /// </summary>
         public ValidationRule? Validation { get; set; }
+        
+        /// <summary>
+        /// XP awarded for completing this specific step
+        /// </summary>
+        public int Xp { get; set; }
     }
     
     /// <summary>
@@ -184,5 +189,10 @@ namespace CmdShiftLearn.Api.Models
         /// Whether the tutorial is now complete
         /// </summary>
         public bool IsComplete { get; set; }
+        
+        /// <summary>
+        /// XP earned for completing this step
+        /// </summary>
+        public int XpEarned { get; set; }
     }
 }

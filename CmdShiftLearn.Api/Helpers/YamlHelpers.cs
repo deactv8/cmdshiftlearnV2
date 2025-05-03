@@ -127,6 +127,15 @@ namespace CmdShiftLearn.Api.Helpers
                                 if (stepDict.TryGetValue("hint", out var hint) && hint != null)
                                     step.Hint = hint.ToString() ?? string.Empty;
                                 
+                                // Process XP value if it exists
+                                if (stepDict.TryGetValue("xp", out var stepXp) && stepXp != null)
+                                {
+                                    if (int.TryParse(stepXp.ToString(), out var stepXpValue))
+                                        step.Xp = stepXpValue;
+                                    else
+                                        logger?.LogWarning("Failed to parse step XP value: {Value}", stepXp);
+                                }
+                                
                                 // Process validation if it exists
                                 if (stepDict.TryGetValue("validation", out var validationObj) && validationObj != null)
                                 {

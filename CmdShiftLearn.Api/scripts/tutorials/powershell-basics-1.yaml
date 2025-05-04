@@ -1,0 +1,123 @@
+id: powershell-basics-1
+title: "First Steps: Welcome to PowerShell"
+description: "Learn how to interact with the PowerShell terminal and run your first commands. Perfect for absolute beginners who have never used a command line before."
+difficulty: "Beginner"
+xpReward: 50
+steps:
+  - id: step-1
+    title: "Meet Your Terminal"
+    instructions: >
+      Welcome to PowerShell! Think of PowerShell as a special room where you can talk to your computer by typing commands instead of clicking buttons.
+
+      The blue area you see is called the "terminal" or "console" - it's like a conversation window between you and your computer.
+
+      Let's start simple. Type the word "hello" (without quotes) and press Enter. The computer might tell you it doesn't understand, but that's okay! We're just practicing how to type and send commands.
+    expectedCommand: hello
+    hint: Type exactly the word "hello" (without quotes) and press the Enter key.
+    xpReward: 5
+    
+  - id: step-2
+    title: "Understanding Command Not Found"
+    instructions: >
+      Great job typing your first command! You probably saw a message saying PowerShell doesn't recognize "hello" - that's normal!
+
+      PowerShell only understands specific commands. When it sees something it doesn't recognize, it tells you with a "command not found" message.
+
+      This is like trying to speak a foreign language - you need to use words the computer understands.
+
+      Let's try a real command. Type "Get-Date" (exactly as shown, with the capital G and D) and press Enter.
+    expectedCommand: Get-Date
+    hint: Type "Get-Date" with the capital G and D, then press Enter. PowerShell is not case-sensitive, but this capitalization style makes commands easier to read.
+    xpReward: 10
+    
+  - id: step-3
+    title: "Understanding Get-Date"
+    instructions: >
+      Excellent! You just ran your first real PowerShell command and saw the current date and time.
+
+      Let's understand what just happened:
+      
+      "Get-Date" is a PowerShell command (or "cmdlet" pronounced "command-let").
+      
+      PowerShell commands follow a "Verb-Noun" pattern:
+      - "Get" is the verb (the action)
+      - "Date" is the noun (what to act on)
+      
+      So "Get-Date" means "get me the date information".
+
+      Try another command: "Get-Location" to see where you are in your computer's filing system.
+    expectedCommand: Get-Location
+    hint: Type "Get-Location" and press Enter. This will show you your current location (directory/folder) on the computer.
+    xpReward: 10
+    
+  - id: step-4
+    title: "Learning About Commands"
+    instructions: >
+      Great! "Get-Location" showed you your current position in your computer's filing system.
+
+      Think of your computer like a building with many rooms (folders). "Get-Location" tells you which room you're standing in right now.
+
+      PowerShell has hundreds of commands! How do you learn about them?
+      
+      Let's use a special help command. Type "Get-Help Get-Date" to see information about the Get-Date command.
+    expectedCommand: Get-Help Get-Date
+    hint: Type "Get-Help Get-Date" and press Enter. This will show documentation about how to use the Get-Date command.
+    xpReward: 15
+    
+  - id: step-5
+    title: "Finding Available Commands"
+    instructions: >
+      Perfect! The help system showed you information about the Get-Date command.
+      
+      You can use "Get-Help" with any command to learn how it works.
+      
+      But how do you discover what commands exist in the first place?
+      
+      Let's use another command: "Get-Command" to see a list of available commands.
+      
+      Type "Get-Command" and press Enter. You'll see a LOT of commands scroll by - that's okay! There are hundreds of commands available.
+    expectedCommand: Get-Command
+    hint: Type "Get-Command" and press Enter. Don't worry about the long list of results - we'll learn how to filter this later.
+    xpReward: 10
+    
+  - id: step-6
+    title: "Your First Calculation"
+    instructions: >
+      Excellent! You've just seen the vast library of commands available in PowerShell.
+      
+      PowerShell can also do math for you. Try typing a simple calculation:
+      
+      2 + 2
+      
+      Type this and press Enter to see PowerShell calculate the result.
+    expectedCommand: 2 + 2
+    hint: Type "2 + 2" (without quotes) and press Enter.
+    xpReward: 5
+    
+  - id: step-7
+    title: "Congratulations!"
+    instructions: >
+      Amazing work! You've completed your first PowerShell tutorial!
+      
+      Let's review what you've learned:
+      
+      1. PowerShell is a command-line interface where you type commands instead of clicking
+      2. Commands follow a "Verb-Noun" pattern (Get-Date, Get-Location)
+      3. You can get help using Get-Help
+      4. You can discover commands using Get-Command
+      5. PowerShell can do calculations
+      
+      You've taken your first steps into a larger world of PowerShell! You can now:
+      
+      - Find information (Get-Date)
+      - Find your location (Get-Location)
+      - Learn about commands (Get-Help)
+      - Discover new commands (Get-Command)
+      - Do basic calculations
+      
+      In the next tutorial, we'll learn how to navigate your computer using PowerShell commands.
+      
+      Type "exit" to complete this tutorial.
+    expectedCommand: exit
+    hint: Type "exit" and press Enter to finish this tutorial.
+    xpReward: 10

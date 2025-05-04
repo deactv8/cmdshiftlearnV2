@@ -1,0 +1,214 @@
+id: powershell-basics-3
+title: "Remembering Information: Using Variables"
+description: "Learn how to store and use information in PowerShell using variables. You'll discover how to save values, work with different types of data, and use variables in commands."
+difficulty: "Beginner"
+xpReward: 100
+steps:
+  - id: step-1
+    title: "Understanding Variables"
+    instructions: >
+      Welcome to your third PowerShell tutorial! Today, we'll learn about variables.
+      
+      In PowerShell, variables are like labeled containers that store information for later use. Think of them like labeled boxes where you can put things and then refer to them by name.
+      
+      In PowerShell, all variable names start with a $ symbol. Let's create your first variable:
+      
+      $name = "PowerShell Learner"
+      
+      This creates a variable called $name and stores the text "PowerShell Learner" in it.
+      
+      Type the command exactly as shown and press Enter.
+    expectedCommand: $name = "PowerShell Learner"
+    hint: Type '$name = "PowerShell Learner"' including the $ symbol, the quotes, and the exact spacing.
+    xpReward: 10
+    
+  - id: step-2
+    title: "Viewing Variable Contents"
+    instructions: >
+      Great job! You've created your first variable.
+      
+      To see what's inside a variable, you just type the variable name:
+      
+      $name
+      
+      Try it now to see the value you stored.
+    expectedCommand: $name
+    hint: Type "$name" (including the $ symbol) and press Enter to see the value stored in the variable.
+    xpReward: 5
+    
+  - id: step-3
+    title: "Changing Variable Values"
+    instructions: >
+      Perfect! You've seen that your variable contains the text "PowerShell Learner".
+      
+      You can change a variable's value any time by assigning a new value to it.
+      
+      Let's update your $name variable:
+      
+      $name = "PowerShell Expert"
+      
+      After running this command, the variable will contain the new value.
+    expectedCommand: $name = "PowerShell Expert"
+    hint: Type '$name = "PowerShell Expert"' to change the value of your variable.
+    xpReward: 10
+    
+  - id: step-4
+    title: "Verifying the New Value"
+    instructions: >
+      Excellent! Let's check that the value was updated.
+      
+      Type the variable name again to see its current value:
+      
+      $name
+    expectedCommand: $name
+    hint: Type "$name" to see the updated value.
+    xpReward: 5
+    
+  - id: step-5
+    title: "Storing Numbers"
+    instructions: >
+      Great! Variables can store different types of information, not just text.
+      
+      Let's create a variable to store a number:
+      
+      $age = 25
+      
+      Notice that numbers don't need quotes around them.
+    expectedCommand: $age = 25
+    hint: Type "$age = 25" (without quotes around the number).
+    xpReward: 10
+    
+  - id: step-6
+    title: "Working with Multiple Variables"
+    instructions: >
+      Perfect! Now you have two variables: $name and $age.
+      
+      Let's use these variables together to create a message:
+      
+      "My name is $name and I am $age years old"
+      
+      In PowerShell, when you put variable names inside double quotes, they get replaced with their values.
+      
+      Type the command exactly as shown, with the double quotes.
+    expectedCommand: "My name is $name and I am $age years old"
+    hint: Type the entire phrase in double quotes: "My name is $name and I am $age years old"
+    xpReward: 15
+    
+  - id: step-7
+    title: "Math with Variables"
+    instructions: >
+      Wonderful! You've seen how variables can be used inside text.
+      
+      Since $age contains a number, we can do math with it.
+      
+      Let's calculate the age in months:
+      
+      $age * 12
+      
+      This will multiply the value in $age by 12.
+    expectedCommand: $age * 12
+    hint: Type "$age * 12" to multiply the value in $age by 12.
+    xpReward: 10
+    
+  - id: step-8
+    title: "Storing Results in Variables"
+    instructions: >
+      Excellent! We can also store the result of calculations in new variables.
+      
+      Let's calculate and store the age in days:
+      
+      $ageInDays = $age * 365
+      
+      This creates a new variable called $ageInDays that contains the result of multiplying $age by 365.
+    expectedCommand: $ageInDays = $age * 365
+    hint: Type "$ageInDays = $age * 365" to calculate and store the age in days.
+    xpReward: 15
+    
+  - id: step-9
+    title: "Checking the New Variable"
+    instructions: >
+      Perfect! Now let's check the value of our new variable:
+      
+      $ageInDays
+    expectedCommand: $ageInDays
+    hint: Type "$ageInDays" to see the stored value.
+    xpReward: 5
+    
+  - id: step-10
+    title: "Storing Command Results"
+    instructions: >
+      Great! Variables can also store the results of PowerShell commands.
+      
+      Let's store the current date in a variable:
+      
+      $today = Get-Date
+      
+      This runs the Get-Date command and stores the result in a variable called $today.
+    expectedCommand: $today = Get-Date
+    hint: Type "$today = Get-Date" to store the current date in a variable.
+    xpReward: 15
+    
+  - id: step-11
+    title: "Viewing the Date Variable"
+    instructions: >
+      Good job! Now let's see what's in the $today variable:
+      
+      $today
+    expectedCommand: $today
+    hint: Type "$today" to display the value of the variable.
+    xpReward: 5
+    
+  - id: step-12
+    title: "Using Variable Properties"
+    instructions: >
+      Excellent! You may have noticed that $today contains a lot of information, not just a simple value.
+      
+      That's because Get-Date returns a DateTime object, which has many properties (like Year, Month, Day, etc.).
+      
+      We can access these properties using a dot (.) after the variable name:
+      
+      $today.Year
+      
+      This will show just the year component of the date.
+    expectedCommand: $today.Year
+    hint: Type "$today.Year" to access just the year property of the date.
+    xpReward: 15
+    
+  - id: step-13
+    title: "More Date Properties"
+    instructions: >
+      Perfect! Let's try another property:
+      
+      $today.DayOfWeek
+      
+      This will show the day of the week (like Monday, Tuesday, etc.).
+    expectedCommand: $today.DayOfWeek
+    hint: Type "$today.DayOfWeek" to see what day of the week it is.
+    xpReward: 10
+    
+  - id: step-14
+    title: "Congratulations!"
+    instructions: >
+      Amazing work! You've completed the tutorial on PowerShell variables!
+      
+      Let's review what you've learned:
+      
+      1. Creating variables with the $ symbol
+      2. Storing text values using quotes
+      3. Storing numeric values without quotes
+      4. Using variables inside text with double quotes
+      5. Performing math with variables
+      6. Storing command results in variables
+      7. Accessing object properties with the dot (.) notation
+      
+      Variables are a fundamental concept in PowerShell and all programming. They allow you to:
+      - Store information for later use
+      - Work with different types of data
+      - Build more complex commands and scripts
+      
+      In the next tutorial, we'll learn about PowerShell pipelines, which allow you to connect commands together.
+      
+      Type "exit" to complete this tutorial.
+    expectedCommand: exit
+    hint: Type "exit" and press Enter to finish this tutorial.
+    xpReward: 10

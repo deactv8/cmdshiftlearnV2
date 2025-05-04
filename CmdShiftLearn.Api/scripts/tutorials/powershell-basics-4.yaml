@@ -1,0 +1,174 @@
+id: powershell-basics-4
+title: "Building Command Chains: PowerShell Pipelines"
+description: "Learn how to connect PowerShell commands together using pipelines. You'll discover how to take the output from one command and use it as input for another command, creating powerful command chains."
+difficulty: "Beginner"
+xpReward: 125
+steps:
+  - id: step-1
+    title: "Understanding Pipelines"
+    instructions: >
+      Welcome to your fourth PowerShell tutorial! Today we'll learn about one of PowerShell's most powerful features: pipelines.
+      
+      In PowerShell, a pipeline allows you to take the output from one command and send it directly as input to another command. Think of it like an assembly line, where each command adds or changes something before passing it to the next command.
+      
+      The pipeline symbol is the vertical bar: |
+      
+      Let's start with a simple example. First, run:
+      
+      Get-Process
+      
+      This shows all the processes running on your computer. You'll see a long list.
+    expectedCommand: Get-Process
+    hint: Type "Get-Process" and press Enter to see all running processes.
+    xpReward: 5
+    
+  - id: step-2
+    title: "Counting Items with Measure-Object"
+    instructions: >
+      Great! You probably saw a long list of processes. What if you just want to know how many processes are running?
+      
+      This is where pipelines come in. We can connect Get-Process to another command called Measure-Object, which counts items.
+      
+      Type:
+      
+      Get-Process | Measure-Object
+      
+      The | symbol takes the output from Get-Process and sends it to Measure-Object, which then counts the items.
+    expectedCommand: Get-Process | Measure-Object
+    hint: Type "Get-Process | Measure-Object" with a space before and after the | symbol.
+    xpReward: 15
+    
+  - id: step-3
+    title: "Sorting Results"
+    instructions: >
+      Excellent! Now you know how many processes are running on your computer.
+      
+      Let's try another example. We'll get all the processes and sort them by how much memory they're using:
+      
+      Get-Process | Sort-Object -Property WorkingSet
+      
+      This will list processes from lowest to highest memory usage. The Sort-Object command arranges the items based on the property we specify.
+    expectedCommand: Get-Process | Sort-Object -Property WorkingSet
+    hint: Type "Get-Process | Sort-Object -Property WorkingSet" to sort processes by memory usage.
+    xpReward: 15
+    
+  - id: step-4
+    title: "Sorting in Descending Order"
+    instructions: >
+      Perfect! By default, Sort-Object arranges items from lowest to highest value.
+      
+      Let's modify our command to show processes using the most memory first by sorting in descending order:
+      
+      Get-Process | Sort-Object -Property WorkingSet -Descending
+      
+      This adds the -Descending parameter to reverse the sort order.
+    expectedCommand: Get-Process | Sort-Object -Property WorkingSet -Descending
+    hint: Type "Get-Process | Sort-Object -Property WorkingSet -Descending" to sort from highest to lowest.
+    xpReward: 10
+    
+  - id: step-5
+    title: "Selecting Properties"
+    instructions: >
+      Great! Now let's focus on specific information. We often don't need to see all the properties of each object.
+      
+      Let's get processes, sort them by memory usage, and then select just the process name and memory usage:
+      
+      Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -Property Name, WorkingSet
+      
+      This creates a three-stage pipeline, each command building on the previous one.
+    expectedCommand: Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -Property Name, WorkingSet
+    hint: Type "Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -Property Name, WorkingSet" to create a three-command pipeline.
+    xpReward: 20
+    
+  - id: step-6
+    title: "Limiting Results"
+    instructions: >
+      Excellent! You're building powerful command chains now.
+      
+      Let's modify our command again to show only the top 5 processes using the most memory:
+      
+      Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -Property Name, WorkingSet -First 5
+      
+      The -First parameter limits the output to just the first 5 items.
+    expectedCommand: Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -Property Name, WorkingSet -First 5
+    hint: Type "Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -Property Name, WorkingSet -First 5" to limit the results.
+    xpReward: 15
+    
+  - id: step-7
+    title: "Working with Files and Folders"
+    instructions: >
+      Perfect! Now let's try pipelines with a different command.
+      
+      Let's list all the files in the Windows folder, but only show the largest ones:
+      
+      Get-ChildItem -Path C:\Windows | Sort-Object -Property Length -Descending | Select-Object -Property Name, Length -First 10
+      
+      This pipeline:
+      1. Gets all items in the Windows folder
+      2. Sorts them by size (Length property)
+      3. Shows only the name and size of the top 10 largest items
+    expectedCommand: Get-ChildItem -Path C:\Windows | Sort-Object -Property Length -Descending | Select-Object -Property Name, Length -First 10
+    hint: Type "Get-ChildItem -Path C:\Windows | Sort-Object -Property Length -Descending | Select-Object -Property Name, Length -First 10" to find the largest files.
+    xpReward: 20
+    
+  - id: step-8
+    title: "Filtering with Where-Object"
+    instructions: >
+      Excellent! Now let's learn about filtering using the Where-Object command.
+      
+      Where-Object lets you filter objects based on their properties. It's like saying "only show me items that match this criteria."
+      
+      Let's find all running services:
+      
+      Get-Service | Where-Object -Property Status -EQ "Running"
+      
+      This pipeline:
+      1. Gets all services
+      2. Filters to only show services with a Status equal to "Running"
+      
+      Note: EQ stands for "equals" - it's a comparison operator.
+    expectedCommand: Get-Service | Where-Object -Property Status -EQ "Running"
+    hint: Type "Get-Service | Where-Object -Property Status -EQ \"Running\"" to find running services.
+    xpReward: 20
+    
+  - id: step-9
+    title: "Combining Filtering and Sorting"
+    instructions: >
+      Perfect! Now let's combine filtering, sorting, and selecting in one pipeline.
+      
+      Let's find all running services, sort them alphabetically by name, and show only their names and display names:
+      
+      Get-Service | Where-Object -Property Status -EQ "Running" | Sort-Object -Property Name | Select-Object -Property Name, DisplayName
+      
+      This four-stage pipeline is becoming quite powerful!
+    expectedCommand: Get-Service | Where-Object -Property Status -EQ "Running" | Sort-Object -Property Name | Select-Object -Property Name, DisplayName
+    hint: Type "Get-Service | Where-Object -Property Status -EQ \"Running\" | Sort-Object -Property Name | Select-Object -Property Name, DisplayName" to create this pipeline.
+    xpReward: 20
+    
+  - id: step-10
+    title: "Congratulations!"
+    instructions: >
+      Amazing work! You've completed the tutorial on PowerShell pipelines!
+      
+      Let's review what you've learned:
+      
+      1. Using the pipeline symbol (|) to connect commands
+      2. Counting items with Measure-Object
+      3. Sorting results with Sort-Object
+      4. Selecting specific properties with Select-Object
+      5. Limiting results with -First
+      6. Filtering results with Where-Object
+      
+      Pipelines are one of PowerShell's most powerful features. They allow you to:
+      - Build complex command chains
+      - Filter, sort, and transform data
+      - Focus on exactly the information you need
+      
+      You've now learned how to create powerful, multi-stage command pipelines that can process and transform data in sophisticated ways.
+      
+      In the next tutorial, we'll learn about conditional logic in PowerShell.
+      
+      Type "exit" to complete this tutorial.
+    expectedCommand: exit
+    hint: Type "exit" and press Enter to finish this tutorial.
+    xpReward: 10

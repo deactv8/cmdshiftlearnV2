@@ -1,0 +1,36 @@
+id: filter_processes
+title: "Filter Processes Challenge"
+description: "Practice your PowerShell filtering skills by finding specific processes running on your system."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: compute
+    weight: 5
+xp_reward: 150
+topics:
+  - powershell
+  - processes
+  - filtering
+content: |
+  # Process Filtering Challenge
+  
+  PowerShell makes it easy to find and filter information. In this challenge, you'll practice filtering processes based on specific criteria.
+  
+  ## Your Task
+  
+  Write a PowerShell command that finds all processes using more than 100MB of memory, and sorts them by memory usage (in descending order).
+  
+  Hints:
+  - Use `Get-Process` to get the list of processes
+  - Use `Where-Object` to filter based on criteria
+  - The memory property is called `WorkingSet`
+  - Use `Sort-Object` to sort the results
+  - You'll need to convert bytes to MB (divide by 1MB)
+  
+  Good luck!
+
+solution: "Get-Process | Where-Object { $_.WorkingSet -gt 100MB } | Sort-Object -Property WorkingSet -Descending"
+validation_type: "fuzzy"
+hint: "Start with Get-Process, then pipe to Where-Object with a condition on WorkingSet, then pipe to Sort-Object."
+related_tutorials:
+  - powershell_basics

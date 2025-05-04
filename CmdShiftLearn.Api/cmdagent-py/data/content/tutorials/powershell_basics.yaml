@@ -1,0 +1,208 @@
+id: powershell_basics
+title: "PowerShell Basics"
+description: "Learn the fundamental PowerShell commands that every administrator should know. This tutorial covers basic navigation, file operations, and information gathering commands."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: identity
+    weight: 5
+  - cert_id: sc300
+    domain: identity
+    weight: 5
+xp_reward: 100
+topics:
+  - powershell
+  - basics
+  - commands
+steps:
+  - id: intro
+    type: text
+    title: "Introduction to PowerShell"
+    content: |
+      PowerShell is a powerful command-line shell and scripting language built on .NET that helps automate administrative tasks and configuration management. 
+      
+      In this tutorial, you'll learn the basic PowerShell commands that form the foundation for more advanced operations.
+      
+      PowerShell commands are called **cmdlets** (pronounced "command-lets") and follow a "Verb-Noun" naming convention, like `Get-Process` or `Set-Location`.
+      
+      Let's get started with some basic navigation and information gathering commands!
+  
+  - id: get-command
+    type: command
+    title: "Discovering Commands with Get-Command"
+    content: |
+      The `Get-Command` cmdlet lists all available commands in your PowerShell session. This is extremely useful when you're trying to find a specific command.
+      
+      Try running `Get-Command` to see all available commands. You'll notice it returns a lot of information!
+      
+      To make it more manageable, you can use wildcards to filter. For example, to find all commands that work with processes, you could run:
+      
+      ```powershell
+      Get-Command *process*
+      ```
+      
+      For this step, run the basic `Get-Command` to see all available commands.
+    command: "Get-Command"
+    validation_type: "exact"
+    hint: "Just type Get-Command and press Enter."
+  
+  - id: get-help
+    type: command
+    title: "Getting Help with Get-Help"
+    content: |
+      When you want to learn about a specific cmdlet, `Get-Help` is your best friend. It provides detailed information about how to use a command.
+      
+      Try running Get-Help for the Get-Process cmdlet:
+      
+      ```powershell
+      Get-Help Get-Process
+      ```
+      
+      You can also use the `-Examples` parameter to see usage examples:
+      
+      ```powershell
+      Get-Help Get-Process -Examples
+      ```
+      
+      For this step, simply run the basic help command for Get-Process.
+    command: "Get-Help Get-Process"
+    validation_type: "exact"
+    hint: "Type Get-Help followed by the cmdlet name Get-Process."
+  
+  - id: get-location
+    type: command
+    title: "Finding Your Location with Get-Location"
+    content: |
+      In PowerShell, your current location is represented as a path to a directory in the file system. To find your current location, use the `Get-Location` cmdlet.
+      
+      This is similar to the `pwd` command in other shells, and in fact, `pwd` is set up as an alias for `Get-Location` in PowerShell.
+      
+      Try running:
+      
+      ```powershell
+      Get-Location
+      ```
+      
+      You'll see your current directory path.
+    command: "Get-Location"
+    validation_type: "exact"
+    hint: "Simply type Get-Location and press Enter."
+  
+  - id: set-location
+    type: command
+    title: "Changing Directories with Set-Location"
+    content: |
+      To change your current directory, use the `Set-Location` cmdlet. This is similar to the `cd` command in other shells.
+      
+      Let's navigate to the Windows directory:
+      
+      ```powershell
+      Set-Location C:\\Windows
+      ```
+      
+      After running this command, you can use `Get-Location` to confirm that you're now in the Windows directory.
+      
+      Note: You can use either forward slashes (/) or backslashes (\\) as path separators in PowerShell. When using backslashes, you need to escape them with an additional backslash in many contexts.
+    command: "Set-Location C:\\Windows"
+    validation_type: "fuzzy"
+    hint: "Use Set-Location followed by the path to the Windows directory (C:\\Windows)."
+  
+  - id: get-childitem
+    type: command
+    title: "Listing Files and Directories with Get-ChildItem"
+    content: |
+      To list the files and directories in the current location, use the `Get-ChildItem` cmdlet. This is similar to `ls` or `dir` in other shells.
+      
+      In fact, both `ls` and `dir` are set up as aliases for `Get-ChildItem` in PowerShell.
+      
+      Try running:
+      
+      ```powershell
+      Get-ChildItem
+      ```
+      
+      You'll see a list of files and directories in the current location.
+    command: "Get-ChildItem"
+    validation_type: "exact"
+    hint: "Type Get-ChildItem and press Enter."
+  
+  - id: get-process
+    type: command
+    title: "Viewing Running Processes with Get-Process"
+    content: |
+      To view the list of running processes on your system, use the `Get-Process` cmdlet.
+      
+      Try running:
+      
+      ```powershell
+      Get-Process
+      ```
+      
+      You'll see a list of all running processes, including their ID, CPU and memory usage, and other information.
+      
+      You can also filter for specific processes. For example, to find all instances of notepad.exe:
+      
+      ```powershell
+      Get-Process -Name notepad
+      ```
+      
+      For this step, just run the basic Get-Process command.
+    command: "Get-Process"
+    validation_type: "exact"
+    hint: "Type Get-Process and press Enter."
+  
+  - id: get-service
+    type: command
+    title: "Listing Services with Get-Service"
+    content: |
+      To view the list of services on your system, use the `Get-Service` cmdlet.
+      
+      Try running:
+      
+      ```powershell
+      Get-Service
+      ```
+      
+      You'll see a list of all services, including their name, display name, and status (Running, Stopped, etc.).
+      
+      You can filter for services in a specific state:
+      
+      ```powershell
+      Get-Service -Status Running
+      ```
+      
+      For this step, run the basic Get-Service command.
+    command: "Get-Service"
+    validation_type: "exact"
+    hint: "Type Get-Service and press Enter."
+  
+  - id: challenge
+    type: challenge
+    title: "Search for Commands (Challenge)"
+    content: |
+      Now that you've learned about some basic PowerShell commands, let's put your knowledge to work.
+      
+      **Challenge**: Find all commands related to items (files and directories).
+      
+      Use the Get-Command cmdlet with a wildcard pattern to find commands that have "item" in their name.
+    expected_command: "Get-Command *item*"
+    validation_type: "fuzzy"
+    hint: "Use Get-Command with a wildcard pattern. Try *item* as your pattern."
+  
+  - id: conclusion
+    type: text
+    title: "Conclusion"
+    content: |
+      Congratulations! You've completed the PowerShell Basics tutorial.
+      
+      You've learned:
+      
+      - How to discover commands with `Get-Command`
+      - How to get help for commands with `Get-Help`
+      - How to navigate the file system with `Get-Location` and `Set-Location`
+      - How to list files and directories with `Get-ChildItem`
+      - How to view processes and services with `Get-Process` and `Get-Service`
+      
+      These commands form the foundation of PowerShell and will be used frequently in your PowerShell journey.
+      
+      In the next tutorial, you'll learn about more advanced PowerShell concepts like variables, functions, and scripting.

@@ -1,0 +1,3 @@
+"""
+Gamification module for CmdShiftLearn.
+"""

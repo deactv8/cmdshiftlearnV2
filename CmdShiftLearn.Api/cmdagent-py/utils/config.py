@@ -16,6 +16,9 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 API_BASE_URL = "https://cmdshiftlearn-api.azurewebsites.net/api"
 API_VERSION = "v1"
 
+# Mock data flag (for development/testing)
+USE_MOCK_DATA = True  # Added this line to fix the import error
+
 # Default PowerShell settings
 DEFAULT_POWERSHELL_TIMEOUT = 10  # seconds
 

@@ -5,5 +5,4 @@ PyYAML==6.0.1
 SQLAlchemy==2.0.25
 pyjwt==2.8.0
 typer==0.9.0
-pydantic==2.6.1
 tqdm==4.66.1

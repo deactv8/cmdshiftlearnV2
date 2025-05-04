@@ -1,0 +1,58 @@
+id: challenge-basics-3
+title: "Variable Manipulation Challenge"
+description: "Test your understanding of PowerShell variables. Apply what you learned in the 'Remembering Information' tutorial to solve these variable-based challenges."
+difficulty: "Beginner"
+xpReward: 125
+prerequisiteTutorial: "powershell-basics-3"
+steps:
+  - id: challenge-1
+    title: "Creating a String Variable"
+    instructions: >
+      Let's practice creating and manipulating string variables.
+      
+      Your challenge is to create a variable called $greeting with the value "Hello, PowerShell World!"
+    expectedCommand: $greeting = "Hello, PowerShell World!"
+    hint: Type '$greeting = "Hello, PowerShell World!"' to create the string variable.
+    xpReward: 15
+    
+  - id: challenge-2
+    title: "String Methods"
+    instructions: >
+      Now, let's use a string method to convert your greeting to uppercase.
+      
+      Your challenge is to use the ToUpper() method on the $greeting variable.
+    expectedCommand: $greeting.ToUpper()
+    hint: Type "$greeting.ToUpper()" to convert the string to uppercase letters.
+    xpReward: 25
+    
+  - id: challenge-3
+    title: "Creating an Array"
+    instructions: >
+      Let's practice creating an array (a list of items).
+      
+      Your challenge is to create a variable called $fruits containing the values "Apple", "Banana", and "Cherry".
+    expectedCommand: $fruits = @("Apple", "Banana", "Cherry")
+    hint: Type '$fruits = @("Apple", "Banana", "Cherry")' to create an array with these three items.
+    xpReward: 25
+    
+  - id: challenge-4
+    title: "Accessing Array Elements"
+    instructions: >
+      Now, let's access a specific element from your array.
+      
+      Your challenge is to get the second item from the $fruits array.
+      
+      Remember: In PowerShell (and most programming languages), array indexing starts at 0, so the second item is at index 1.
+    expectedCommand: $fruits[1]
+    hint: Type "$fruits[1]" to access the element at index 1 (the second item) in the array.
+    xpReward: 20
+    
+  - id: challenge-5
+    title: "Creating a Complex Variable"
+    instructions: >
+      Let's put everything together by creating a more complex variable.
+      
+      Your challenge is to create a variable $today with the current date, and then display just the day name and the month name together.
+    expectedCommand: "$((Get-Date).DayOfWeek) $((Get-Date).Month)"
+    hint: First create $today = Get-Date, then use "$today.DayOfWeek $today.Month" to show the day and month.
+    xpReward: 40

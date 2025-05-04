@@ -1,0 +1,48 @@
+id: challenge-basics-1
+title: "PowerShell Command Challenge"
+description: "Put your basic PowerShell command knowledge to the test! Use the commands you learned in the 'First Steps' tutorial to solve these challenges."
+difficulty: "Beginner"
+xpReward: 75
+prerequisiteTutorial: "powershell-basics-1"
+steps:
+  - id: challenge-1
+    title: "Getting System Information"
+    instructions: >
+      Let's see if you can find information about your computer.
+      
+      Use a PowerShell command to find out what version of PowerShell you're running.
+      
+      Hint: The command name follows the Verb-Noun pattern and uses "Host" as the noun.
+    expectedCommand: Get-Host
+    hint: Type "Get-Host" to see information about your PowerShell environment, including the version number.
+    xpReward: 15
+    
+  - id: challenge-2
+    title: "Finding Available Commands"
+    instructions: >
+      Now, let's find all the commands related to files.
+      
+      Use Get-Command with a wildcard to find all commands that have "File" in their name.
+    expectedCommand: Get-Command *File*
+    hint: Type "Get-Command *File*" - the asterisks are wildcards that match any text before and after "File".
+    xpReward: 15
+    
+  - id: challenge-3
+    title: "Using Get-Help"
+    instructions: >
+      Let's practice using the help system.
+      
+      Find detailed help information for the Get-Process command, including examples of how to use it.
+    expectedCommand: Get-Help Get-Process -Examples
+    hint: Type "Get-Help Get-Process -Examples" to see detailed examples of how to use the Get-Process command.
+    xpReward: 20
+    
+  - id: challenge-4
+    title: "Math Operations"
+    instructions: >
+      PowerShell can be used as a calculator. 
+      
+      Calculate the result of multiplying 24 by 7 and adding 365.
+    expectedCommand: (24 * 7) + 365
+    hint: Type "(24 * 7) + 365" - the parentheses ensure that the multiplication happens before the addition.
+    xpReward: 25

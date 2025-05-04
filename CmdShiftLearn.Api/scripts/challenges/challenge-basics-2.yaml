@@ -1,0 +1,54 @@
+id: challenge-basics-2
+title: "File System Navigation Challenge"
+description: "Test your ability to navigate the file system using PowerShell commands. Apply what you learned in the 'Exploring Your Computer' tutorial to solve these challenges."
+difficulty: "Beginner"
+xpReward: 100
+prerequisiteTutorial: "powershell-basics-2"
+steps:
+  - id: challenge-1
+    title: "Finding Hidden Folders"
+    instructions: >
+      Let's practice using parameters with Get-ChildItem.
+      
+      Your challenge is to list all hidden items in your current directory.
+      
+      Use Get-ChildItem with the appropriate parameter to show hidden items.
+    expectedCommand: Get-ChildItem -Hidden
+    hint: Type "Get-ChildItem -Hidden" to show only the hidden files and folders in your current location.
+    xpReward: 20
+    
+  - id: challenge-2
+    title: "Navigating to System32"
+    instructions: >
+      Let's practice navigating to a specific folder.
+      
+      Your challenge is to navigate to the System32 folder inside the Windows directory.
+      
+      You'll need to use Set-Location (or cd) to get there.
+    expectedCommand: Set-Location C:\Windows\System32
+    hint: Type "Set-Location C:\\Windows\\System32" or "cd C:\\Windows\\System32" to navigate to this important system folder.
+    xpReward: 20
+    
+  - id: challenge-3
+    title: "Counting Files"
+    instructions: >
+      Let's practice combining commands.
+      
+      Your challenge is to count how many files are in the current directory.
+      
+      You'll need to use Get-ChildItem and pipe the results to Measure-Object.
+    expectedCommand: Get-ChildItem -File | Measure-Object
+    hint: Type "Get-ChildItem -File | Measure-Object" to count only the files (not folders) in the current directory.
+    xpReward: 25
+    
+  - id: challenge-4
+    title: "Finding Executable Files"
+    instructions: >
+      Let's practice using a filter.
+      
+      Your challenge is to find all .exe files in the current directory.
+      
+      You'll need to use Get-ChildItem with a filter.
+    expectedCommand: Get-ChildItem *.exe
+    hint: Type "Get-ChildItem *.exe" to find all files with the .exe extension in the current directory.
+    xpReward: 35

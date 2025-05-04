@@ -1,0 +1,77 @@
+id: challenge-basics-5
+title: "Conditional Logic Challenge"
+description: "Test your understanding of PowerShell conditionals. Apply what you learned in the 'Making Decisions' tutorial to solve these conditional logic challenges."
+difficulty: "Beginner"
+xpReward: 175
+prerequisiteTutorial: "powershell-basics-5"
+steps:
+  - id: challenge-1
+    title: "Setting Up Variables"
+    instructions: >
+      Let's set up some variables for our conditional challenges.
+      
+      Your challenge is to create a variable $score with a value of 85.
+    expectedCommand: $score = 85
+    hint: Type "$score = 85" to create a variable with this numeric value.
+    xpReward: 15
+    
+  - id: challenge-2
+    title: "Simple Grade Condition"
+    instructions: >
+      Now let's use a conditional statement to determine a grade based on the score.
+      
+      Your challenge is to write an if statement that prints "Pass" if the score is 70 or higher.
+    expectedCommand: if ($score -ge 70) { "Pass" }
+    hint: Type "if ($score -ge 70) { \"Pass\" }" to check if the score is greater than or equal to 70.
+    xpReward: 30
+    
+  - id: challenge-3
+    title: "Multiple Grade Conditions"
+    instructions: >
+      Let's expand our grading system using multiple conditions.
+      
+      Your challenge is to write an if-elseif-else statement that:
+      - Prints "A" if the score is 90 or higher
+      - Prints "B" if the score is between 80 and 89
+      - Prints "C" if the score is between 70 and 79
+      - Prints "F" for any other score
+    expectedCommand: if ($score -ge 90) { "A" } elseif ($score -ge 80) { "B" } elseif ($score -ge 70) { "C" } else { "F" }
+    hint: Type a complete if-elseif-else statement that checks the score ranges in descending order.
+    xpReward: 45
+    
+  - id: challenge-4
+    title: "Weather Conditions"
+    instructions: >
+      Let's practice with boolean variables and logical operators.
+      
+      First, create two boolean variables:
+      
+      $isRaining = $true
+      $isWarm = $false
+    expectedCommand: $isRaining = $true; $isWarm = $false
+    hint: Type "$isRaining = $true; $isWarm = $false" to create both variables in one line.
+    xpReward: 20
+    
+  - id: challenge-5
+    title: "Weather Decision"
+    instructions: >
+      Now, let's use logical operators with our weather variables.
+      
+      Your challenge is to write an if-else statement that:
+      - Prints "Stay inside" if it's raining and not warm
+      - Prints "Go outside" in any other case
+    expectedCommand: if ($isRaining -and -not $isWarm) { "Stay inside" } else { "Go outside" }
+    hint: Type "if ($isRaining -and -not $isWarm) { \"Stay inside\" } else { \"Go outside\" }" to check both conditions.
+    xpReward: 35
+    
+  - id: challenge-6
+    title: "Process Status Check"
+    instructions: >
+      Finally, let's combine conditionals with a real PowerShell command.
+      
+      Your challenge is to check if the "explorer" process is running and print an appropriate message.
+      
+      This will require capturing the result of Get-Process, using an if statement to check if any results were found, and printing a message.
+    expectedCommand: if (Get-Process -Name explorer -ErrorAction SilentlyContinue) { "Explorer is running" } else { "Explorer is not running" }
+    hint: Type "if (Get-Process -Name explorer -ErrorAction SilentlyContinue) { \"Explorer is running\" } else { \"Explorer is not running\" }" to safely check if the process exists.
+    xpReward: 30

@@ -1,0 +1,54 @@
+id: challenge-basics-4
+title: "Pipeline Power Challenge"
+description: "Test your understanding of PowerShell pipelines. Apply what you learned in the 'Building Command Chains' tutorial to solve these pipeline-based challenges."
+difficulty: "Beginner"
+xpReward: 150
+prerequisiteTutorial: "powershell-basics-4"
+steps:
+  - id: challenge-1
+    title: "Filtering Services"
+    instructions: >
+      Let's practice filtering services using the pipeline.
+      
+      Your challenge is to find all services that are currently stopped.
+      
+      Use Get-Service and pipe it to Where-Object to filter the results.
+    expectedCommand: Get-Service | Where-Object -Property Status -EQ "Stopped"
+    hint: Type "Get-Service | Where-Object -Property Status -EQ \"Stopped\"" to find all stopped services.
+    xpReward: 25
+    
+  - id: challenge-2
+    title: "Top CPU Processes"
+    instructions: >
+      Let's practice sorting and selecting with the pipeline.
+      
+      Your challenge is to find the top 3 processes using the most CPU time.
+      
+      Use Get-Process, pipe it to Sort-Object to sort by CPU time, and then use Select-Object to get only the first 3 results.
+    expectedCommand: Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 3
+    hint: Type "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 3" to find the processes using the most CPU time.
+    xpReward: 35
+    
+  - id: challenge-3
+    title: "Finding Large Files"
+    instructions: >
+      Let's practice working with file sizes in the pipeline.
+      
+      Your challenge is to find all files larger than 1MB in the Windows folder.
+      
+      You'll need to use Get-ChildItem, pipe to Where-Object to filter by file size, and then sort them by size.
+    expectedCommand: Get-ChildItem C:\Windows -File | Where-Object -Property Length -GT 1MB | Sort-Object -Property Length -Descending
+    hint: Type "Get-ChildItem C:\\Windows -File | Where-Object -Property Length -GT 1MB | Sort-Object -Property Length -Descending" to find large files sorted by size.
+    xpReward: 45
+    
+  - id: challenge-4
+    title: "Counting File Types"
+    instructions: >
+      Let's practice grouping items in the pipeline.
+      
+      Your challenge is to count how many files of each extension type are in the current directory.
+      
+      You'll need to use Get-ChildItem, pipe to Group-Object to group by extension, and include a count.
+    expectedCommand: Get-ChildItem -File | Group-Object -Property Extension
+    hint: Type "Get-ChildItem -File | Group-Object -Property Extension" to group files by their extension type.
+    xpReward: 45

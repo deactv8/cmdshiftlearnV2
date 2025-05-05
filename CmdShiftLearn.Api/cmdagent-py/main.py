@@ -342,9 +342,9 @@ def main():
         sys.exit(1)
     
     if RICH_AVAILABLE:
-        console.print("[italic]Connecting to CmdShiftLearn API...[/italic]")
+        console.print(f"[italic]Connecting to CmdShiftLearn API at: [bold]{API_BASE_URL}[/bold][/italic]")
     else:
-        print("Connecting to CmdShiftLearn API...\n")
+        print(f"Connecting to CmdShiftLearn API at: {API_BASE_URL}\n")
     
     # Create tutorial client with the API key
     tutorial_client = TutorialClient(api_key)

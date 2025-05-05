@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 # API settings
-API_BASE_URL = "https://cmdshiftlearn-api.azurewebsites.net/api"
+API_BASE_URL = "https://cmdshiftlearnv2.onrender.com"
 API_VERSION = "v1"
 
 # Default PowerShell settings

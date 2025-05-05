@@ -8,7 +8,7 @@ namespace CmdShiftLearn.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // This ensures all methods require authentication
+    [AllowAnonymous] // Allow anonymous access to all methods in this controller
     public class TutorialsController : ControllerBase
     {
         private readonly ITutorialService _tutorialService;

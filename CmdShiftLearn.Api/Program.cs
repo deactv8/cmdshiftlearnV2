@@ -122,6 +122,7 @@ builder.Services.ConfigureApplicationCookie(options => {
 
 // Register services
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("GitHub"); // Add a named HttpClient for GitHub API
 builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 
@@ -143,14 +144,38 @@ builder.Services.AddHttpClient<IShelloService, ShelloService>(client =>
 });
 
 // Register content loaders first (they are dependencies for services)
-Console.WriteLine("Using File as the source for tutorials");
-builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
-Console.WriteLine("Registered FileTutorialLoader");
+var tutorialSource = builder.Configuration["ContentSources:Tutorials:Source"] ?? "File";
+var challengeSource = builder.Configuration["ContentSources:Challenges:Source"] ?? "File";
 
-// Register challenge loader
-Console.WriteLine("Using File as the source for challenges");
-builder.Services.AddSingleton<IChallengeLoader, FileChallengeLoader>();
-Console.WriteLine("Registered FileChallengeLoader");
+// Register tutorial loader based on configuration
+Console.WriteLine($"Using {tutorialSource} as the source for tutorials");
+switch (tutorialSource)
+{
+    case "GitHub":
+        builder.Services.AddSingleton<ITutorialLoader, GitHubTutorialLoader>();
+        Console.WriteLine("Registered GitHubTutorialLoader");
+        break;
+    case "File":
+    default:
+        builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
+        Console.WriteLine("Registered FileTutorialLoader");
+        break;
+}
+
+// Register challenge loader based on configuration
+Console.WriteLine($"Using {challengeSource} as the source for challenges");
+switch (challengeSource)
+{
+    case "GitHub":
+        builder.Services.AddSingleton<IChallengeLoader, GitHubChallengeLoader>();
+        Console.WriteLine("Registered GitHubChallengeLoader");
+        break;
+    case "File":
+    default:
+        builder.Services.AddSingleton<IChallengeLoader, FileChallengeLoader>();
+        Console.WriteLine("Registered FileChallengeLoader");
+        break;
+}
 
 // Register tutorial and challenge services (after their dependencies)
 builder.Services.AddSingleton<ITutorialService, TutorialService>();

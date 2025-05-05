@@ -1,0 +1,42 @@
+id: challenge_02_file_navigation
+title: "File System Navigation Challenge"
+description: "Test your ability to navigate through the file system and find information using PowerShell commands."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: file management
+    weight: 5
+xp_reward: 125
+topics:
+  - powershell
+  - file system
+  - navigation
+  - file properties
+content: |
+  # File System Navigation Challenge
+  
+  Now it's time to put your file system navigation skills to the test! This challenge will reinforce what you learned in the "Exploring Your Computer: Finding Your Way" tutorial.
+  
+  ## Your Task
+  
+  Write a PowerShell command chain that accomplishes ALL of the following:
+  
+  1. Navigate to the C:\Windows\System32 directory
+  2. List all files with a ".exe" extension
+  3. Sort them by size (largest first)
+  4. Display only the top 5 largest files
+  5. Show only their Name and Length (size) properties
+  
+  Hints:
+  - You'll need to use Set-Location (or cd) to change directories
+  - Use Get-ChildItem with a filter parameter or wildcard
+  - Use Sort-Object with -Descending parameter
+  - Use Select-Object with -First parameter
+  
+  Good luck!
+
+solution: "Set-Location C:\\Windows\\System32; Get-ChildItem -Filter *.exe | Sort-Object -Property Length -Descending | Select-Object -Property Name, Length -First 5"
+validation_type: "fuzzy"
+hint: "First navigate to the directory with Set-Location or cd, then use Get-ChildItem with a filter, pipe to Sort-Object for sorting by size, and finally pipe to Select-Object to limit the properties and number of results."
+related_tutorials:
+  - tutorial_02_exploring_computer

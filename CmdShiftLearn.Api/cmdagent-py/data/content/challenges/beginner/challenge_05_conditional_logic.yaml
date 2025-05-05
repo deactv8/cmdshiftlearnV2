@@ -1,0 +1,53 @@
+id: challenge_05_conditional_logic
+title: "Conditional Logic Challenge"
+description: "Test your ability to use conditional statements in PowerShell to make decisions and execute different code paths based on conditions."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: scripting
+    weight: 10
+xp_reward: 200
+topics:
+  - powershell
+  - conditionals
+  - if statements
+  - logical operators
+content: |
+  # Conditional Logic Challenge
+  
+  Time to put your conditional logic skills to the test! This challenge will reinforce what you learned in the "Making Decisions: PowerShell Conditionals" tutorial.
+  
+  ## Your Task
+  
+  Write a PowerShell script that does ALL of the following:
+  
+  1. Get the current hour using (Get-Date).Hour
+  2. Get the amount of free disk space on the C: drive in GB using:
+     (Get-PSDrive C).Free / 1GB
+  3. Display a different message based on BOTH the time of day AND the available disk space:
+     - If it's before noon (hour < 12):
+       - If free space is less than 10GB: "Good morning! Warning: Low disk space!"
+       - If free space is between 10GB and 50GB: "Good morning! Disk space is adequate."
+       - If free space is more than 50GB: "Good morning! Plenty of disk space available."
+     - If it's afternoon (hour between 12 and 17):
+       - If free space is less than 10GB: "Good afternoon! Warning: Low disk space!"
+       - If free space is between 10GB and 50GB: "Good afternoon! Disk space is adequate."
+       - If free space is more than 50GB: "Good afternoon! Plenty of disk space available."
+     - If it's evening (hour 18 or later):
+       - If free space is less than 10GB: "Good evening! Warning: Low disk space!"
+       - If free space is between 10GB and 50GB: "Good evening! Disk space is adequate."
+       - If free space is more than 50GB: "Good evening! Plenty of disk space available."
+  
+  Hints:
+  - Use variables to store the current hour and free disk space
+  - Use nested if/elseif/else statements for the time and disk space conditions
+  - Remember to use -lt, -le, -gt, -ge for comparisons
+  - Round the disk space value to make it more readable
+  
+  Good luck!
+
+solution: "$hour = (Get-Date).Hour; $freeSpace = [math]::Round((Get-PSDrive C).Free / 1GB, 2); if ($hour -lt 12) { if ($freeSpace -lt 10) { \"Good morning! Warning: Low disk space!\" } elseif ($freeSpace -le 50) { \"Good morning! Disk space is adequate.\" } else { \"Good morning! Plenty of disk space available.\" } } elseif ($hour -lt 18) { if ($freeSpace -lt 10) { \"Good afternoon! Warning: Low disk space!\" } elseif ($freeSpace -le 50) { \"Good afternoon! Disk space is adequate.\" } else { \"Good afternoon! Plenty of disk space available.\" } } else { if ($freeSpace -lt 10) { \"Good evening! Warning: Low disk space!\" } elseif ($freeSpace -le 50) { \"Good evening! Disk space is adequate.\" } else { \"Good evening! Plenty of disk space available.\" } }"
+validation_type: "fuzzy"
+hint: "Start by storing the current hour and free disk space in variables. Then use nested if statements - first to check the time of day (morning, afternoon, evening), then within each time block, check the disk space condition."
+related_tutorials:
+  - tutorial_05_powershell_conditionals

@@ -1,0 +1,45 @@
+id: challenge_04_pipeline_power
+title: "Pipeline Power Challenge"
+description: "Build complex and powerful command pipelines to filter, transform, and analyze data in PowerShell."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: automation
+    weight: 10
+xp_reward: 175
+topics:
+  - powershell
+  - pipelines
+  - filtering
+  - data processing
+content: |
+  # Pipeline Power Challenge
+  
+  Now it's time to test your PowerShell pipeline skills! This challenge will reinforce what you learned in the "Building Command Chains: PowerShell Pipelines" tutorial.
+  
+  ## Your Task
+  
+  Write a single PowerShell pipeline (a command chain connected with | symbols) that does ALL of the following:
+  
+  1. Get all services on the computer
+  2. Filter to only show services that are currently running
+  3. Filter again to only show services that start automatically
+  4. Sort the services alphabetically by display name
+  5. Select only the DisplayName, Status, and StartType properties
+  6. Limit the result to the first 10 services
+  
+  Hints:
+  - Start with Get-Service
+  - Use Where-Object twice with different conditions
+  - For automatic startup, filter where StartType equals "Automatic"
+  - Use Sort-Object for alphabetical sorting
+  - Use Select-Object to choose specific properties
+  - Use Select-Object with -First parameter to limit results
+  
+  Good luck!
+
+solution: "Get-Service | Where-Object -Property Status -EQ 'Running' | Where-Object -Property StartType -EQ 'Automatic' | Sort-Object -Property DisplayName | Select-Object -Property DisplayName, Status, StartType -First 10"
+validation_type: "fuzzy"
+hint: "Start with Get-Service, pipe to Where-Object twice to filter on both Status and StartType, pipe to Sort-Object for alphabetical sorting, then pipe to Select-Object to choose properties and limit results."
+related_tutorials:
+  - tutorial_04_powershell_pipelines

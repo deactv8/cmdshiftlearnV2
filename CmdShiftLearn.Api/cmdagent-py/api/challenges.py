@@ -7,8 +7,9 @@ import logging
 import httpx
 from typing import List, Dict, Any, Optional
 
-from utils.config import API_BASE_URL, USE_MOCK_DATA
-from api.auth import get_auth_header, SUPABASE_API_KEY
+# Import only what's needed
+from utils import API_BASE_URL
+from api.auth import get_auth_header
 
 # Configure logging
 logging.basicConfig(
@@ -16,34 +17,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger('api.challenges')
-
-# Mock challenges data for fallback
-MOCK_CHALLENGES = [
-    {
-        "id": "daily-powershell",
-        "title": "Daily PowerShell Challenge",
-        "description": "Complete a short PowerShell challenge to earn XP",
-        "difficulty": "beginner",
-        "xp_reward": 50,
-        "is_daily": True
-    },
-    {
-        "id": "git-advanced",
-        "title": "Advanced Git Operations",
-        "description": "Show your Git mastery by completing complex operations",
-        "difficulty": "advanced",
-        "xp_reward": 150,
-        "is_daily": False
-    },
-    {
-        "id": "python-algorithms",
-        "title": "Python Algorithm Challenge",
-        "description": "Implement common algorithms in Python",
-        "difficulty": "intermediate",
-        "xp_reward": 100,
-        "is_daily": False
-    }
-]
 
 
 class ChallengeClient:
@@ -78,18 +51,12 @@ class ChallengeClient:
             
         except httpx.TimeoutException:
             logger.error("Request timed out while fetching challenges")
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_CHALLENGES
             return []
             
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_CHALLENGES
             return []
             
         except httpx.RequestError as e:
             logger.error(f"Error fetching challenges: {e}")
-            if USE
+            return []

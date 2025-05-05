@@ -1,0 +1,40 @@
+id: challenge_01_command_basics
+title: "PowerShell Command Challenge"
+description: "Test your knowledge of basic PowerShell commands and syntax in this beginner-friendly challenge."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: automation
+    weight: 5
+xp_reward: 100
+topics:
+  - powershell
+  - basics
+  - commands
+content: |
+  # PowerShell Command Challenge
+  
+  It's time to test your knowledge of basic PowerShell commands! This challenge will help reinforce what you learned in the "First Steps: Welcome to PowerShell" tutorial.
+  
+  ## Your Task
+  
+  Write a PowerShell command that accomplishes ALL of the following:
+  
+  1. Get the current date and time
+  2. Format it to show ONLY the current hour and minute
+  3. Store the result in a variable called $currentTime
+  4. Display the value of $currentTime with a message saying "The current time is: "
+  
+  Hints:
+  - You'll need to use Get-Date with a format parameter
+  - The format string for hour:minute is "HH:mm"
+  - Use $currentTime to store the result
+  - Use double quotes to include the variable in your message
+  
+  Good luck!
+
+solution: "$currentTime = Get-Date -Format \"HH:mm\"; \"The current time is: $currentTime\""
+validation_type: "fuzzy"
+hint: "Use Get-Date with the -Format parameter to format the date, store it in $currentTime, then use string interpolation with double quotes to display the message with the variable."
+related_tutorials:
+  - tutorial_01_first_steps

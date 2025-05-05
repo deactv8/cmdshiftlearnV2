@@ -1,0 +1,41 @@
+id: challenge_03_variable_manipulation
+title: "Variable Manipulation Challenge"
+description: "Test your skills with PowerShell variables by creating, manipulating, and using variables in useful ways."
+difficulty: beginner
+certification_mappings:
+  - cert_id: az104
+    domain: scripting
+    weight: 5
+xp_reward: 150
+topics:
+  - powershell
+  - variables
+  - data types
+  - string formatting
+content: |
+  # Variable Manipulation Challenge
+  
+  Time to test your knowledge of PowerShell variables! This challenge will help reinforce what you learned in the "Remembering Information: Using Variables" tutorial.
+  
+  ## Your Task
+  
+  Write a series of PowerShell commands that does ALL of the following:
+  
+  1. Create a variable called $computerInfo that stores the result of the Get-ComputerInfo command
+  2. Create a variable called $osName that extracts just the OS Name from $computerInfo (hint: use the property WindowsProductName)
+  3. Create a variable called $totalMemory that extracts the total physical memory in GB from $computerInfo, rounded to 2 decimal places
+  4. Display a message that reads: "This computer is running [OS NAME] with [X.XX] GB of RAM"
+  
+  Hints:
+  - The property for total physical memory is CsTotalPhysicalMemory
+  - You'll need to convert bytes to GB (divide by 1GB) and use the [math]::Round() function
+  - 1GB = 1073741824 bytes
+  - Double quotes allow variable expansion inside strings
+  
+  Good luck!
+
+solution: "$computerInfo = Get-ComputerInfo; $osName = $computerInfo.WindowsProductName; $totalMemory = [math]::Round($computerInfo.CsTotalPhysicalMemory / 1GB, 2); \"This computer is running $osName with $totalMemory GB of RAM\""
+validation_type: "fuzzy"
+hint: "Start with storing Get-ComputerInfo in a variable, then extract the OS name and memory into separate variables, use math functions to convert and round the memory value, and finally use string interpolation to display the message."
+related_tutorials:
+  - tutorial_03_using_variables

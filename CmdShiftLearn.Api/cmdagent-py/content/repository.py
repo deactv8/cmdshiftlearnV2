@@ -42,13 +42,20 @@ class ContentRepository:
         if not tutorial_dir.exists():
             os.makedirs(tutorial_dir, exist_ok=True)
             return
-            
-        for file_path in tutorial_dir.glob("*.yaml"):
+        
+        # Load YAML files from tutorial_dir and all subdirectories
+        # Use set() to prevent duplicate loading
+        yaml_files = set()
+        yaml_files.update(tutorial_dir.glob("*.yaml"))
+        yaml_files.update(tutorial_dir.glob("*/*.yaml"))
+        
+        for file_path in yaml_files:
             try:
                 with open(file_path, 'r') as file:
                     tutorial_data = yaml.safe_load(file)
                     if tutorial_data and 'id' in tutorial_data:
                         self.tutorials[tutorial_data['id']] = tutorial_data
+                        print(f"Loaded tutorial: {tutorial_data.get('title', 'Unknown')} ({file_path})")
             except Exception as e:
                 print(f"Error loading tutorial from {file_path}: {e}")
     
@@ -59,12 +66,19 @@ class ContentRepository:
             os.makedirs(challenge_dir, exist_ok=True)
             return
             
-        for file_path in challenge_dir.glob("*.yaml"):
+        # Load YAML files from challenge_dir and all subdirectories
+        # Use set() to prevent duplicate loading
+        yaml_files = set()
+        yaml_files.update(challenge_dir.glob("*.yaml"))
+        yaml_files.update(challenge_dir.glob("*/*.yaml"))
+        
+        for file_path in yaml_files:
             try:
                 with open(file_path, 'r') as file:
                     challenge_data = yaml.safe_load(file)
                     if challenge_data and 'id' in challenge_data:
                         self.challenges[challenge_data['id']] = challenge_data
+                        print(f"Loaded challenge: {challenge_data.get('title', 'Unknown')} ({file_path})")
             except Exception as e:
                 print(f"Error loading challenge from {file_path}: {e}")
     

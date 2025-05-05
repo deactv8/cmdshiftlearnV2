@@ -1,0 +1,295 @@
+id: tutorial_05_powershell_conditionals
+title: "Making Decisions: PowerShell Conditionals"
+description: "Learn how to make your PowerShell commands make decisions using conditional logic. You'll discover how to use if/else statements, comparison operators, and perform different actions based on conditions."
+difficulty: beginner
+xp_reward: 150
+topics:
+  - powershell
+  - conditionals
+  - if statements
+  - comparison operators
+steps:
+  - id: welcome
+    type: text
+    title: "Understanding Conditionals"
+    content: |
+      # Understanding Conditionals
+      
+      Welcome to your fifth PowerShell tutorial! Today we'll learn about conditional logic - how to make PowerShell make decisions.
+      
+      Conditional statements are like forks in a road - they allow PowerShell to choose different actions depending on whether certain conditions are true or false.
+      
+      Here's what conditionals let you do:
+      - Make PowerShell take different actions based on conditions
+      - Create scripts that can adapt to different situations
+      - Automate decision-making processes
+      - Add intelligence to your PowerShell commands
+      
+      Let's get started with the simplest conditional statement: the if statement.
+    xp_reward: 10
+  
+  - id: create_test_variable
+    type: command
+    title: "Creating a Test Variable"
+    content: |
+      # Creating a Test Variable
+      
+      First, let's create a variable to work with:
+      
+      ```powershell
+      $temperature = 75
+      ```
+      
+      This creates a variable representing a temperature in degrees, which we'll use in our conditional examples.
+    command: "$temperature = 75"
+    validation_type: "exact"
+    hint: "Type '$temperature = 75' to create a variable for our example."
+    xp_reward: 5
+  
+  - id: simple_if
+    type: command
+    title: "Simple If Statement"
+    content: |
+      # Simple If Statement
+      
+      Great! Now let's use an if statement to check if it's warm:
+      
+      ```powershell
+      if ($temperature -gt 70) {
+          "It's warm outside!"
+      }
+      ```
+      
+      This is a multi-line command. Type each line exactly, including the curly braces {}.
+      
+      Here's what this does:
+      1. The if keyword starts a conditional statement
+      2. The condition ($temperature -gt 70) checks if temperature is greater than 70
+      3. The code inside the braces { } runs only if the condition is true
+      
+      NOTE: In PowerShell, -gt means "greater than" (>)
+    command: "if ($temperature -gt 70) { \"It's warm outside!\" }"
+    validation_type: "exact"
+    hint: "Type the complete if statement on one line: 'if ($temperature -gt 70) { \"It's warm outside!\" }' including the parentheses and curly braces."
+    xp_reward: 15
+  
+  - id: comparison_operators
+    type: command
+    title: "Understanding Comparison Operators"
+    content: |
+      # Understanding Comparison Operators
+      
+      Perfect! Since our temperature (75) is greater than 70, PowerShell displayed the message.
+      
+      PowerShell uses special operators for comparisons that are different from other languages:
+      
+      -eq : Equals (==)
+      -ne : Not equals (!=)
+      -gt : Greater than (>)
+      -lt : Less than (<)
+      -ge : Greater than or equal (>=)
+      -le : Less than or equal (<=)
+      
+      Let's try another condition, checking if the temperature is exactly 75:
+      
+      ```powershell
+      if ($temperature -eq 75) {
+          "The temperature is exactly 75 degrees."
+      }
+      ```
+    command: "if ($temperature -eq 75) { \"The temperature is exactly 75 degrees.\" }"
+    validation_type: "exact"
+    hint: "Type 'if ($temperature -eq 75) { \"The temperature is exactly 75 degrees.\" }' with the -eq operator for equality."
+    xp_reward: 15
+  
+  - id: get_current_hour
+    type: command
+    title: "Adding an Else Clause"
+    content: |
+      # Adding an Else Clause
+      
+      Excellent! Now let's improve our if statement by adding an else clause. The else clause specifies what should happen when the condition is false.
+      
+      Let's create a new variable first:
+      
+      ```powershell
+      $currentHour = (Get-Date).Hour
+      ```
+      
+      This gets the current hour of the day (0-23) from the system clock.
+    command: "$currentHour = (Get-Date).Hour"
+    validation_type: "exact"
+    hint: "Type '$currentHour = (Get-Date).Hour' to get the current hour of the day."
+    xp_reward: 10
+  
+  - id: if_else
+    type: command
+    title: "If-Else Statement"
+    content: |
+      # If-Else Statement
+      
+      Great! Now let's use an if-else statement to determine if it's morning or afternoon:
+      
+      ```powershell
+      if ($currentHour -lt 12) {
+          "Good morning!"
+      } else {
+          "Good afternoon!"
+      }
+      ```
+      
+      This statement will display different greetings based on the current time of day.
+    command: "if ($currentHour -lt 12) { \"Good morning!\" } else { \"Good afternoon!\" }"
+    validation_type: "exact"
+    hint: "Type the full if-else statement comparing $currentHour to 12, with appropriate messages in each block."
+    xp_reward: 20
+  
+  - id: if_elseif_else
+    type: command
+    title: "Multiple Conditions with ElseIf"
+    content: |
+      # Multiple Conditions with ElseIf
+      
+      Perfect! For more complex decisions, we can use elseif to check multiple conditions in sequence.
+      
+      Let's create a more detailed greeting based on the time of day:
+      
+      ```powershell
+      if ($currentHour -lt 12) {
+          "Good morning!"
+      } elseif ($currentHour -lt 18) {
+          "Good afternoon!"
+      } else {
+          "Good evening!"
+      }
+      ```
+      
+      This checks multiple conditions in order:
+      1. If the hour is less than 12, it's morning
+      2. Otherwise, if the hour is less than 18 (6 PM), it's afternoon
+      3. Otherwise, it's evening
+    command: "if ($currentHour -lt 12) { \"Good morning!\" } elseif ($currentHour -lt 18) { \"Good afternoon!\" } else { \"Good evening!\" }"
+    validation_type: "exact"
+    hint: "Type the full if-elseif-else statement with three different time periods and greetings."
+    xp_reward: 25
+  
+  - id: logical_operators
+    type: command
+    title: "Combining Conditions with Logical Operators"
+    content: |
+      # Combining Conditions with Logical Operators
+      
+      Excellent! Sometimes we need to check multiple conditions at once. PowerShell provides logical operators:
+      
+      -and : Both conditions must be true (&&)
+      -or : At least one condition must be true (||)
+      -not : Reverses a condition (!)
+      
+      Let's create a new variable for a second condition:
+      
+      ```powershell
+      $isRaining = $false
+      ```
+      
+      This creates a boolean variable (true/false) indicating weather conditions. We're setting it to false.
+    command: "$isRaining = $false"
+    validation_type: "exact"
+    hint: "Type '$isRaining = $false' to create a boolean variable set to false."
+    xp_reward: 10
+  
+  - id: and_operator
+    type: command
+    title: "Using the AND Operator"
+    content: |
+      # Using the AND Operator
+      
+      Perfect! Now let's create a condition that checks both temperature AND rain:
+      
+      ```powershell
+      if ($temperature -gt 70 -and -not $isRaining) {
+          "It's a nice day for a walk!"
+      } else {
+          "Maybe stay inside today."
+      }
+      ```
+      
+      This condition is true only if:
+      1. The temperature is greater than 70, AND
+      2. It is NOT raining
+    command: "if ($temperature -gt 70 -and -not $isRaining) { \"It's a nice day for a walk!\" } else { \"Maybe stay inside today.\" }"
+    validation_type: "exact"
+    hint: "Type the if-else statement using both the -and and -not operators to combine the conditions."
+    xp_reward: 25
+  
+  - id: weekend_variable
+    type: command
+    title: "Using the OR Operator"
+    content: |
+      # Using the OR Operator
+      
+      Excellent! Let's try using the OR operator:
+      
+      ```powershell
+      $isWeekend = $true
+      ```
+      
+      This creates another boolean variable indicating if it's the weekend.
+    command: "$isWeekend = $true"
+    validation_type: "exact"
+    hint: "Type '$isWeekend = $true' to create a boolean variable set to true."
+    xp_reward: 5
+  
+  - id: or_condition
+    type: command
+    title: "Creating an OR Condition"
+    content: |
+      # Creating an OR Condition
+      
+      Great! Now let's use the OR operator to create a condition that checks if it's hot OR if it's the weekend:
+      
+      ```powershell
+      if ($temperature -gt 85 -or $isWeekend) {
+          "Time for some ice cream!"
+      } else {
+          "Focus on work for now."
+      }
+      ```
+      
+      This condition is true if EITHER:
+      1. The temperature is greater than 85, OR
+      2. It's the weekend
+    command: "if ($temperature -gt 85 -or $isWeekend) { \"Time for some ice cream!\" } else { \"Focus on work for now.\" }"
+    validation_type: "exact"
+    hint: "Type the if-else statement using the -or operator to combine the two conditions."
+    xp_reward: 20
+  
+  - id: conclusion
+    type: text
+    title: "Congratulations!"
+    content: |
+      # Congratulations!
+      
+      Amazing work! You've completed the tutorial on PowerShell conditionals!
+      
+      Let's review what you've learned:
+      
+      1. Using if statements to make decisions
+      2. PowerShell comparison operators (-eq, -gt, -lt, etc.)
+      3. Adding else clauses for alternative actions
+      4. Using elseif for multiple conditions
+      5. Combining conditions with logical operators (-and, -or, -not)
+      
+      Conditional logic is a fundamental concept in PowerShell and all programming. It allows you to:
+      - Make decisions based on data
+      - Create dynamic, responsive scripts
+      - Handle different scenarios appropriately
+      
+      You've now learned the five core PowerShell concepts:
+      1. Basic commands and navigation
+      2. Exploring the file system
+      3. Working with variables
+      4. Building pipelines
+      5. Using conditional logic
+      
+      With these fundamentals, you're well on your way to becoming a PowerShell expert!
+    xp_reward: 15

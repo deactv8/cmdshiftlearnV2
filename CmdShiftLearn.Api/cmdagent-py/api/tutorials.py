@@ -8,8 +8,8 @@ import httpx
 from typing import List, Dict, Any, Optional
 from rich.console import Console
 
-from utils.config import API_BASE_URL, USE_MOCK_DATA
-from api.mock_data import TUTORIALS as MOCK_TUTORIALS
+# Import only what's needed
+from utils import API_BASE_URL
 from api.auth import get_auth_header
 
 # Configure logging
@@ -58,11 +58,6 @@ class TutorialClient:
             if response.status_code == 401:
                 logger.error(f"Authentication failed. Response: {response.text}")
                 console.print("[red]Authentication failed: Invalid API key[/red]")
-                
-                # Fall back to mock data if needed
-                if USE_MOCK_DATA:
-                    logger.info("Using mock data as fallback")
-                    return MOCK_TUTORIALS
                 return []
                 
             response.raise_for_status()  # Raise exception for other 4XX/5XX responses
@@ -74,27 +69,16 @@ class TutorialClient:
         except httpx.TimeoutException:
             logger.error("Request timed out while fetching tutorials")
             console.print("[red]Request timed out. Please try again later.[/red]")
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_TUTORIALS
             return []
             
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
             console.print(f"[red]Error: {e.response.reason_phrase}[/red]")
-            
-            # Only fall back to mock data if USE_MOCK_DATA is explicitly set to True
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_TUTORIALS
             return []
             
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
             console.print(f"[red]Error connecting to CmdShiftLearn API: {str(e)}[/red]")
-            if USE_MOCK_DATA:
-                logger.info("Using mock data as fallback")
-                return MOCK_TUTORIALS
             return []
     
     def get_tutorial_by_id(self, tutorial_id: str) -> Optional[Dict[str, Any]]:
@@ -131,16 +115,6 @@ class TutorialClient:
             if response.status_code == 401:
                 logger.error(f"Authentication failed. Response: {response.text}")
                 console.print("[red]Authentication failed: Invalid API key[/red]")
-                
-                # Fall back to mock data if needed
-                if USE_MOCK_DATA:
-                    logger.info("Falling back to mock data due to authentication failure")
-                    for mock_tutorial in MOCK_TUTORIALS:
-                        if mock_tutorial.get('id') == tutorial_id:
-                            logger.info(f"Found mock data for {tutorial_id}")
-                            return mock_tutorial
-                    
-                    logger.warning(f"No mock data found for tutorial ID: {tutorial_id}")
                 return None
                 
             # Handle not found
@@ -158,26 +132,17 @@ class TutorialClient:
         except httpx.TimeoutException:
             logger.error(f"Request timed out while fetching tutorial {tutorial_id}")
             console.print("[red]Request timed out. Please try again later.[/red]")
+            return None
             
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP Error: {e.response.status_code} - {e.response.reason_phrase}")
             console.print(f"[red]Error: {e.response.reason_phrase}[/red]")
+            return None
             
         except Exception as e:
             logger.error(f"Unexpected error fetching tutorial {tutorial_id}: {str(e)}")
             console.print(f"[red]Error connecting to CmdShiftLearn API: {str(e)}[/red]")
-        
-        # Return mock tutorial if it exists in our fallback data and USE_MOCK_DATA is True
-        if USE_MOCK_DATA:
-            logger.info(f"Attempting to use mock data for tutorial {tutorial_id}")
-            for tutorial in MOCK_TUTORIALS:
-                if tutorial["id"] == tutorial_id:
-                    logger.info(f"Returning mock data for tutorial {tutorial_id}")
-                    return tutorial
-                    
-            logger.warning(f"No mock data available for tutorial {tutorial_id}")
-        
-        return None
+            return None
         
     def complete_tutorial(self, tutorial_id: str, xp_earned: int) -> bool:
         """

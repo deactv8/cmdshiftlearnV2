@@ -6,6 +6,10 @@ import os
 import json
 from pathlib import Path
 
+__all__ = ['BASE_DIR', 'DATA_DIR', 'API_BASE_URL', 'API_VERSION',
+           'DEFAULT_POWERSHELL_TIMEOUT', 'APP_NAME', 'APP_VERSION', 'DEFAULT_USER_SETTINGS',
+           'ensure_directories', 'create_default_config', 'load_config']
+
 # Base directory for the application
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -15,9 +19,6 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 # API settings
 API_BASE_URL = "https://cmdshiftlearn-api.azurewebsites.net/api"
 API_VERSION = "v1"
-
-# Mock data flag (for development/testing)
-USE_MOCK_DATA = True  # Added this line to fix the import error
 
 # Default PowerShell settings
 DEFAULT_POWERSHELL_TIMEOUT = 10  # seconds

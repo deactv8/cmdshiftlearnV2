@@ -1,0 +1,260 @@
+id: tutorial_02_exploring_computer
+title: "Exploring Your Computer: Finding Your Way"
+description: "Learn how to navigate through your computer's files and folders using PowerShell commands. You'll discover how to move around, see what's in different folders, and understand file paths."
+difficulty: beginner
+xp_reward: 75
+topics:
+  - powershell
+  - file system
+  - navigation
+  - directories
+steps:
+  - id: welcome
+    type: text
+    title: "Let's Explore Your Computer!"
+    content: |
+      # Let's Explore Your Computer!
+      
+      Welcome back to PowerShell! In this tutorial, we'll learn how to explore your computer's files and folders using commands.
+      
+      Think of your computer as a building with many rooms (folders) containing items (files). To navigate this building, you first need to know where you are.
+      
+      We'll learn how to:
+      - Find out where we are
+      - See what's in our current folder
+      - Move between folders
+      - Use shortcuts to work faster
+    xp_reward: 5
+  
+  - id: where_am_i
+    type: command
+    title: "Where Am I?"
+    content: |
+      # Where Am I?
+      
+      Let's start by finding out where we are in the file system. Type:
+      
+      ```powershell
+      Get-Location
+      ```
+      
+      This is like asking "What room am I in right now?"
+      
+      You'll see a path that shows your current location in your computer's filing system.
+    command: "Get-Location"
+    validation_type: "exact"
+    hint: "Type 'Get-Location' and press Enter. This shows your current directory (folder)."
+    xp_reward: 5
+  
+  - id: whats_here
+    type: command
+    title: "What's in This Folder?"
+    content: |
+      # What's in This Folder?
+      
+      Great! Now you know where you are in your computer's filing system.
+      
+      Next, let's see what's in your current folder. This is like looking around the room to see what's there. Type:
+      
+      ```powershell
+      Get-ChildItem
+      ```
+      
+      This will show you all the files and folders in your current location.
+    command: "Get-ChildItem"
+    validation_type: "exact"
+    hint: "Type 'Get-ChildItem' and press Enter to see the files and folders in your current location."
+    xp_reward: 10
+  
+  - id: using_aliases
+    type: command
+    title: "Shortcuts: Using Aliases"
+    content: |
+      # Shortcuts: Using Aliases
+      
+      Excellent! Get-ChildItem showed you everything in your current folder.
+      
+      PowerShell has shortcuts called "aliases" for common commands. These are like nicknames for commands.
+      
+      For example, instead of typing Get-ChildItem, you can type:
+      
+      ```powershell
+      dir
+      ```
+      
+      Try it now! This does exactly the same thing as Get-ChildItem but is shorter to type.
+    command: "dir"
+    validation_type: "exact"
+    hint: "Type 'dir' and press Enter. This is a shorter way to run Get-ChildItem."
+    xp_reward: 10
+  
+  - id: more_shortcuts
+    type: command
+    title: "More Command Shortcuts"
+    content: |
+      # More Command Shortcuts
+      
+      Perfect! As you saw, "dir" is a shortcut for Get-ChildItem.
+      
+      There's another shortcut for Get-ChildItem: "ls" (from Linux systems).
+      
+      And Get-Location has the shortcut "pwd" (Print Working Directory, also from Linux).
+      
+      Let's try the pwd shortcut to see our current location:
+      
+      ```powershell
+      pwd
+      ```
+    command: "pwd"
+    validation_type: "exact"
+    hint: "Type 'pwd' and press Enter. This is a shortcut for Get-Location."
+    xp_reward: 5
+  
+  - id: changing_location
+    type: command
+    title: "Moving Between Folders"
+    content: |
+      # Moving Between Folders
+      
+      Great! Now let's learn how to move between folders.
+      
+      To change your current folder (to go to a different "room" in our building analogy), use the command:
+      
+      ```powershell
+      Set-Location C:\
+      ```
+      
+      This will take you to the root of your C: drive - the main floor of our building analogy.
+    command: "Set-Location C:\\"
+    validation_type: "exact"
+    hint: "Type 'Set-Location C:\\' and press Enter. This will take you to the root of your C: drive."
+    xp_reward: 15
+  
+  - id: cd_shortcut
+    type: command
+    title: "Using the CD Shortcut"
+    content: |
+      # Using the CD Shortcut
+      
+      Well done! You've moved to the C: drive.
+      
+      Just like other commands, Set-Location has a shortcut: "cd" (Change Directory).
+      
+      Let's move to the Windows folder using this shortcut:
+      
+      ```powershell
+      cd Windows
+      ```
+      
+      After running this command, you'll be in the Windows folder.
+    command: "cd Windows"
+    validation_type: "exact"
+    hint: "Type 'cd Windows' and press Enter. This will take you to the Windows folder on your C: drive."
+    xp_reward: 10
+  
+  - id: look_in_windows
+    type: command
+    title: "Looking Around the Windows Folder"
+    content: |
+      # Looking Around the Windows Folder
+      
+      Excellent! You're now in the Windows folder.
+      
+      Let's see what's in this folder by using one of the commands we learned earlier.
+      
+      Use either Get-ChildItem or one of its shortcuts (dir or ls) to see the contents of the Windows folder.
+    command: "Get-ChildItem"
+    validation_type: "fuzzy"
+    hint: "Type 'Get-ChildItem', 'dir', or 'ls' to see what's in the Windows folder."
+    xp_reward: 5
+  
+  - id: go_up_level
+    type: command
+    title: "Understanding File Paths"
+    content: |
+      # Understanding File Paths
+      
+      Great job! You've seen the contents of the Windows folder.
+      
+      In PowerShell (and computing in general), locations in your file system are described using "paths".
+      
+      A path is like an address for a file or folder. For example:
+      - C:\ is the root of your C: drive
+      - C:\Windows is the Windows folder on your C: drive
+      
+      Let's go back up one level using a special shortcut:
+      
+      ```powershell
+      cd ..
+      ```
+      
+      The two dots (..) mean "go up one level" or "go to the parent folder."
+    command: "cd .."
+    validation_type: "exact"
+    hint: "Type 'cd ..' (with a space between cd and the dots) and press Enter. This will take you up one level in the folder structure."
+    xp_reward: 10
+  
+  - id: go_to_users
+    type: command
+    title: "Go to Your User Folder"
+    content: |
+      # Go to Your User Folder
+      
+      Perfect! You've moved up one level, back to the C:\ drive.
+      
+      Now, let's go to the Users folder. This is where all user profiles are stored.
+      
+      ```powershell
+      cd Users
+      ```
+      
+      This will take you to the Users folder, where all user profiles are stored.
+    command: "cd Users"
+    validation_type: "exact"
+    hint: "Type 'cd Users' and press Enter to navigate to the Users folder."
+    xp_reward: 5
+  
+  - id: advanced_listing
+    type: command
+    title: "Exploring More Efficiently"
+    content: |
+      # Exploring More Efficiently
+      
+      Excellent! You're now in the Users folder.
+      
+      Sometimes, you want to both see what's in a folder AND get more details.
+      
+      Let's use a parameter with Get-ChildItem to see more information:
+      
+      ```powershell
+      Get-ChildItem -Directory
+      ```
+      
+      This will show only the directories (folders) in the current location, not the files.
+      
+      Parameters are like options that modify how a command works. They always start with a dash (-).
+    command: "Get-ChildItem -Directory"
+    validation_type: "exact"
+    hint: "Type 'Get-ChildItem -Directory' and press Enter. This shows only folders (not files) in the current location."
+    xp_reward: 15
+  
+  - id: conclusion
+    type: text
+    title: "Congratulations!"
+    content: |
+      # Congratulations!
+      
+      Amazing work! You've completed the second PowerShell tutorial!
+      
+      Let's review what you've learned:
+      
+      1. Finding your location with Get-Location (or pwd)
+      2. Seeing folder contents with Get-ChildItem (or dir, ls)
+      3. Moving between folders with Set-Location (or cd)
+      4. Going up one level with cd ..
+      5. Using parameters like -Directory to modify commands
+      
+      You can now navigate your computer using PowerShell just like you would with File Explorer, but with typed commands!
+      
+      In the next tutorial, we'll learn how to store and use information with variables.
+    xp_reward: 10

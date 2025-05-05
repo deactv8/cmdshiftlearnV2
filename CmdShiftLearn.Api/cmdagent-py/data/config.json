@@ -1,0 +1,20 @@
+{
+  "api": {
+    "base_url": "https://cmdshiftlearn-api.azurewebsites.net/api",
+    "version": "v1"
+  },
+  "powershell": {
+    "timeout": 10
+  },
+  "app": {
+    "name": "CmdShiftLearn",
+    "version": "0.1.0"
+  },
+  "user": {
+    "default_settings": {
+      "theme": "dark",
+      "notifications": true,
+      "sound_effects": true
+    }
+  }
+}

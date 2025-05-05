@@ -19,6 +19,8 @@ namespace CmdShiftLearn.Api.Services
             _challengesDirectory = configuration["ChallengesDirectory"] ?? Path.Combine(AppContext.BaseDirectory, "scripts", "challenges");
             _logger = logger;
             
+            _logger.LogInformation("Using challenges directory: {Directory}", _challengesDirectory);
+            
             // Ensure the challenges directory exists
             if (!Directory.Exists(_challengesDirectory))
             {
@@ -37,10 +39,23 @@ namespace CmdShiftLearn.Api.Services
             
             try
             {
-                // Get all JSON and YAML files in the challenges directory
-                var challengeFiles = Directory.GetFiles(_challengesDirectory, "*.json")
-                    .Concat(Directory.GetFiles(_challengesDirectory, "*.yaml"))
-                    .Concat(Directory.GetFiles(_challengesDirectory, "*.yml"));
+                // Get all JSON and YAML files in the challenges directory AND subdirectories
+                var challengeFiles = new List<string>();
+                
+                // Get files directly in the challenges directory
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.json"));
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.yaml"));
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.yml"));
+                
+                // Also search in subdirectories
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.json", SearchOption.AllDirectories));
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.yaml", SearchOption.AllDirectories));
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.yml", SearchOption.AllDirectories));
+                
+                // Remove duplicates (files that were found in both the first and recursive searches)
+                challengeFiles = challengeFiles.Distinct().ToList();
+                
+                _logger.LogInformation("Found {Count} challenge files", challengeFiles.Count);
                 
                 foreach (var file in challengeFiles)
                 {
@@ -49,6 +64,7 @@ namespace CmdShiftLearn.Api.Services
                         var challenge = await LoadChallengeFromFileAsync(file);
                         if (challenge != null)
                         {
+                            _logger.LogInformation("Loaded challenge: {Title} ({Id})", challenge.Title, challenge.Id);
                             challenges.Add(new ChallengeMetadata
                             {
                                 Id = challenge.Id,
@@ -75,36 +91,37 @@ namespace CmdShiftLearn.Api.Services
         }
         
         /// <summary>
-        /// Gets a specific challenge by ID including its script
+        /// Gets a specific challenge by ID including its steps
         /// </summary>
         /// <param name="id">The challenge ID</param>
-        /// <returns>The challenge with script if found, null otherwise</returns>
+        /// <returns>The challenge with steps if found, null otherwise</returns>
         public async Task<Challenge?> GetChallengeByIdAsync(string id)
         {
             try
             {
-                // Look for a challenge file with the given ID
-                var jsonFile = Path.Combine(_challengesDirectory, $"{id}.json");
-                var yamlFile = Path.Combine(_challengesDirectory, $"{id}.yaml");
-                var ymlFile = Path.Combine(_challengesDirectory, $"{id}.yml");
+                // Look for a challenge file with the given ID in both the main directory and subdirectories
+                var jsonFiles = Directory.GetFiles(_challengesDirectory, $"{id}.json", SearchOption.AllDirectories);
+                var yamlFiles = Directory.GetFiles(_challengesDirectory, $"{id}.yaml", SearchOption.AllDirectories);
+                var ymlFiles = Directory.GetFiles(_challengesDirectory, $"{id}.yml", SearchOption.AllDirectories);
                 
-                if (File.Exists(jsonFile))
+                if (jsonFiles.Length > 0)
                 {
-                    return await LoadChallengeFromFileAsync(jsonFile);
+                    return await LoadChallengeFromFileAsync(jsonFiles[0]);
                 }
-                else if (File.Exists(yamlFile))
+                else if (yamlFiles.Length > 0)
                 {
-                    return await LoadChallengeFromFileAsync(yamlFile);
+                    return await LoadChallengeFromFileAsync(yamlFiles[0]);
                 }
-                else if (File.Exists(ymlFile))
+                else if (ymlFiles.Length > 0)
                 {
-                    return await LoadChallengeFromFileAsync(ymlFile);
+                    return await LoadChallengeFromFileAsync(ymlFiles[0]);
                 }
                 
                 // If no direct match, search all files for a challenge with the given ID
-                var challengeFiles = Directory.GetFiles(_challengesDirectory, "*.json")
-                    .Concat(Directory.GetFiles(_challengesDirectory, "*.yaml"))
-                    .Concat(Directory.GetFiles(_challengesDirectory, "*.yml"));
+                var challengeFiles = new List<string>();
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.json", SearchOption.AllDirectories));
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.yaml", SearchOption.AllDirectories));
+                challengeFiles.AddRange(Directory.GetFiles(_challengesDirectory, "*.yml", SearchOption.AllDirectories));
                 
                 foreach (var file in challengeFiles)
                 {
@@ -114,6 +131,8 @@ namespace CmdShiftLearn.Api.Services
                         return challenge;
                     }
                 }
+                
+                _logger.LogWarning("Challenge not found with ID: {Id}", id);
             }
             catch (Exception ex)
             {
@@ -139,6 +158,8 @@ namespace CmdShiftLearn.Api.Services
                 
                 // Filter challenges by tutorial ID
                 challenges = allChallenges.Where(c => c.TutorialId == tutorialId).ToList();
+                
+                _logger.LogInformation("Found {Count} challenges for tutorial ID: {TutorialId}", challenges.Count, tutorialId);
             }
             catch (Exception ex)
             {
@@ -157,6 +178,7 @@ namespace CmdShiftLearn.Api.Services
         {
             try
             {
+                _logger.LogInformation("Loading challenge from file: {FilePath}", filePath);
                 var fileContent = await File.ReadAllTextAsync(filePath);
                 var fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
                 
@@ -169,15 +191,44 @@ namespace CmdShiftLearn.Api.Services
                     {
                         PropertyNameCaseInsensitive = true
                     });
+                    
+                    _logger.LogInformation("Loaded challenge from JSON: {FilePath}", filePath);
                 }
                 else if (fileExtension == ".yaml" || fileExtension == ".yml")
                 {
                     // Parse YAML file
-                    var deserializer = new DeserializerBuilder()
-                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                        .Build();
-                    
-                    challenge = deserializer.Deserialize<Challenge>(fileContent);
+                    try {
+                        var deserializer = new DeserializerBuilder()
+                            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                            .IgnoreUnmatchedProperties()
+                            .Build();
+                        
+                        challenge = deserializer.Deserialize<Challenge>(fileContent);
+                        
+                        // Validate required properties
+                        if (string.IsNullOrEmpty(challenge?.Id))
+                        {
+                            _logger.LogError("Challenge is missing required 'id' property: {FilePath}", filePath);
+                            return null;
+                        }
+                        
+                        if (string.IsNullOrEmpty(challenge.Title))
+                        {
+                            _logger.LogError("Challenge is missing required 'title' property: {FilePath}", filePath);
+                            return null;
+                        }
+                        
+                        // Ensure Steps collection is initialized
+                        challenge.Steps ??= new List<ChallengeStep>();
+                        
+                        _logger.LogInformation("Loaded challenge from YAML: {FilePath} with {StepCount} steps", 
+                            filePath, challenge.Steps.Count);
+                    }
+                    catch (Exception yamlEx) {
+                        _logger.LogError(yamlEx, "Error deserializing YAML challenge: {FilePath}", filePath);
+                        _logger.LogInformation("YAML content: {Content}", fileContent);
+                        throw;
+                    }
                 }
                 else
                 {
@@ -191,21 +242,25 @@ namespace CmdShiftLearn.Api.Services
                     return null;
                 }
                 
-                // If script is a file path, load the content from the file
-                if (challenge.Script.EndsWith(".ps1") && !challenge.Script.Contains("\n"))
+                // Validate steps
+                if (challenge.Steps != null && challenge.Steps.Any())
                 {
-                    var scriptPath = Path.IsPathRooted(challenge.Script)
-                        ? challenge.Script
-                        : Path.Combine(Path.GetDirectoryName(filePath) ?? _challengesDirectory, challenge.Script);
-                    
-                    if (File.Exists(scriptPath))
+                    foreach (var step in challenge.Steps)
                     {
-                        challenge.Script = await File.ReadAllTextAsync(scriptPath);
+                        if (string.IsNullOrEmpty(step.Id))
+                        {
+                            _logger.LogWarning("Challenge step is missing required 'id' property in challenge: {ChallengeId}", challenge.Id);
+                        }
+                        
+                        if (string.IsNullOrEmpty(step.Title))
+                        {
+                            _logger.LogWarning("Challenge step is missing required 'title' property in challenge: {ChallengeId}", challenge.Id);
+                        }
                     }
-                    else
-                    {
-                        _logger.LogWarning("Challenge script file not found: {ScriptPath}", scriptPath);
-                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Challenge has no steps: {ChallengeId}", challenge.Id);
                 }
                 
                 return challenge;

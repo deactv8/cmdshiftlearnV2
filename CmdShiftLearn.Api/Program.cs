@@ -125,9 +125,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IUserProfileService, UserProfileService>();
 builder.Services.AddSingleton<IEventLogger, EventLoggerService>();
 
-// Register tutorial and challenge services
-builder.Services.AddSingleton<ITutorialService, TutorialService>();
-
 // Configure OpenAI settings
 builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
 
@@ -145,10 +142,19 @@ builder.Services.AddHttpClient<IShelloService, ShelloService>(client =>
     }
 });
 
-// Only register the file-based content loaders
+// Register content loaders first (they are dependencies for services)
 Console.WriteLine("Using File as the source for tutorials");
 builder.Services.AddSingleton<ITutorialLoader, FileTutorialLoader>();
 Console.WriteLine("Registered FileTutorialLoader");
+
+// Register challenge loader
+Console.WriteLine("Using File as the source for challenges");
+builder.Services.AddSingleton<IChallengeLoader, FileChallengeLoader>();
+Console.WriteLine("Registered FileChallengeLoader");
+
+// Register tutorial and challenge services (after their dependencies)
+builder.Services.AddSingleton<ITutorialService, TutorialService>();
+builder.Services.AddSingleton<ChallengeService>();
 
 var app = builder.Build();
 

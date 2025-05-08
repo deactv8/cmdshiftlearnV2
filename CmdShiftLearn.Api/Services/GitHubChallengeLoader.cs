@@ -30,11 +30,24 @@ namespace CmdShiftLearn.Api.Services
             if (logger == null) throw new ArgumentNullException(nameof(logger));
             if (httpClientFactory == null) throw new ArgumentNullException(nameof(httpClientFactory));
             
-            // Debug logging to check environment variable resolution
-            _logger.LogCritical("GitHub__Repo direct: {0}", configuration.GetValue<string>("GitHub__Repo"));
-            _logger.LogCritical("GitHub:Repo direct: {0}", configuration.GetValue<string>("GitHub:Repo"));
-            _logger.LogCritical("GitHub__Repo from indexer: {0}", configuration["GitHub__Repo"]);
-            _logger.LogCritical("GitHub:Repo from indexer: {0}", configuration["GitHub:Repo"]);
+            // Assign logger and HTTP client first
+            _logger = logger;
+            _httpClient = httpClientFactory.CreateClient("GitHub");
+            
+            // Now safe to use logger
+            try 
+            {
+                // Debug logging to check environment variable resolution
+                logger.LogInformation("GitHub__Repo direct: {0}", configuration.GetValue<string>("GitHub__Repo"));
+                logger.LogInformation("GitHub:Repo direct: {0}", configuration.GetValue<string>("GitHub:Repo"));
+                logger.LogInformation("GitHub__Repo from indexer: {0}", configuration["GitHub__Repo"]);
+                logger.LogInformation("GitHub:Repo from indexer: {0}", configuration["GitHub:Repo"]);
+            }
+            catch (Exception ex)
+            {
+                // Catch any logging errors but don't fail initialization
+                Console.WriteLine($"Warning: Error during config logging: {ex.Message}");
+            }
             
             // Use configuration["GitHub:X"] format with GetValue to support both colon and double underscore formats
             _owner = configuration.GetValue<string>("GitHub:Owner") ?? "deactv8";
@@ -44,10 +57,6 @@ namespace CmdShiftLearn.Api.Services
             _accessToken = configuration.GetValue<string>("GitHub:AccessToken") ?? "";
             _rawBaseUrl = configuration.GetValue<string>("GitHub:RawBaseUrl") ?? "https://raw.githubusercontent.com";
             
-            // Get the HTTP client first
-            _httpClient = httpClientFactory.CreateClient("GitHub");
-            _logger = logger;
-            
             // Ensure we don't have any cached data by forcing a refresh on every request
             _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
             {
@@ -55,7 +64,7 @@ namespace CmdShiftLearn.Api.Services
                 MustRevalidate = true
             };
             
-            _logger.LogInformation("GitHub settings: Owner={Owner}, Repo={Repo}, Branch={Branch}, ChallengesPath={ChallengesPath}, RawBaseUrl={RawBaseUrl}",
+            _logger?.LogInformation("GitHub settings: Owner={Owner}, Repo={Repo}, Branch={Branch}, ChallengesPath={ChallengesPath}, RawBaseUrl={RawBaseUrl}",
                 _owner, _repo, _branch, _challengesPath, _rawBaseUrl);
                 
             // Configure HttpClient with GitHub API headers
@@ -67,7 +76,7 @@ namespace CmdShiftLearn.Api.Services
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
             }
             
-            _logger.LogInformation("GitHubChallengeLoader initialized for {Owner}/{Repo}:{Branch}, challenges path: {Path}", 
+            _logger?.LogInformation("GitHubChallengeLoader initialized for {Owner}/{Repo}:{Branch}, challenges path: {Path}", 
                 _owner, _repo, _branch, _challengesPath);
         }
         
@@ -83,7 +92,7 @@ namespace CmdShiftLearn.Api.Services
             {
                 // Get all files in the challenges directory and its subdirectories
                 var files = await GetDirectoryContentsRecursiveAsync(_challengesPath);
-                _logger.LogInformation("Found {Count} challenge files in GitHub repository", files.Count);
+                _logger?.LogInformation("Found {Count} challenge files in GitHub repository", files.Count);
                 
                 foreach (var file in files)
                 {
@@ -98,7 +107,7 @@ namespace CmdShiftLearn.Api.Services
                             var challenge = await LoadChallengeFromGitHubAsync(file);
                             if (challenge != null)
                             {
-                                _logger.LogInformation("Loaded challenge from GitHub: {Id}, Title: {Title}", 
+                                _logger?.LogInformation("Loaded challenge from GitHub: {Id}, Title: {Title}", 
                                     challenge.Id, challenge.Title);
                                 
                                 challenges.Add(new ChallengeMetadata
@@ -115,13 +124,13 @@ namespace CmdShiftLearn.Api.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error loading challenge from GitHub: {File}", file);
+                        _logger?.LogError(ex, "Error loading challenge from GitHub: {File}", file);
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting challenge files from GitHub repository");
+                _logger?.LogError(ex, "Error getting challenge files from GitHub repository");
             }
             
             return challenges;
@@ -136,7 +145,7 @@ namespace CmdShiftLearn.Api.Services
         {
             if (string.IsNullOrEmpty(id))
             {
-                _logger.LogWarning("Null or empty challenge ID provided");
+                _logger?.LogWarning("Null or empty challenge ID provided");
                 return null;
             }
             
@@ -178,11 +187,11 @@ namespace CmdShiftLearn.Api.Services
                     }
                 }
                 
-                _logger.LogWarning("Challenge not found with ID: {Id}", id);
+                _logger?.LogWarning("Challenge not found with ID: {Id}", id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting challenge by ID: {Id}", id);
+                _logger?.LogError(ex, "Error getting challenge by ID: {Id}", id);
             }
             
             return null;
@@ -199,7 +208,7 @@ namespace CmdShiftLearn.Api.Services
             
             if (string.IsNullOrEmpty(tutorialId))
             {
-                _logger.LogWarning("Null or empty tutorial ID provided");
+                _logger?.LogWarning("Null or empty tutorial ID provided");
                 return challenges;
             }
             
@@ -214,11 +223,11 @@ namespace CmdShiftLearn.Api.Services
                            string.Equals(c.TutorialId, tutorialId, StringComparison.OrdinalIgnoreCase))
                     .ToList();
                 
-                _logger.LogInformation("Found {Count} challenges for tutorial ID: {TutorialId}", challenges.Count, tutorialId);
+                _logger?.LogInformation("Found {Count} challenges for tutorial ID: {TutorialId}", challenges.Count, tutorialId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting challenges by tutorial ID: {TutorialId}", tutorialId);
+                _logger?.LogError(ex, "Error getting challenges by tutorial ID: {TutorialId}", tutorialId);
             }
             
             return challenges;
@@ -233,7 +242,7 @@ namespace CmdShiftLearn.Api.Services
         {
             if (string.IsNullOrEmpty(path))
             {
-                _logger.LogWarning("Null or empty file path provided");
+                _logger?.LogWarning("Null or empty file path provided");
                 return null;
             }
             
@@ -242,13 +251,13 @@ namespace CmdShiftLearn.Api.Services
                 // Build the URL to the raw content
                 var rawUrl = $"{_rawBaseUrl}/{_owner}/{_repo}/{_branch}/{path}";
                 
-                _logger.LogInformation("Loading challenge from GitHub: {Url}", rawUrl);
+                _logger?.LogInformation("Loading challenge from GitHub: {Url}", rawUrl);
                 
                 // Get the file content
                 var response = await _httpClient.GetAsync(rawUrl);
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Failed to get challenge file from GitHub: {Url}, Status: {Status}", 
+                    _logger?.LogWarning("Failed to get challenge file from GitHub: {Url}, Status: {Status}", 
                         rawUrl, response.StatusCode);
                     return null;
                 }
@@ -256,7 +265,7 @@ namespace CmdShiftLearn.Api.Services
                 var content = await response.Content.ReadAsStringAsync();
                 if (string.IsNullOrEmpty(content))
                 {
-                    _logger.LogWarning("Empty content received from GitHub: {Url}", rawUrl);
+                    _logger?.LogWarning("Empty content received from GitHub: {Url}", rawUrl);
                     return null;
                 }
                 
@@ -274,12 +283,12 @@ namespace CmdShiftLearn.Api.Services
                             PropertyNameCaseInsensitive = true
                         });
                         
-                        _logger.LogInformation("Loaded challenge from JSON: {Path}", path);
+                        _logger?.LogInformation("Loaded challenge from JSON: {Path}", path);
                     }
                     catch (JsonException jsonEx)
                     {
-                        _logger.LogError(jsonEx, "Error deserializing JSON challenge: {Path}", path);
-                        _logger.LogDebug("JSON content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
+                        _logger?.LogError(jsonEx, "Error deserializing JSON challenge: {Path}", path);
+                        _logger?.LogDebug("JSON content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
                         return null;
                     }
                 }
@@ -290,22 +299,22 @@ namespace CmdShiftLearn.Api.Services
                     
                     if (challenge == null)
                     {
-                        _logger.LogWarning("Failed to deserialize YAML challenge from GitHub: {Path}", path);
+                        _logger?.LogWarning("Failed to deserialize YAML challenge from GitHub: {Path}", path);
                         return null;
                     }
                     
-                    _logger.LogInformation("Loaded challenge from YAML: {Path} with {StepCount} steps", 
+                    _logger?.LogInformation("Loaded challenge from YAML: {Path} with {StepCount} steps", 
                         path, challenge.Steps.Count);
                 }
                 else
                 {
-                    _logger.LogWarning("Unsupported file extension: {Extension}", fileExtension);
+                    _logger?.LogWarning("Unsupported file extension: {Extension}", fileExtension);
                     return null;
                 }
                 
                 if (challenge == null)
                 {
-                    _logger.LogWarning("Failed to deserialize challenge from GitHub: {File}", path);
+                    _logger?.LogWarning("Failed to deserialize challenge from GitHub: {File}", path);
                     return null;
                 }
                 
@@ -321,7 +330,7 @@ namespace CmdShiftLearn.Api.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading challenge from GitHub: {Path}", path);
+                _logger?.LogError(ex, "Error loading challenge from GitHub: {Path}", path);
                 return null;
             }
         }
@@ -337,7 +346,7 @@ namespace CmdShiftLearn.Api.Services
             
             if (string.IsNullOrEmpty(path))
             {
-                _logger.LogWarning("Null or empty directory path provided");
+                _logger?.LogWarning("Null or empty directory path provided");
                 return files;
             }
             
@@ -346,13 +355,13 @@ namespace CmdShiftLearn.Api.Services
                 // Build the API URL for the contents endpoint
                 var apiUrl = $"{_apiBaseUrl}/repos/{_owner}/{_repo}/contents/{path}?ref={_branch}";
                 
-                _logger.LogInformation("Getting directory contents from GitHub API: {Url}", apiUrl);
+                _logger?.LogInformation("Getting directory contents from GitHub API: {Url}", apiUrl);
                 
                 // Get the directory contents
                 var response = await _httpClient.GetAsync(apiUrl);
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Failed to get directory contents from GitHub: {Url}, Status: {Status}", 
+                    _logger?.LogWarning("Failed to get directory contents from GitHub: {Url}, Status: {Status}", 
                         apiUrl, response.StatusCode);
                     return files;
                 }
@@ -360,7 +369,7 @@ namespace CmdShiftLearn.Api.Services
                 var content = await response.Content.ReadAsStringAsync();
                 if (string.IsNullOrEmpty(content))
                 {
-                    _logger.LogWarning("Empty content received from GitHub API: {Url}", apiUrl);
+                    _logger?.LogWarning("Empty content received from GitHub API: {Url}", apiUrl);
                     return files;
                 }
                 
@@ -373,7 +382,7 @@ namespace CmdShiftLearn.Api.Services
                     
                     if (items == null || !items.Any())
                     {
-                        _logger.LogWarning("No items found in GitHub directory: {Path}", path);
+                        _logger?.LogWarning("No items found in GitHub directory: {Path}", path);
                         return files;
                     }
                     
@@ -389,16 +398,16 @@ namespace CmdShiftLearn.Api.Services
                         {
                             // Add the file path to the list
                             files.Add(item.Path);
-                            _logger.LogDebug("Added file to list: {Path}", item.Path);
+                            _logger?.LogDebug("Added file to list: {Path}", item.Path);
                         }
                         else if (item.Type.Equals("dir", StringComparison.OrdinalIgnoreCase))
                         {
-                            _logger.LogDebug("Found subdirectory: {Path}", item.Path);
+                            _logger?.LogDebug("Found subdirectory: {Path}", item.Path);
                             // Recursively get the contents of the subdirectory
                             var subdirFiles = await GetDirectoryContentsRecursiveAsync(item.Path);
                             if (subdirFiles != null && subdirFiles.Any())
                             {
-                                _logger.LogDebug("Found {Count} files in subdirectory: {Path}", subdirFiles.Count, item.Path);
+                                _logger?.LogDebug("Found {Count} files in subdirectory: {Path}", subdirFiles.Count, item.Path);
                                 files.AddRange(subdirFiles);
                             }
                         }
@@ -406,13 +415,13 @@ namespace CmdShiftLearn.Api.Services
                 }
                 catch (JsonException jsonEx)
                 {
-                    _logger.LogError(jsonEx, "Error deserializing GitHub API response: {Path}", path);
-                    _logger.LogDebug("Raw content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
+                    _logger?.LogError(jsonEx, "Error deserializing GitHub API response: {Path}", path);
+                    _logger?.LogDebug("Raw content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting directory contents from GitHub: {Path}", path);
+                _logger?.LogError(ex, "Error getting directory contents from GitHub: {Path}", path);
             }
             
             return files;

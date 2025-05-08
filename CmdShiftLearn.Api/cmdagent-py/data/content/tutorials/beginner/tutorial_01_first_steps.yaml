@@ -19,6 +19,8 @@ steps:
       The blue area you see is called the "terminal" or "console" - it's like a conversation window between you and your computer.
       
       Let's start simple. Type the word "hello" (without quotes) and press Enter. The computer might tell you it doesn't understand, but that's okay! We're just practicing how to type and send commands.
+    instruction: "Welcome to PowerShell! 👋 You're looking at the PowerShell terminal window - a powerful text-based interface for controlling your computer. Unlike clicking on icons, here you'll type commands to tell your computer what to do. Don't worry if it seems intimidating at first - we'll start with the basics. Try typing your name and pressing Enter to see what happens."
+    hint: "Just type anything and press Enter to continue. There's no 'correct' answer for this step."
     xp_reward: 5
   
   - id: first_try
@@ -36,6 +38,7 @@ steps:
       ```
       
       and press Enter. Don't worry if the computer tells you it doesn't understand - that's expected and part of the learning!
+    instruction: "Great! You've entered your first input. PowerShell tried to run it as a command, but unless your name happens to be a valid PowerShell command, you probably saw a red error message. This is normal! Let's try typing a simple made-up command. Type `hello` and press Enter."
     command: "hello"
     validation_type: "exact"
     hint: "Type exactly the word 'hello' (without quotes) and press the Enter key."
@@ -54,6 +57,8 @@ steps:
       This is like trying to speak a foreign language - you need to use words the computer understands.
       
       Let's try a real command next.
+    instruction: "You should see an error message saying PowerShell doesn't recognize `hello` as a command. This is an important lesson: PowerShell only understands specific commands (called 'cmdlets'). The red text isn't something to fear - it's just PowerShell telling you it doesn't understand what you're asking. Now let's try a real command that PowerShell does understand."
+    hint: "Read through this explanation about error messages. They're a normal part of working with PowerShell!"
     xp_reward: 5
   
   - id: first_real_command
@@ -71,6 +76,7 @@ steps:
       Type it exactly as shown, with the capital G and D. Then press Enter.
       
       This is a real PowerShell command that will show you the current date and time.
+    instruction: "Now let's try a real PowerShell command that the system understands. Type `Get-Date` and press Enter to see the current date and time on your system. Notice the command follows a 'Verb-Noun' pattern, where 'Get' is the action and 'Date' is what you're acting on."
     command: "Get-Date"
     validation_type: "exact"
     hint: "Type 'Get-Date' with the capital G and D, then press Enter. PowerShell is not case-sensitive, but this capitalization style makes commands easier to read."
@@ -93,6 +99,8 @@ steps:
       - "Date" is the noun (what to act on)
       
       So "Get-Date" means "get me the date information".
+    instruction: "Perfect! The `Get-Date` command displays the current date and time on your system. PowerShell commands are consistent and predictable - they almost always start with a verb like 'Get', 'Set', 'New', or 'Remove', followed by what you want to act on. This Verb-Noun pattern makes PowerShell commands easier to discover and remember."
+    hint: "Read through this explanation to understand how PowerShell commands are structured."
     xp_reward: 5
   
   - id: location_command
@@ -110,6 +118,7 @@ steps:
       This will show you where you are in your computer's filing system.
       
       Again, notice the Verb-Noun pattern: "Get" (action) + "Location" (what).
+    instruction: "Now let's find out where we are in the file system. Type `Get-Location` to see your current directory. This command follows the same Verb-Noun pattern as Get-Date. Think of it as asking PowerShell 'Get me my current Location on the computer.'"
     command: "Get-Location"
     validation_type: "exact"
     hint: "Type 'Get-Location' and press Enter. This will show you your current location (directory/folder) on the computer."
@@ -134,6 +143,7 @@ steps:
       ```
       
       This will show information about how the Get-Date command works.
+    instruction: "Well done! `Get-Location` (similar to 'pwd' in other shells) shows your current location in the file system. PowerShell has hundreds of commands, and you don't need to memorize them all. You can get help for any command. Let's try it now - type `Get-Help Get-Date` to see information about how the Get-Date command works."
     command: "Get-Help Get-Date"
     validation_type: "exact"
     hint: "Type 'Get-Help Get-Date' and press Enter. This will show documentation about how to use the Get-Date command."
@@ -160,6 +170,7 @@ steps:
       This will show a list of all available commands in PowerShell.
       
       Type "Get-Command" and press Enter. You'll see a LOT of commands scroll by - that's okay! There are hundreds of commands available.
+    instruction: "Great! You just used the `Get-Help` command to learn about `Get-Date`. This is one of the most useful commands in PowerShell - whenever you need to understand how to use a command, you can get help for it. But how do you discover what commands exist in the first place? Type `Get-Command` to see a list of all available commands in PowerShell."
     command: "Get-Command"
     validation_type: "exact"
     hint: "Type 'Get-Command' and press Enter. Don't worry about the long list of results - we'll learn how to filter this later."
@@ -180,6 +191,7 @@ steps:
       ```
       
       Type this and press Enter to see PowerShell calculate the result.
+    instruction: "Excellent! You've just seen the vast library of commands available in PowerShell. There are hundreds of them! PowerShell can also do math for you. Try typing a simple calculation: `2 + 2` and press Enter to see PowerShell calculate the result."
     command: "2 + 2"
     validation_type: "exact"
     hint: "Type '2 + 2' (without quotes) and press Enter."
@@ -210,4 +222,6 @@ steps:
       - Do basic calculations
       
       In the next tutorial, we'll learn how to navigate your computer using PowerShell commands.
+    instruction: "🎉 Congratulations! You've completed your first PowerShell tutorial! You've learned how to enter commands, handle errors, get help, find commands, and even do some calculations. These fundamentals will serve as your foundation as you learn more advanced PowerShell techniques. In future tutorials, you'll explore navigating the file system, working with files and folders, and creating your own scripts."
+    hint: "Read through this summary of what you've learned so far. Great job completing your first tutorial!"
     xp_reward: 10

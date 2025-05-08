@@ -34,6 +34,9 @@ namespace CmdShiftLearn.Api.Services
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("GitHub");
             
+            // Declare githubToken here for use throughout the constructor
+            var githubToken = configuration.GetValue<string>("GitHub__Token");
+            
             // Now safe to use logger
             try 
             {
@@ -44,7 +47,6 @@ namespace CmdShiftLearn.Api.Services
                 logger.LogInformation("GitHub:Repo from indexer: {0}", configuration["GitHub:Repo"]);
                 
                 // Check if GitHub token exists
-                var githubToken = configuration.GetValue<string>("GitHub__Token");
                 if (!string.IsNullOrEmpty(githubToken))
                 {
                     logger.LogInformation("GitHub__Token found - will use for authentication");
@@ -83,7 +85,6 @@ namespace CmdShiftLearn.Api.Services
             _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("CmdShiftLearn", "1.0"));
             
             // Try to get token from environment variables first (GitHub__Token)
-            githubToken = configuration.GetValue<string>("GitHub__Token");
             if (!string.IsNullOrEmpty(githubToken))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);

@@ -83,7 +83,7 @@ namespace CmdShiftLearn.Api.Services
             _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("CmdShiftLearn", "1.0"));
             
             // Try to get token from environment variables first (GitHub__Token)
-            var githubToken = configuration.GetValue<string>("GitHub__Token");
+            githubToken = configuration.GetValue<string>("GitHub__Token");
             if (!string.IsNullOrEmpty(githubToken))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);

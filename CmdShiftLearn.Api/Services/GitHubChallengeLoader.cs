@@ -42,6 +42,17 @@ namespace CmdShiftLearn.Api.Services
                 logger.LogInformation("GitHub:Repo direct: {0}", configuration.GetValue<string>("GitHub:Repo"));
                 logger.LogInformation("GitHub__Repo from indexer: {0}", configuration["GitHub__Repo"]);
                 logger.LogInformation("GitHub:Repo from indexer: {0}", configuration["GitHub:Repo"]);
+                
+                // Check if GitHub token exists
+                var githubToken = configuration.GetValue<string>("GitHub__Token");
+                if (!string.IsNullOrEmpty(githubToken))
+                {
+                    logger.LogInformation("GitHub__Token found - will use for authentication");
+                }
+                else
+                {
+                    logger.LogWarning("GitHub__Token not found - API requests may be rate limited or fail with 401");
+                }
             }
             catch (Exception ex)
             {
@@ -71,9 +82,22 @@ namespace CmdShiftLearn.Api.Services
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
             _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("CmdShiftLearn", "1.0"));
             
-            if (!string.IsNullOrEmpty(_accessToken))
+            // Try to get token from environment variables first (GitHub__Token)
+            var githubToken = configuration.GetValue<string>("GitHub__Token");
+            if (!string.IsNullOrEmpty(githubToken))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", githubToken);
+                _logger?.LogInformation("Using GitHub__Token for API authentication");
+            }
+            // Fall back to configured AccessToken if GitHub__Token is not available
+            else if (!string.IsNullOrEmpty(_accessToken))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                _logger?.LogInformation("Using configured AccessToken for GitHub API authentication");
+            }
+            else
+            {
+                _logger?.LogWarning("No GitHub authentication token available - API requests may fail");
             }
             
             _logger?.LogInformation("GitHubChallengeLoader initialized for {Owner}/{Repo}:{Branch}, challenges path: {Path}", 
@@ -257,8 +281,15 @@ namespace CmdShiftLearn.Api.Services
                 var response = await _httpClient.GetAsync(rawUrl);
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger?.LogWarning("Failed to get challenge file from GitHub: {Url}, Status: {Status}", 
-                        rawUrl, response.StatusCode);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        _logger?.LogError("GitHub API authentication failed with 401 Unauthorized when loading challenge. Please check your GitHub__Token environment variable.");
+                    }
+                    else
+                    {
+                        _logger?.LogWarning("Failed to get challenge file from GitHub: {Url}, Status: {Status}", 
+                            rawUrl, response.StatusCode);
+                    }
                     return null;
                 }
                 
@@ -361,8 +392,15 @@ namespace CmdShiftLearn.Api.Services
                 var response = await _httpClient.GetAsync(apiUrl);
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger?.LogWarning("Failed to get directory contents from GitHub: {Url}, Status: {Status}", 
-                        apiUrl, response.StatusCode);
+                    if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        _logger?.LogError("GitHub API authentication failed with 401 Unauthorized. Please check your GitHub__Token environment variable.");
+                    }
+                    else
+                    {
+                        _logger?.LogWarning("Failed to get directory contents from GitHub: {Url}, Status: {Status}", 
+                            apiUrl, response.StatusCode);
+                    }
                     return files;
                 }
                 

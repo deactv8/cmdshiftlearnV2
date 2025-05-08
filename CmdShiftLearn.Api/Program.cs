@@ -48,7 +48,7 @@ builder.Services.AddCors(options =>
         else
         {
             // In production, use environment variable or default to all origins (can be restricted later)
-            var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(',') ?? new[] { "*" };
+            var allowedOrigins = builder.Configuration.GetValue<string>("AllowedOrigins")?.Split(',') ?? new[] { "*" };
             
             if (allowedOrigins.Length == 1 && allowedOrigins[0] == "*")
             {
@@ -135,8 +135,8 @@ builder.Services.AddHttpClient<IShelloService, ShelloService>(client =>
     client.BaseAddress = new Uri("https://api.openai.com/v1/");
     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     
-    // Add API key if available
-    var apiKey = builder.Configuration["OpenAI:ApiKey"];
+    // Add API key if available - using GetValue to support both colon and double underscore formats
+    var apiKey = builder.Configuration.GetValue<string>("OpenAI:ApiKey");
     if (!string.IsNullOrEmpty(apiKey))
     {
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
@@ -144,8 +144,8 @@ builder.Services.AddHttpClient<IShelloService, ShelloService>(client =>
 });
 
 // Register content loaders first (they are dependencies for services)
-var tutorialSource = builder.Configuration["ContentSources:Tutorials:Source"] ?? "File";
-var challengeSource = builder.Configuration["ContentSources:Challenges:Source"] ?? "File";
+var tutorialSource = builder.Configuration.GetValue<string>("ContentSources:Tutorials:Source") ?? "File";
+var challengeSource = builder.Configuration.GetValue<string>("ContentSources:Challenges:Source") ?? "File";
 
 // Register tutorial loader based on configuration
 Console.WriteLine($"Using {tutorialSource} as the source for tutorials");

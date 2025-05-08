@@ -30,12 +30,13 @@ namespace CmdShiftLearn.Api.Services
             if (logger == null) throw new ArgumentNullException(nameof(logger));
             if (httpClientFactory == null) throw new ArgumentNullException(nameof(httpClientFactory));
             
-            _owner = configuration["GitHub:Owner"] ?? "deactv8";
-            _repo = configuration["GitHub:Repo"] ?? "content";
-            _branch = configuration["GitHub:Branch"] ?? "master";
-            _tutorialsPath = configuration["GitHub:TutorialsPath"] ?? "tutorials";
-            _accessToken = configuration["GitHub:AccessToken"] ?? "";
-            _rawBaseUrl = configuration["GitHub:RawBaseUrl"] ?? "https://raw.githubusercontent.com";
+            // Use configuration.GetValue to support both colon and double underscore formats in environment variables
+            _owner = configuration.GetValue<string>("GitHub:Owner") ?? "deactv8";
+            _repo = configuration.GetValue<string>("GitHub:Repo") ?? "content";
+            _branch = configuration.GetValue<string>("GitHub:Branch") ?? "master";
+            _tutorialsPath = configuration.GetValue<string>("GitHub:TutorialsPath") ?? "tutorials";
+            _accessToken = configuration.GetValue<string>("GitHub:AccessToken") ?? "";
+            _rawBaseUrl = configuration.GetValue<string>("GitHub:RawBaseUrl") ?? "https://raw.githubusercontent.com";
             
             // Ensure we don't have any cached data by forcing a refresh on every request
             _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue

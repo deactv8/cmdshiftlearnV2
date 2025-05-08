@@ -1,4 +1,5 @@
 using CmdShiftLearn.Api.Models;
+using CmdShiftLearn.Api.Helpers;
 using System.Text.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -25,12 +26,23 @@ namespace CmdShiftLearn.Api.Services
         
         public GitHubChallengeLoader(IConfiguration configuration, ILogger<GitHubChallengeLoader> logger, IHttpClientFactory httpClientFactory)
         {
+            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (httpClientFactory == null) throw new ArgumentNullException(nameof(httpClientFactory));
+            
             _owner = configuration["GitHub:Owner"] ?? "deactv8";
             _repo = configuration["GitHub:Repo"] ?? "content";
             _branch = configuration["GitHub:Branch"] ?? "master";
             _challengesPath = configuration["GitHub:ChallengesPath"] ?? "challenges";
             _accessToken = configuration["GitHub:AccessToken"] ?? "";
             _rawBaseUrl = configuration["GitHub:RawBaseUrl"] ?? "https://raw.githubusercontent.com";
+            
+            // Ensure we don't have any cached data by forcing a refresh on every request
+            _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+            {
+                NoCache = true,
+                MustRevalidate = true
+            };
             _httpClient = httpClientFactory.CreateClient("GitHub");
             _logger = logger;
             
@@ -66,9 +78,13 @@ namespace CmdShiftLearn.Api.Services
                 
                 foreach (var file in files)
                 {
+                    if (string.IsNullOrEmpty(file)) continue;
+                    
                     try
                     {
-                        if (file.EndsWith(".json") || file.EndsWith(".yaml") || file.EndsWith(".yml"))
+                        if (file.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || 
+                            file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+                            file.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
                         {
                             var challenge = await LoadChallengeFromGitHubAsync(file);
                             if (challenge != null)
@@ -80,10 +96,10 @@ namespace CmdShiftLearn.Api.Services
                                 {
                                     Id = challenge.Id,
                                     Title = challenge.Title,
-                                    Description = challenge.Description,
+                                    Description = challenge.Description ?? "",
                                     Xp = challenge.Xp,
-                                    Difficulty = challenge.Difficulty,
-                                    TutorialId = challenge.TutorialId
+                                    Difficulty = challenge.Difficulty ?? "Beginner",
+                                    TutorialId = challenge.TutorialId ?? ""
                                 });
                             }
                         }
@@ -109,15 +125,26 @@ namespace CmdShiftLearn.Api.Services
         /// <returns>The challenge with script if found, null otherwise</returns>
         public async Task<Challenge?> GetChallengeByIdAsync(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                _logger.LogWarning("Null or empty challenge ID provided");
+                return null;
+            }
+            
             try
             {
                 // Get all challenge files from GitHub
                 var files = await GetDirectoryContentsRecursiveAsync(_challengesPath);
                 
                 // Look for exact matches first (id.json, id.yaml, id.yml)
-                var exactMatches = files.Where(f => 
-                    Path.GetFileNameWithoutExtension(f) == id && 
-                    (f.EndsWith(".json") || f.EndsWith(".yaml") || f.EndsWith(".yml"))).ToList();
+                var exactMatches = files
+                    .Where(f => !string.IsNullOrEmpty(f))
+                    .Where(f => 
+                        string.Equals(Path.GetFileNameWithoutExtension(f), id, StringComparison.OrdinalIgnoreCase) && 
+                        (f.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || 
+                         f.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+                         f.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
                 
                 if (exactMatches.Any())
                 {
@@ -128,10 +155,14 @@ namespace CmdShiftLearn.Api.Services
                 // If no exact matches, load all challenges and find by ID
                 foreach (var file in files)
                 {
-                    if (file.EndsWith(".json") || file.EndsWith(".yaml") || file.EndsWith(".yml"))
+                    if (string.IsNullOrEmpty(file)) continue;
+                    
+                    if (file.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || 
+                        file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+                        file.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
                     {
                         var challenge = await LoadChallengeFromGitHubAsync(file);
-                        if (challenge != null && challenge.Id == id)
+                        if (challenge != null && string.Equals(challenge.Id, id, StringComparison.OrdinalIgnoreCase))
                         {
                             return challenge;
                         }
@@ -157,13 +188,22 @@ namespace CmdShiftLearn.Api.Services
         {
             var challenges = new List<ChallengeMetadata>();
             
+            if (string.IsNullOrEmpty(tutorialId))
+            {
+                _logger.LogWarning("Null or empty tutorial ID provided");
+                return challenges;
+            }
+            
             try
             {
                 // Get all challenges
                 var allChallenges = await GetAllChallengeMetadataAsync();
                 
-                // Filter challenges by tutorial ID
-                challenges = allChallenges.Where(c => c.TutorialId == tutorialId).ToList();
+                // Filter challenges by tutorial ID (case-insensitive)
+                challenges = allChallenges
+                    .Where(c => !string.IsNullOrEmpty(c.TutorialId) && 
+                           string.Equals(c.TutorialId, tutorialId, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
                 
                 _logger.LogInformation("Found {Count} challenges for tutorial ID: {TutorialId}", challenges.Count, tutorialId);
             }
@@ -182,6 +222,12 @@ namespace CmdShiftLearn.Api.Services
         /// <returns>The loaded challenge or null if loading failed</returns>
         private async Task<Challenge?> LoadChallengeFromGitHubAsync(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                _logger.LogWarning("Null or empty file path provided");
+                return null;
+            }
+            
             try
             {
                 // Build the URL to the raw content
@@ -199,55 +245,48 @@ namespace CmdShiftLearn.Api.Services
                 }
                 
                 var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(content))
+                {
+                    _logger.LogWarning("Empty content received from GitHub: {Url}", rawUrl);
+                    return null;
+                }
+                
                 var fileExtension = Path.GetExtension(path).ToLowerInvariant();
                 
-                Challenge? challenge;
+                Challenge? challenge = null;
                 
                 if (fileExtension == ".json")
                 {
                     // Parse JSON file
-                    challenge = JsonSerializer.Deserialize<Challenge>(content, new JsonSerializerOptions
+                    try
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    
-                    _logger.LogInformation("Loaded challenge from JSON: {Path}", path);
+                        challenge = JsonSerializer.Deserialize<Challenge>(content, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                        
+                        _logger.LogInformation("Loaded challenge from JSON: {Path}", path);
+                    }
+                    catch (JsonException jsonEx)
+                    {
+                        _logger.LogError(jsonEx, "Error deserializing JSON challenge: {Path}", path);
+                        _logger.LogDebug("JSON content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
+                        return null;
+                    }
                 }
                 else if (fileExtension == ".yaml" || fileExtension == ".yml")
                 {
-                    // Parse YAML file
-                    try {
-                        var deserializer = new DeserializerBuilder()
-                            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                            .IgnoreUnmatchedProperties()
-                            .Build();
-                        
-                        challenge = deserializer.Deserialize<Challenge>(content);
-                        
-                        // Validate required properties
-                        if (string.IsNullOrEmpty(challenge?.Id))
-                        {
-                            _logger.LogError("Challenge is missing required 'id' property: {Path}", path);
-                            return null;
-                        }
-                        
-                        if (string.IsNullOrEmpty(challenge.Title))
-                        {
-                            _logger.LogError("Challenge is missing required 'title' property: {Path}", path);
-                            return null;
-                        }
-                        
-                        // Ensure Steps collection is initialized
-                        challenge.Steps ??= new List<ChallengeStep>();
-                        
-                        _logger.LogInformation("Loaded challenge from YAML: {Path} with {StepCount} steps", 
-                            path, challenge.Steps.Count);
+                    // Use our helper to parse YAML files
+                    challenge = YamlHelpers.DeserializeChallenge(content, _logger);
+                    
+                    if (challenge == null)
+                    {
+                        _logger.LogWarning("Failed to deserialize YAML challenge from GitHub: {Path}", path);
+                        return null;
                     }
-                    catch (Exception yamlEx) {
-                        _logger.LogError(yamlEx, "Error deserializing YAML challenge: {Path}", path);
-                        _logger.LogInformation("YAML content: {Content}", content);
-                        throw;
-                    }
+                    
+                    _logger.LogInformation("Loaded challenge from YAML: {Path} with {StepCount} steps", 
+                        path, challenge.Steps.Count);
                 }
                 else
                 {
@@ -261,23 +300,13 @@ namespace CmdShiftLearn.Api.Services
                     return null;
                 }
                 
-                // If script is a file path, load the script from the file
-                if (challenge.Script.EndsWith(".ps1") && !challenge.Script.Contains("\n"))
-                {
-                    var scriptPath = Path.Combine(Path.GetDirectoryName(path) ?? "", challenge.Script);
-                    var scriptRawUrl = $"{_rawBaseUrl}/{_owner}/{_repo}/{_branch}/{scriptPath}";
-                    
-                    var scriptResponse = await _httpClient.GetAsync(scriptRawUrl);
-                    if (scriptResponse.IsSuccessStatusCode)
-                    {
-                        challenge.Script = await scriptResponse.Content.ReadAsStringAsync();
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Challenge script file not found on GitHub: {ScriptPath}, Status: {Status}", 
-                            scriptPath, scriptResponse.StatusCode);
-                    }
-                }
+                // Initialize required properties with defaults if missing
+                challenge.Id ??= Path.GetFileNameWithoutExtension(path);
+                challenge.Title ??= challenge.Id;
+                challenge.Description ??= "";
+                challenge.Difficulty ??= "Beginner";
+                challenge.Steps ??= new List<ChallengeStep>();
+                challenge.TutorialId ??= "";
                 
                 return challenge;
             }
@@ -297,6 +326,12 @@ namespace CmdShiftLearn.Api.Services
         {
             var files = new List<string>();
             
+            if (string.IsNullOrEmpty(path))
+            {
+                _logger.LogWarning("Null or empty directory path provided");
+                return files;
+            }
+            
             try
             {
                 // Build the API URL for the contents endpoint
@@ -314,6 +349,11 @@ namespace CmdShiftLearn.Api.Services
                 }
                 
                 var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(content))
+                {
+                    _logger.LogWarning("Empty content received from GitHub API: {Url}", apiUrl);
+                    return files;
+                }
                 
                 try
                 {
@@ -322,35 +362,43 @@ namespace CmdShiftLearn.Api.Services
                         PropertyNameCaseInsensitive = true
                     });
                     
-                    if (items == null)
+                    if (items == null || !items.Any())
                     {
-                        _logger.LogWarning("Failed to deserialize GitHub directory contents: {Path}", path);
+                        _logger.LogWarning("No items found in GitHub directory: {Path}", path);
                         return files;
                     }
                     
                     // Process each item in the directory
                     foreach (var item in items)
                     {
-                        if (item.Type == "file")
+                        if (item == null || string.IsNullOrEmpty(item.Type) || string.IsNullOrEmpty(item.Path))
+                        {
+                            continue;
+                        }
+                        
+                        if (item.Type.Equals("file", StringComparison.OrdinalIgnoreCase))
                         {
                             // Add the file path to the list
                             files.Add(item.Path);
                             _logger.LogDebug("Added file to list: {Path}", item.Path);
                         }
-                        else if (item.Type == "dir")
+                        else if (item.Type.Equals("dir", StringComparison.OrdinalIgnoreCase))
                         {
                             _logger.LogDebug("Found subdirectory: {Path}", item.Path);
                             // Recursively get the contents of the subdirectory
                             var subdirFiles = await GetDirectoryContentsRecursiveAsync(item.Path);
-                            _logger.LogDebug("Found {Count} files in subdirectory: {Path}", subdirFiles.Count, item.Path);
-                            files.AddRange(subdirFiles);
+                            if (subdirFiles != null && subdirFiles.Any())
+                            {
+                                _logger.LogDebug("Found {Count} files in subdirectory: {Path}", subdirFiles.Count, item.Path);
+                                files.AddRange(subdirFiles);
+                            }
                         }
                     }
                 }
                 catch (JsonException jsonEx)
                 {
                     _logger.LogError(jsonEx, "Error deserializing GitHub API response: {Path}", path);
-                    _logger.LogDebug("Raw content: {Content}", content);
+                    _logger.LogDebug("Raw content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
                 }
             }
             catch (Exception ex)

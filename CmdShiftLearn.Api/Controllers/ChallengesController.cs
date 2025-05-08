@@ -1,11 +1,13 @@
 using CmdShiftLearn.Api.Models;
 using CmdShiftLearn.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CmdShiftLearn.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous] // Allow anonymous access to all methods in this controller
     public class ChallengesController : ControllerBase
     {
         private readonly ChallengeService _challengeService;

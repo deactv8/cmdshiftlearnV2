@@ -26,12 +26,23 @@ namespace CmdShiftLearn.Api.Services
         
         public GitHubTutorialLoader(IConfiguration configuration, ILogger<GitHubTutorialLoader> logger, IHttpClientFactory httpClientFactory)
         {
+            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (httpClientFactory == null) throw new ArgumentNullException(nameof(httpClientFactory));
+            
             _owner = configuration["GitHub:Owner"] ?? "deactv8";
             _repo = configuration["GitHub:Repo"] ?? "content";
             _branch = configuration["GitHub:Branch"] ?? "master";
             _tutorialsPath = configuration["GitHub:TutorialsPath"] ?? "tutorials";
             _accessToken = configuration["GitHub:AccessToken"] ?? "";
             _rawBaseUrl = configuration["GitHub:RawBaseUrl"] ?? "https://raw.githubusercontent.com";
+            
+            // Ensure we don't have any cached data by forcing a refresh on every request
+            _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+            {
+                NoCache = true,
+                MustRevalidate = true
+            };
             _httpClient = httpClientFactory.CreateClient("GitHub");
             _logger = logger;
             
@@ -67,9 +78,13 @@ namespace CmdShiftLearn.Api.Services
                 
                 foreach (var file in files)
                 {
+                    if (string.IsNullOrEmpty(file)) continue;
+                    
                     try
                     {
-                        if (file.EndsWith(".json") || file.EndsWith(".yaml") || file.EndsWith(".yml"))
+                        if (file.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || 
+                            file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+                            file.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
                         {
                             var tutorial = await LoadTutorialFromGitHubAsync(file);
                             if (tutorial != null)
@@ -81,9 +96,9 @@ namespace CmdShiftLearn.Api.Services
                                 {
                                     Id = tutorial.Id,
                                     Title = tutorial.Title,
-                                    Description = tutorial.Description,
+                                    Description = tutorial.Description ?? "",
                                     Xp = tutorial.Xp,
-                                    Difficulty = tutorial.Difficulty
+                                    Difficulty = tutorial.Difficulty ?? "Beginner"
                                 });
                             }
                         }
@@ -109,15 +124,26 @@ namespace CmdShiftLearn.Api.Services
         /// <returns>The tutorial with content if found, null otherwise</returns>
         public async Task<Tutorial?> GetTutorialByIdAsync(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                _logger.LogWarning("Null or empty tutorial ID provided");
+                return null;
+            }
+            
             try
             {
                 // Get all tutorial files from GitHub
                 var files = await GetDirectoryContentsRecursiveAsync(_tutorialsPath);
                 
                 // Look for exact matches first (id.json, id.yaml, id.yml)
-                var exactMatches = files.Where(f => 
-                    Path.GetFileNameWithoutExtension(f) == id && 
-                    (f.EndsWith(".json") || f.EndsWith(".yaml") || f.EndsWith(".yml"))).ToList();
+                var exactMatches = files
+                    .Where(f => !string.IsNullOrEmpty(f))
+                    .Where(f => 
+                        string.Equals(Path.GetFileNameWithoutExtension(f), id, StringComparison.OrdinalIgnoreCase) && 
+                        (f.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || 
+                         f.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+                         f.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
                 
                 if (exactMatches.Any())
                 {
@@ -128,10 +154,14 @@ namespace CmdShiftLearn.Api.Services
                 // If no exact matches, load all tutorials and find by ID
                 foreach (var file in files)
                 {
-                    if (file.EndsWith(".json") || file.EndsWith(".yaml") || file.EndsWith(".yml"))
+                    if (string.IsNullOrEmpty(file)) continue;
+                    
+                    if (file.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || 
+                        file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+                        file.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
                     {
                         var tutorial = await LoadTutorialFromGitHubAsync(file);
-                        if (tutorial != null && tutorial.Id == id)
+                        if (tutorial != null && string.Equals(tutorial.Id, id, StringComparison.OrdinalIgnoreCase))
                         {
                             return tutorial;
                         }
@@ -155,6 +185,12 @@ namespace CmdShiftLearn.Api.Services
         /// <returns>The loaded tutorial or null if loading failed</returns>
         private async Task<Tutorial?> LoadTutorialFromGitHubAsync(string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                _logger.LogWarning("Null or empty file path provided");
+                return null;
+            }
+            
             try
             {
                 // Build the URL to the raw content
@@ -172,17 +208,34 @@ namespace CmdShiftLearn.Api.Services
                 }
                 
                 var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(content))
+                {
+                    _logger.LogWarning("Empty content received from GitHub: {Url}", rawUrl);
+                    return null;
+                }
+                
                 var fileExtension = Path.GetExtension(path).ToLowerInvariant();
                 
-                Tutorial? tutorial;
+                Tutorial? tutorial = null;
                 
                 if (fileExtension == ".json")
                 {
                     // Parse JSON file
-                    tutorial = JsonSerializer.Deserialize<Tutorial>(content, new JsonSerializerOptions
+                    try
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
+                        tutorial = JsonSerializer.Deserialize<Tutorial>(content, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                        
+                        _logger.LogInformation("Loaded tutorial from JSON: {Path}", path);
+                    }
+                    catch (JsonException jsonEx)
+                    {
+                        _logger.LogError(jsonEx, "Error deserializing JSON tutorial: {Path}", path);
+                        _logger.LogDebug("JSON content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
+                        return null;
+                    }
                 }
                 else if (fileExtension == ".yaml" || fileExtension == ".yml")
                 {
@@ -206,16 +259,31 @@ namespace CmdShiftLearn.Api.Services
                     return null;
                 }
                 
+                // Initialize required properties with defaults if missing
+                tutorial.Id ??= Path.GetFileNameWithoutExtension(path);
+                tutorial.Title ??= tutorial.Id;
+                tutorial.Description ??= "";
+                tutorial.Content ??= "";
+                tutorial.Difficulty ??= "Beginner";
+                tutorial.Steps ??= new List<TutorialStep>();
+                
                 // If content is a file path, load the content from the file
-                if (tutorial.Content.EndsWith(".ps1") && !tutorial.Content.Contains("\n"))
+                if (!string.IsNullOrEmpty(tutorial.Content) &&
+                    tutorial.Content.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) && 
+                    !tutorial.Content.Contains("\n"))
                 {
-                    var contentPath = Path.Combine(Path.GetDirectoryName(path) ?? "", tutorial.Content);
+                    var directoryName = Path.GetDirectoryName(path) ?? "";
+                    var contentPath = Path.Combine(directoryName, tutorial.Content);
                     var contentRawUrl = $"{_rawBaseUrl}/{_owner}/{_repo}/{_branch}/{contentPath}";
                     
                     var contentResponse = await _httpClient.GetAsync(contentRawUrl);
                     if (contentResponse.IsSuccessStatusCode)
                     {
-                        tutorial.Content = await contentResponse.Content.ReadAsStringAsync();
+                        var contentText = await contentResponse.Content.ReadAsStringAsync();
+                        if (!string.IsNullOrEmpty(contentText))
+                        {
+                            tutorial.Content = contentText;
+                        }
                     }
                     else
                     {
@@ -242,6 +310,12 @@ namespace CmdShiftLearn.Api.Services
         {
             var files = new List<string>();
             
+            if (string.IsNullOrEmpty(path))
+            {
+                _logger.LogWarning("Null or empty directory path provided");
+                return files;
+            }
+            
             try
             {
                 // Build the API URL for the contents endpoint
@@ -259,6 +333,11 @@ namespace CmdShiftLearn.Api.Services
                 }
                 
                 var content = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(content))
+                {
+                    _logger.LogWarning("Empty content received from GitHub API: {Url}", apiUrl);
+                    return files;
+                }
                 
                 try
                 {
@@ -267,35 +346,43 @@ namespace CmdShiftLearn.Api.Services
                         PropertyNameCaseInsensitive = true
                     });
                     
-                    if (items == null)
+                    if (items == null || !items.Any())
                     {
-                        _logger.LogWarning("Failed to deserialize GitHub directory contents: {Path}", path);
+                        _logger.LogWarning("No items found in GitHub directory: {Path}", path);
                         return files;
                     }
                     
                     // Process each item in the directory
                     foreach (var item in items)
                     {
-                        if (item.Type == "file")
+                        if (item == null || string.IsNullOrEmpty(item.Type) || string.IsNullOrEmpty(item.Path))
+                        {
+                            continue;
+                        }
+                        
+                        if (item.Type.Equals("file", StringComparison.OrdinalIgnoreCase))
                         {
                             // Add the file path to the list
                             files.Add(item.Path);
                             _logger.LogDebug("Added file to list: {Path}", item.Path);
                         }
-                        else if (item.Type == "dir")
+                        else if (item.Type.Equals("dir", StringComparison.OrdinalIgnoreCase))
                         {
                             _logger.LogDebug("Found subdirectory: {Path}", item.Path);
                             // Recursively get the contents of the subdirectory
                             var subdirFiles = await GetDirectoryContentsRecursiveAsync(item.Path);
-                            _logger.LogDebug("Found {Count} files in subdirectory: {Path}", subdirFiles.Count, item.Path);
-                            files.AddRange(subdirFiles);
+                            if (subdirFiles != null && subdirFiles.Any())
+                            {
+                                _logger.LogDebug("Found {Count} files in subdirectory: {Path}", subdirFiles.Count, item.Path);
+                                files.AddRange(subdirFiles);
+                            }
                         }
                     }
                 }
                 catch (JsonException jsonEx)
                 {
                     _logger.LogError(jsonEx, "Error deserializing GitHub API response: {Path}", path);
-                    _logger.LogDebug("Raw content: {Content}", content);
+                    _logger.LogDebug("Raw content: {Content}", content.Length > 500 ? content.Substring(0, 500) + "..." : content);
                 }
             }
             catch (Exception ex)

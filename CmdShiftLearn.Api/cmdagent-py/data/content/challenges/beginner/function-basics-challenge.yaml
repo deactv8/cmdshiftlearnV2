@@ -1,0 +1,22 @@
+id: function-basics-challenge
+title: "PowerShell Functions Challenge"
+description: "Create and use a function in PowerShell that takes a parameter and returns a value. This challenge tests your understanding of PowerShell function syntax and parameter handling."
+tutorialId: powershell-basics-6
+difficulty: beginner
+xp: 150
+timeLimit: 15
+validation:
+  expectedCommand: "function SayHello { param($name) \"Hello, $name\" }"
+  type: contains
+  caseSensitive: false
+  outputMatch: "Hello, World"
+hints:
+  - "Start by defining a function using the `function` keyword followed by your function name and curly braces."
+  - "Use the `param()` block inside your function to declare parameters."
+  - "Return values in PowerShell by simply placing them in the function body."
+  - "Try: function SayHello { param($name) \"Hello, $name\" }"
+resources:
+  - name: "PowerShell Functions Documentation"
+    url: "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions"
+  - name: "Function Help Command"
+    command: "Get-Help about_Functions"

@@ -1,227 +1,127 @@
 id: tutorial_01_first_steps
 title: "First Steps: Welcome to PowerShell"
-description: "Learn how to interact with the PowerShell terminal and run your first commands. Perfect for absolute beginners who have never used a command line before."
+description: "Take your first steps with PowerShell! This beginner-friendly tutorial introduces you to the command-line interface, teaches you how to run basic commands, and helps you understand how PowerShell works."
 difficulty: beginner
-xp_reward: 50
+estimatedTime: 15
+xpTotal: 150
 topics:
   - powershell
   - basics
   - commands
 steps:
   - id: welcome
-    type: text
     title: "Meet Your Terminal"
-    content: |
-      # Meet Your Terminal
-      
-      Welcome to PowerShell! Think of PowerShell as a special room where you can talk to your computer by typing commands instead of clicking buttons.
-      
-      The blue area you see is called the "terminal" or "console" - it's like a conversation window between you and your computer.
-      
-      Let's start simple. Type the word "hello" (without quotes) and press Enter. The computer might tell you it doesn't understand, but that's okay! We're just practicing how to type and send commands.
-    instruction: "Welcome to PowerShell! 👋 You're looking at the PowerShell terminal window - a powerful text-based interface for controlling your computer. Unlike clicking on icons, here you'll type commands to tell your computer what to do. Don't worry if it seems intimidating at first - we'll start with the basics. Try typing your name and pressing Enter to see what happens."
+    instructions: "Welcome to PowerShell! 👋 You're looking at the PowerShell terminal window - a powerful text-based interface for controlling your computer. Unlike clicking on icons, here you'll type commands to tell your computer what to do. Don't worry if it seems intimidating at first - we'll start with the basics. Try typing your name and pressing Enter to see what happens."
+    expectedCommand: ""
     hint: "Just type anything and press Enter to continue. There's no 'correct' answer for this step."
-    xp_reward: 5
-  
+    validation:
+      type: any
+    xp: 5
+    animation: typing
+    ascii_art: |
+      +-------------------------+
+      |  PowerShell Terminal    |
+      |                         |
+      |  PS> _                  |
+      |                         |
+      +-------------------------+
+
   - id: first_try
-    type: command
-    title: "Your First Try"
-    content: |
-      # Your First Try
-      
-      Let's start by typing something simple, just to practice using the terminal.
-      
-      Type:
-      
-      ```powershell
-      hello
-      ```
-      
-      and press Enter. Don't worry if the computer tells you it doesn't understand - that's expected and part of the learning!
-    instruction: "Great! You've entered your first input. PowerShell tried to run it as a command, but unless your name happens to be a valid PowerShell command, you probably saw a red error message. This is normal! Let's try typing a simple made-up command. Type `hello` and press Enter."
-    command: "hello"
-    validation_type: "exact"
-    hint: "Type exactly the word 'hello' (without quotes) and press the Enter key."
-    xp_reward: 5
-  
-  - id: understand_errors
-    type: text
-    title: "Understanding Command Not Found"
-    content: |
-      # Understanding Command Not Found
-      
-      Great job typing your first command! You probably saw a message saying PowerShell doesn't recognize "hello" - that's normal!
-      
-      PowerShell only understands specific commands. When it sees something it doesn't recognize, it tells you with a "command not found" message.
-      
-      This is like trying to speak a foreign language - you need to use words the computer understands.
-      
-      Let's try a real command next.
-    instruction: "You should see an error message saying PowerShell doesn't recognize `hello` as a command. This is an important lesson: PowerShell only understands specific commands (called 'cmdlets'). The red text isn't something to fear - it's just PowerShell telling you it doesn't understand what you're asking. Now let's try a real command that PowerShell does understand."
-    hint: "Read through this explanation about error messages. They're a normal part of working with PowerShell!"
-    xp_reward: 5
-  
-  - id: first_real_command
-    type: command
-    title: "Your First Real Command"
-    content: |
-      # Your First Real Command
-      
-      Let's try a real command. Type:
-      
-      ```powershell
-      Get-Date
-      ```
-      
-      Type it exactly as shown, with the capital G and D. Then press Enter.
-      
-      This is a real PowerShell command that will show you the current date and time.
-    instruction: "Now let's try a real PowerShell command that the system understands. Type `Get-Date` and press Enter to see the current date and time on your system. Notice the command follows a 'Verb-Noun' pattern, where 'Get' is the action and 'Date' is what you're acting on."
-    command: "Get-Date"
-    validation_type: "exact"
-    hint: "Type 'Get-Date' with the capital G and D, then press Enter. PowerShell is not case-sensitive, but this capitalization style makes commands easier to read."
-    xp_reward: 10
-  
+    title: "Your First Command"
+    instructions: "Great! PowerShell tried to run what you typed as a command. Let's try a real PowerShell command now. Type `Get-Date` and press Enter to see the current date and time."
+    expectedCommand: "Get-Date"
+    hint: "Type `Get-Date` exactly as shown (capital G and D) and press Enter."
+    validation:
+      type: exact
+      caseSensitive: false
+    xp: 10
+    animation: typing
+
   - id: understand_commands
-    type: text
-    title: "Understanding Get-Date"
-    content: |
-      # Understanding Get-Date
-      
-      Excellent! You just ran your first real PowerShell command and saw the current date and time.
-      
-      Let's understand what just happened:
-      
-      "Get-Date" is a PowerShell command (or "cmdlet" pronounced "command-let").
-      
-      PowerShell commands follow a "Verb-Noun" pattern:
-      - "Get" is the verb (the action)
-      - "Date" is the noun (what to act on)
-      
-      So "Get-Date" means "get me the date information".
-    instruction: "Perfect! The `Get-Date` command displays the current date and time on your system. PowerShell commands are consistent and predictable - they almost always start with a verb like 'Get', 'Set', 'New', or 'Remove', followed by what you want to act on. This Verb-Noun pattern makes PowerShell commands easier to discover and remember."
-    hint: "Read through this explanation to understand how PowerShell commands are structured."
-    xp_reward: 5
-  
-  - id: location_command
-    type: command
-    title: "Finding Your Location"
-    content: |
-      # Finding Your Location
-      
-      Let's try another command. Type:
-      
-      ```powershell
-      Get-Location
-      ```
-      
-      This will show you where you are in your computer's filing system.
-      
-      Again, notice the Verb-Noun pattern: "Get" (action) + "Location" (what).
-    instruction: "Now let's find out where we are in the file system. Type `Get-Location` to see your current directory. This command follows the same Verb-Noun pattern as Get-Date. Think of it as asking PowerShell 'Get me my current Location on the computer.'"
-    command: "Get-Location"
-    validation_type: "exact"
-    hint: "Type 'Get-Location' and press Enter. This will show you your current location (directory/folder) on the computer."
-    xp_reward: 10
-  
+    title: "Understanding Commands"
+    instructions: "Perfect! The `Get-Date` command displays the current date and time. PowerShell commands follow a 'Verb-Noun' pattern (like Get-Date, where 'Get' is the action and 'Date' is what you're acting on). Let's try another command. Type `Get-Location` to see your current location in the file system."
+    expectedCommand: "Get-Location"
+    hint: "Type `Get-Location` with capital G and L, then press Enter. This shows your current directory."
+    validation:
+      type: exact
+      caseSensitive: false
+    xp: 15
+    animation: typing
+
+  - id: command_alias
+    title: "Command Shortcuts"
+    instructions: "Well done! `Get-Location` shows your current directory. Many PowerShell commands have shorter aliases to save typing. For example, `Get-Location` can be shortened to just `pwd`. Try typing `pwd` now to achieve the same result."
+    expectedCommand: "pwd"
+    hint: "Type the three letters `pwd` and press Enter. This is a shorter way to use the Get-Location command."
+    validation:
+      type: exact
+      caseSensitive: false
+    xp: 20
+    animation: typing
+
   - id: getting_help
-    type: command
-    title: "Learning About Commands"
-    content: |
-      # Learning About Commands
-      
-      Great! "Get-Location" showed you your current position in your computer's filing system.
-      
-      Think of your computer like a building with many rooms (folders). "Get-Location" tells you which room you're standing in right now.
-      
-      PowerShell has hundreds of commands! How do you learn about them?
-      
-      Let's use a special help command. Type:
-      
-      ```powershell
-      Get-Help Get-Date
-      ```
-      
-      This will show information about how the Get-Date command works.
-    instruction: "Well done! `Get-Location` (similar to 'pwd' in other shells) shows your current location in the file system. PowerShell has hundreds of commands, and you don't need to memorize them all. You can get help for any command. Let's try it now - type `Get-Help Get-Date` to see information about how the Get-Date command works."
-    command: "Get-Help Get-Date"
-    validation_type: "exact"
-    hint: "Type 'Get-Help Get-Date' and press Enter. This will show documentation about how to use the Get-Date command."
-    xp_reward: 15
-  
+    title: "Getting Help"
+    instructions: "PowerShell has hundreds of commands, and you don't need to memorize them all! You can get help on any command using `Get-Help`. Let's try it - type `Get-Help Get-Date` to see information about the Get-Date command."
+    expectedCommand: "Get-Help Get-Date"
+    hint: "Type `Get-Help Get-Date` exactly as shown to display help information."
+    validation:
+      type: exact
+      caseSensitive: false
+    xp: 25
+    animation: typing
+
   - id: finding_commands
-    type: command
-    title: "Finding Available Commands"
-    content: |
-      # Finding Available Commands
-      
-      Perfect! The help system showed you information about the Get-Date command.
-      
-      You can use "Get-Help" with any command to learn how it works.
-      
-      But how do you discover what commands exist in the first place?
-      
-      Let's use another command:
-      
-      ```powershell
-      Get-Command
-      ```
-      
-      This will show a list of all available commands in PowerShell.
-      
-      Type "Get-Command" and press Enter. You'll see a LOT of commands scroll by - that's okay! There are hundreds of commands available.
-    instruction: "Great! You just used the `Get-Help` command to learn about `Get-Date`. This is one of the most useful commands in PowerShell - whenever you need to understand how to use a command, you can get help for it. But how do you discover what commands exist in the first place? Type `Get-Command` to see a list of all available commands in PowerShell."
-    command: "Get-Command"
-    validation_type: "exact"
-    hint: "Type 'Get-Command' and press Enter. Don't worry about the long list of results - we'll learn how to filter this later."
-    xp_reward: 10
-  
-  - id: simple_math
-    type: command
-    title: "Your First Calculation"
-    content: |
-      # Your First Calculation
-      
-      Excellent! You've just seen the vast library of commands available in PowerShell.
-      
-      PowerShell can also do math for you. Try typing a simple calculation:
-      
-      ```powershell
-      2 + 2
-      ```
-      
-      Type this and press Enter to see PowerShell calculate the result.
-    instruction: "Excellent! You've just seen the vast library of commands available in PowerShell. There are hundreds of them! PowerShell can also do math for you. Try typing a simple calculation: `2 + 2` and press Enter to see PowerShell calculate the result."
-    command: "2 + 2"
-    validation_type: "exact"
-    hint: "Type '2 + 2' (without quotes) and press Enter."
-    xp_reward: 5
-  
+    title: "Finding Commands"
+    instructions: "Great! You can use `Get-Help` anytime you need to learn about a command. But how do you discover commands in the first place? Type `Get-Command -Noun Process` to find all commands that work with processes."
+    expectedCommand: "Get-Command -Noun Process"
+    hint: "Type `Get-Command -Noun Process` to find all commands that have 'Process' as their noun."
+    validation:
+      type: exact
+      caseSensitive: false
+    xp: 30
+    animation: typing
+
+  - id: simple_calculation
+    title: "Using PowerShell as a Calculator"
+    instructions: "PowerShell can also perform calculations directly. Try a simple math operation by typing `2 + 2` and pressing Enter."
+    expectedCommand: "2 + 2"
+    hint: "Type `2 + 2` and press Enter. PowerShell will calculate and display the result."
+    validation:
+      type: exact
+    xp: 15
+    animation: typing
+
+  - id: advanced_calculation
+    title: "More Complex Math"
+    instructions: "PowerShell supports all standard math operations. Let's try a more complex calculation. Type `(10 * 5) / 2` to multiply 10 by 5, then divide the result by 2."
+    expectedCommand: "(10 * 5) / 2"
+    hint: "Type `(10 * 5) / 2` exactly as shown, with the parentheses to ensure multiplication happens before division."
+    validation:
+      type: exact
+    xp: 20
+    animation: typing
+    ascii_art: |
+      +----------------+
+      |     25.0       |
+      |   RESULT!      |
+      +----------------+
+
   - id: conclusion
-    type: text
     title: "Congratulations!"
-    content: |
-      # Congratulations!
-      
-      Amazing work! You've completed your first PowerShell tutorial!
-      
-      Let's review what you've learned:
-      
-      1. PowerShell is a command-line interface where you type commands instead of clicking
-      2. Commands follow a "Verb-Noun" pattern (Get-Date, Get-Location)
-      3. You can get help using Get-Help
-      4. You can discover commands using Get-Command
-      5. PowerShell can do calculations
-      
-      You've taken your first steps into a larger world of PowerShell! You can now:
-      
-      - Find information (Get-Date)
-      - Find your location (Get-Location)
-      - Learn about commands (Get-Help)
-      - Discover new commands (Get-Command)
-      - Do basic calculations
-      
-      In the next tutorial, we'll learn how to navigate your computer using PowerShell commands.
-    instruction: "🎉 Congratulations! You've completed your first PowerShell tutorial! You've learned how to enter commands, handle errors, get help, find commands, and even do some calculations. These fundamentals will serve as your foundation as you learn more advanced PowerShell techniques. In future tutorials, you'll explore navigating the file system, working with files and folders, and creating your own scripts."
-    hint: "Read through this summary of what you've learned so far. Great job completing your first tutorial!"
-    xp_reward: 10
+    instructions: "🎉 Congratulations! You've completed your first PowerShell tutorial! You've learned how to run commands, get help, find commands, and even do calculations. These fundamentals will serve as your foundation as you explore more advanced PowerShell techniques. Type `Write-Host \"I did it!\"` to celebrate your achievement!"
+    expectedCommand: "Write-Host \"I did it!\""
+    hint: "Type `Write-Host \"I did it!\"` including the quotes around the text."
+    validation:
+      type: exact
+      caseSensitive: false
+    xp: 30
+    animation: typing
+    ascii_art: |
+      .-------------------.
+      |  .-----------.-. |
+      |  |  PowerSh  | | |
+      |  |   ell     | | |
+      |  |           | | |
+      |  | COMPLETED!| | |
+      |  `-----------'| |
+      `-------------------'

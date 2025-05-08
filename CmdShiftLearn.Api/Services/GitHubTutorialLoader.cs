@@ -30,6 +30,12 @@ namespace CmdShiftLearn.Api.Services
             if (logger == null) throw new ArgumentNullException(nameof(logger));
             if (httpClientFactory == null) throw new ArgumentNullException(nameof(httpClientFactory));
             
+            // Debug logging to check environment variable resolution
+            _logger.LogCritical("GitHub__Repo direct: {0}", configuration.GetValue<string>("GitHub__Repo"));
+            _logger.LogCritical("GitHub:Repo direct: {0}", configuration.GetValue<string>("GitHub:Repo"));
+            _logger.LogCritical("GitHub__Repo from indexer: {0}", configuration["GitHub__Repo"]);
+            _logger.LogCritical("GitHub:Repo from indexer: {0}", configuration["GitHub:Repo"]);
+            
             // Use configuration.GetValue to support both colon and double underscore formats in environment variables
             _owner = configuration.GetValue<string>("GitHub:Owner") ?? "deactv8";
             _repo = configuration.GetValue<string>("GitHub:Repo") ?? "content";

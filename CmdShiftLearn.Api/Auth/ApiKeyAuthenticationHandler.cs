@@ -36,16 +36,20 @@ namespace CmdShiftLearn.Api.Auth
             }
                 
             var headerValue = authHeader.ToString();
+            string apiKey;
             
-            // Check if it starts with "ApiKey "
-            if (!headerValue.StartsWith("ApiKey ", StringComparison.OrdinalIgnoreCase))
+            // Check if it starts with "ApiKey " (required format)
+            if (headerValue.StartsWith("ApiKey ", StringComparison.OrdinalIgnoreCase))
             {
-                Logger.LogWarning("Authentication failed for request {Path}: Invalid Authorization format", Request.Path);
-                return Task.FromResult(AuthenticateResult.Fail("Invalid Authorization format. Expected 'ApiKey {key}'"));
+                // Extract the API key
+                apiKey = headerValue.Substring(7).Trim();
             }
-                
-            // Extract the API key
-            var apiKey = headerValue.Substring(7).Trim();
+            else
+            {
+                // Support direct API key format for backward compatibility
+                Logger.LogDebug("Using direct API key format (without 'ApiKey ' prefix) for backward compatibility");
+                apiKey = headerValue.Trim();
+            }
             
             // Validate the API key
             if (!_apiKeyValidator.IsValidApiKey(apiKey, out var userId))

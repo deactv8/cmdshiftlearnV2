@@ -30,6 +30,12 @@ namespace CmdShiftLearn.Api.Services
             if (logger == null) throw new ArgumentNullException(nameof(logger));
             if (httpClientFactory == null) throw new ArgumentNullException(nameof(httpClientFactory));
             
+            // Debug logging to check environment variable resolution
+            _logger.LogCritical("GitHub__Repo direct: {0}", configuration.GetValue<string>("GitHub__Repo"));
+            _logger.LogCritical("GitHub:Repo direct: {0}", configuration.GetValue<string>("GitHub:Repo"));
+            _logger.LogCritical("GitHub__Repo from indexer: {0}", configuration["GitHub__Repo"]);
+            _logger.LogCritical("GitHub:Repo from indexer: {0}", configuration["GitHub:Repo"]);
+            
             // Use configuration["GitHub:X"] format with GetValue to support both colon and double underscore formats
             _owner = configuration.GetValue<string>("GitHub:Owner") ?? "deactv8";
             _repo = configuration.GetValue<string>("GitHub:Repo") ?? "content";
@@ -38,14 +44,16 @@ namespace CmdShiftLearn.Api.Services
             _accessToken = configuration.GetValue<string>("GitHub:AccessToken") ?? "";
             _rawBaseUrl = configuration.GetValue<string>("GitHub:RawBaseUrl") ?? "https://raw.githubusercontent.com";
             
+            // Get the HTTP client first
+            _httpClient = httpClientFactory.CreateClient("GitHub");
+            _logger = logger;
+            
             // Ensure we don't have any cached data by forcing a refresh on every request
             _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
             {
                 NoCache = true,
                 MustRevalidate = true
             };
-            _httpClient = httpClientFactory.CreateClient("GitHub");
-            _logger = logger;
             
             _logger.LogInformation("GitHub settings: Owner={Owner}, Repo={Repo}, Branch={Branch}, ChallengesPath={ChallengesPath}, RawBaseUrl={RawBaseUrl}",
                 _owner, _repo, _branch, _challengesPath, _rawBaseUrl);

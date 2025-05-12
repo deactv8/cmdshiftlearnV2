@@ -24,7 +24,7 @@ logger = logging.getLogger('main')
 from terminal.animated_ui import AnimatedTerminalUI
 from api.tutorials import TutorialClient
 from api.auth import login, load_api_key
-from powershell.executor import execute_powershell_command
+import powershell.executor as ps_executor
 from utils.config import API_BASE_URL
 
 def check_command(user_input: str, expected_command: str, validation_type: str = 'exact', 
@@ -72,7 +72,7 @@ def check_command(user_input: str, expected_command: str, validation_type: str =
     
     elif validation_type == 'output' and output_check:
         # Execute command and check output
-        success_result, stdout, stderr = execute_powershell_command(user_input)
+        success_result, stdout, stderr = ps_executor.execute_powershell_command(user_input)
         is_correct = output_check.lower() in stdout.lower() if success_result else False
         
         if is_correct:

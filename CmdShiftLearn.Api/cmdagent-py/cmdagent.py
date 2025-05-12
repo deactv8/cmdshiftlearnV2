@@ -56,7 +56,8 @@ def process_args(args: Optional[List[str]] = None) -> None:
     from terminal.animated_ui import AnimatedTerminalUI
     from api.tutorials import TutorialClient
     from api.auth import login, load_api_key
-    from animated_main import run_animated_tutorial
+    # Import the animated tutorial module directly
+    import animated_main
     
     # Initialize the UI
     ui = AnimatedTerminalUI()
@@ -118,7 +119,7 @@ def process_args(args: Optional[List[str]] = None) -> None:
                 return
             
             # Run the tutorial with animations
-            run_animated_tutorial(ui, tutorial)
+            animated_main.run_animated_tutorial(ui, tutorial)
     else:
         parser.print_help()
 

@@ -39,7 +39,22 @@ class AnimatedTerminalUI:
     def __init__(self, app=None):
         """Initialize the animated terminal UI."""
         self.app = app
-        self.console = Console()
+        try:
+            # Try to create the console with support for Unicode characters
+            self.console = Console(legacy_windows=False)
+            
+            # Test if we can actually print Unicode characters
+            test_char = "—"  # em dash, commonly problematic
+            self.console.print(test_char, end="")
+            self.console.print()  # Clear the line
+            unicode_supported = True
+        except:
+            # Fallback to legacy Windows mode if Unicode fails
+            self.console = Console(legacy_windows=True)
+            unicode_supported = False
+            
+        # Store whether we have Unicode support
+        self.unicode_supported = unicode_supported
         self.style = Style.from_dict({
             'welcome': '#00FFFF bold',
             'prompt': '#FFFFFF bold',
@@ -109,14 +124,14 @@ class AnimatedTerminalUI:
         delay = delay or self.typing_speed
         
         # For styled text, use a live display
-        styled_text = Text("")
-        with Live(styled_text, console=self.console, refresh_per_second=20) as live:
-            displayed_text = ""
-            for char in text:
-                displayed_text += char
-                styled_text = Text(displayed_text, style=style) if style else Text(displayed_text)
-                live.update(styled_text)
-                time.sleep(delay)
+        if style:
+            # Apply the style directly to the text object
+            styled_text = Text(text, style=style)
+            self.console.print(styled_text)
+            return
+            
+        # For texts with markup (like [bold green]), print directly
+        self.console.print(text)
     
     def animated_markdown(self, markdown_text: str, delay: float = None) -> None:
         """
@@ -325,8 +340,14 @@ class AnimatedTerminalUI:
         # Create and animate a header panel
         self.clear_screen()
         
-        # Add stylish rule
-        self.console.rule("[bold cyan]CmdShiftLearn Tutorial[/bold cyan]")
+        # Add stylish rule (safely)
+        try:
+            self.console.rule("[bold cyan]CmdShiftLearn Tutorial[/bold cyan]")
+        except Exception:
+            # Fallback if rule rendering fails due to encoding issues
+            self.console.print("=" * 60)
+            self.console.print("[bold cyan]CmdShiftLearn Tutorial[/bold cyan]", justify="center")
+            self.console.print("=" * 60)
         
         # Animate title with typing effect
         self.console.print()
@@ -342,8 +363,13 @@ class AnimatedTerminalUI:
         self.animated_rich_text(description, delay=0.01)
         self.console.print()
         
-        # Add a visual separator
-        self.console.rule()
+        # Add a visual separator (safely)
+        try:
+            self.console.rule()
+        except Exception:
+            # Fallback for encoding issues
+            self.console.print("=" * 60)
+        
         time.sleep(0.5)  # Pause for effect
     
     def display_step(self, step: Dict[str, Any], step_number: int, total_steps: int) -> None:
@@ -375,14 +401,20 @@ class AnimatedTerminalUI:
         self.console.print()
         progress_pct = (step_number - 1) / total_steps  # -1 because we're at the start of this step
         
-        with Progress(
-            "[progress.description]{task.description}",
-            BarColumn(complete_style="green", finished_style="green"),
-            "[progress.percentage]{task.percentage:>3.0f}%",
-            console=self.console
-        ) as progress_bar:
-            task = progress_bar.add_task(f"[cyan]Tutorial Progress[/cyan]", total=100, completed=progress_pct * 100)
-            time.sleep(0.5)  # Let user see current progress
+        try:
+            with Progress(
+                "[progress.description]{task.description}",
+                BarColumn(complete_style="green", finished_style="green"),
+                "[progress.percentage]{task.percentage:>3.0f}%",
+                console=self.console
+            ) as progress_bar:
+                task = progress_bar.add_task(f"[cyan]Tutorial Progress[/cyan]", total=100, completed=progress_pct * 100)
+                time.sleep(0.5)  # Let user see current progress
+        except Exception:
+            # Fallback for encoding issues
+            self.console.print(f"[cyan]Tutorial Progress: {int(progress_pct * 100)}%[/cyan]")
+            self.console.print("=" * int(60 * progress_pct) + ">" + " " * int(60 * (1 - progress_pct)))
+            time.sleep(0.5)
         
         # Display step title with animation
         self.console.print()
@@ -391,23 +423,31 @@ class AnimatedTerminalUI:
         
         # Display step instruction with typing animation
         self.console.print()
-        if "```" in instruction or "#" in instruction or "*" in instruction:
-            self.animated_markdown(instruction, delay=0.01)
-        else:
-            self.animated_rich_text(instruction, delay=0.01)
+        try:
+            if "```" in instruction or "#" in instruction or "*" in instruction:
+                self.animated_markdown(instruction, delay=0.01)
+            else:
+                self.animated_rich_text(instruction, delay=0.01)
+        except Exception:
+            # Fallback if animation fails
+            self.console.print(instruction)
         
         # Display XP reward info with subtle animation
         if xp_reward:
             self.console.print()
             xp_text = f"[green]🏆 Complete this step to earn {xp_reward} XP![/green]"
             
-            with Live(console=self.console, refresh_per_second=10) as live:
-                for i in range(5):
-                    intensity = 40 + (i % 2) * 60  # Pulse between 40% and 100% brightness
-                    pulse_text = Text(f"🏆 Complete this step to earn {xp_reward} XP!", 
-                                    style=f"green")
-                    live.update(pulse_text)
-                    time.sleep(0.2)
+            try:
+                with Live(console=self.console, refresh_per_second=10) as live:
+                    for i in range(5):
+                        intensity = 40 + (i % 2) * 60  # Pulse between 40% and 100% brightness
+                        pulse_text = Text(f"Complete this step to earn {xp_reward} XP!", 
+                                        style=f"green")
+                        live.update(pulse_text)
+                        time.sleep(0.2)
+            except Exception:
+                # Fallback if animation fails
+                self.console.print(f"[green]Complete this step to earn {xp_reward} XP![/green]")
         
         self.console.print()
     
@@ -452,24 +492,11 @@ class AnimatedTerminalUI:
         self.console.print()
         
         if is_correct:
-            # Success animation with checkmark
-            with Live(console=self.console, refresh_per_second=15) as live:
-                frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-                for i in range(10):
-                    frame = frames[i % len(frames)]
-                    live.update(Text(f"{frame} Processing...", style="green bold"))
-                    time.sleep(0.05)
-                live.update(Text(f"✓ {feedback}", style="green bold"))
-                time.sleep(0.5)
+            # Success feedback - directly use console.print
+            self.console.print(f"[bold green]✓ {feedback}[/bold green]")
         else:
-            # Failure animation with changing colors
-            with Live(console=self.console, refresh_per_second=15) as live:
-                for i in range(10):
-                    intensity = 100 - (i * 5)
-                    live.update(Text(f"✗ {feedback}", style=f"rgb({intensity}%,0%,0%) bold"))
-                    time.sleep(0.05)
-                live.update(Text(f"✗ {feedback}", style="red bold"))
-                time.sleep(0.5)
+            # Error feedback
+            self.console.print(f"[bold red]✗ {feedback}[/bold red]")
     
     def display_hint(self, hint: str) -> None:
         """

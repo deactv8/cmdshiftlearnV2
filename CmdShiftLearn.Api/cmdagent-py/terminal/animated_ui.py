@@ -1,0 +1,721 @@
+"""
+Enhanced Terminal UI with animations for CmdShiftLearn.
+"""
+
+import os
+import sys
+import time
+import random
+from typing import Optional, List, Dict, Any, Callable
+
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.styles import Style
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.formatted_text import HTML
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from rich.markdown import Markdown
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from rich.syntax import Syntax
+from rich.table import Table
+from rich.align import Align
+from rich.live import Live
+from rich.rule import Rule
+from rich.box import ROUNDED, DOUBLE, HEAVY
+
+from utils.config import DATA_DIR
+
+# Ensure the history directory exists
+os.makedirs(os.path.join(DATA_DIR, 'history'), exist_ok=True)
+HISTORY_FILE = os.path.join(DATA_DIR, 'history', 'command_history.txt')
+
+
+class AnimatedTerminalUI:
+    """Enhanced Terminal UI with animations for CmdShiftLearn."""
+    
+    def __init__(self, app=None):
+        """Initialize the animated terminal UI."""
+        self.app = app
+        self.console = Console()
+        self.style = Style.from_dict({
+            'welcome': '#00FFFF bold',
+            'prompt': '#FFFFFF bold',
+            'command': '#00FF00',
+            'error': '#FF0000 bold',
+            'success': '#00FF00 bold',
+            'info': '#00FFFF',
+            'warning': '#FFFF00',
+            'hint': '#FFAA00',
+        })
+        
+        # Typing animation speed (characters per second)
+        self.typing_speed = 0.02
+        
+        # Celebration emojis for feedback
+        self.celebration_emojis = ["🎉", "🚀", "⭐", "🏆", "🎮", "🎯", "💯", "👍"]
+        
+        # Track total XP for animations
+        self.current_total_xp = 0
+        
+        # PowerShell command completer for auto-completion
+        self.commands = [
+            "Get-Command", "Get-Help", "Get-Process", "Get-Service",
+            "Start-Process", "Stop-Process", "New-Item", "Remove-Item",
+            "Set-Location", "Get-Location", "Get-Content", "Set-Content",
+            "Get-ChildItem", "Select-Object", "Where-Object", "ForEach-Object"
+        ]
+        self.completer = WordCompleter(self.commands, ignore_case=True)
+    
+    def set_typing_speed(self, speed: float):
+        """
+        Set the typing animation speed.
+        
+        Args:
+            speed: Delay in seconds between characters
+        """
+        self.typing_speed = speed
+    
+    def clear_screen(self):
+        """Clear the terminal screen."""
+        self.console.clear()
+    
+    def animated_text(self, text: str, delay: float = None) -> None:
+        """
+        Print text with a typing animation effect.
+        
+        Args:
+            text: Text to animate
+            delay: Override the default typing speed
+        """
+        delay = delay or self.typing_speed
+        
+        for char in text:
+            print(char, end='', flush=True)
+            time.sleep(delay)
+        print()
+    
+    def animated_rich_text(self, text: str, style: str = None, delay: float = None) -> None:
+        """
+        Print styled text with a typing animation effect.
+        
+        Args:
+            text: Text to animate
+            style: Rich text style
+            delay: Override the default typing speed
+        """
+        delay = delay or self.typing_speed
+        
+        # For styled text, use a live display
+        styled_text = Text("")
+        with Live(styled_text, console=self.console, refresh_per_second=20) as live:
+            displayed_text = ""
+            for char in text:
+                displayed_text += char
+                styled_text = Text(displayed_text, style=style) if style else Text(displayed_text)
+                live.update(styled_text)
+                time.sleep(delay)
+    
+    def animated_markdown(self, markdown_text: str, delay: float = None) -> None:
+        """
+        Print markdown with a typing animation effect.
+        
+        Args:
+            markdown_text: Markdown text to animate
+            delay: Override the default typing speed
+        """
+        delay = delay or self.typing_speed
+        
+        # Create a live display that will update with each character
+        md = Markdown("")
+        with Live(md, console=self.console, refresh_per_second=20) as live:
+            displayed_text = ""
+            for char in markdown_text:
+                displayed_text += char
+                md = Markdown(displayed_text)
+                live.update(md)
+                time.sleep(delay)
+    
+    def show_welcome_screen(self):
+        """Display the welcome screen with animations."""
+        self.clear_screen()
+        
+        # Create logo text
+        logo_text = """
+  _____           _  _____ _     _  __ _   _                         
+ / ____|         | |/ ____| |   (_)/ _| | | |                        
+| |     _ __ ___ | | (___ | |__  _| |_| |_| |    ___  __ _ _ __ _ __ 
+| |    | '_ ` _ \\| |\\___ \\| '_ \\| |  _|  _  |   / _ \\/ _` | '__| '_ \\
+| |____| | | | | | |____) | | | | | | | | | |  |  __/ (_| | |  | | | |
+ \\_____|_| |_| |_|_|_____/|_| |_|_|_| |_| |_|   \\___|\\__,_|_|  |_| |_|
+"""
+        
+        # Animate the logo appearance line by line
+        lines = logo_text.split('\n')
+        for line in lines:
+            if line.strip():  # Skip empty lines
+                self.console.print(line, style="cyan")
+                time.sleep(0.1)
+        
+        # Animate the subtitle appearance
+        subtitle = "PowerShell Learning Platform"
+        self.animated_rich_text(subtitle, style="bold blue", delay=0.05)
+        
+        # Animate the version information with a "typing" effect
+        time.sleep(0.5)
+        version = "v1.0.0"
+        version_text = f"CmdShiftLearn {version}"
+        self.animated_rich_text(version_text, style="yellow", delay=0.03)
+        
+        # Animate the description
+        time.sleep(0.3)
+        description = "An interactive PowerShell learning platform"
+        self.animated_rich_text(description, style="italic", delay=0.03)
+        
+        # Pause for effect
+        time.sleep(1)
+    
+    def prompt_for_username(self):
+        """Prompt the user for their username with animation."""
+        # Animate the prompt appearance
+        prompt_text = "Please enter your username to get started:"
+        self.animated_rich_text(prompt_text, style="bold", delay=0.02)
+        
+        # Create a blinking cursor effect
+        with Live(console=self.console, refresh_per_second=4) as live:
+            for i in range(3):
+                cursors = ["_", " "]
+                for cursor in cursors:
+                    live.update(Text(f"Username: {cursor}", style="cyan bold"))
+                    time.sleep(0.25)
+        
+        # Get the actual input
+        return prompt("Username: ", style=self.style)
+    
+    def show_animated_menu(self, title: str, options: List[Dict[str, str]]):
+        """
+        Display an animated menu and return the user's selection.
+        
+        Args:
+            title: Menu title
+            options: List of option dictionaries with 'key' and 'description'
+            
+        Returns:
+            str: Selected option key
+        """
+        # Animate the menu title
+        self.console.print()
+        title_text = f"[bold cyan]{title}[/bold cyan]"
+        self.animated_rich_text(title_text, delay=0.01)
+        
+        # Create menu table with animation
+        table = Table(show_header=False, box=None, padding=(0, 2, 0, 0))
+        table.add_column("Option", style="cyan")
+        table.add_column("Description")
+        
+        # Add options with animation
+        with Live(table, console=self.console, refresh_per_second=4) as live:
+            for option in options:
+                table.add_row(option['key'], option['description'])
+                live.update(table)
+                time.sleep(0.1)
+        
+        self.console.print()
+        
+        # Animate the prompt
+        prompt_text = "[bold yellow]Select an option:[/bold yellow]"
+        self.animated_rich_text(prompt_text, delay=0.01)
+        
+        # Get user selection
+        choice = prompt("> ", style=self.style)
+        return choice
+    
+    def show_main_menu(self):
+        """Display the main menu with animations and return the user's selection."""
+        options = [
+            {'key': '1', 'description': 'Start Tutorial'},
+            {'key': '2', 'description': 'Practice Challenges'},
+            {'key': '3', 'description': 'Certification Progress'},
+            {'key': '4', 'description': 'PowerShell Playground'},
+            {'key': '5', 'description': 'View Profile'},
+            {'key': '6', 'description': 'Settings'},
+            {'key': '0', 'description': 'Exit'}
+        ]
+        
+        return self.show_animated_menu("Main Menu", options)
+    
+    def display_tutorials_animated(self, tutorials: List[Dict[str, Any]]):
+        """Display available tutorials with animation effects."""
+        self.console.print()
+        
+        # Animate header
+        header_text = "[bold cyan]Available Tutorials[/bold cyan]"
+        self.animated_rich_text(header_text, delay=0.01)
+        
+        if not tutorials:
+            no_tutorials = "[yellow]No tutorials available.[/yellow]"
+            self.animated_rich_text(no_tutorials, delay=0.01)
+            return None
+        
+        # Create tutorials table
+        table = Table(show_header=True)
+        table.add_column("#", style="cyan", justify="right")
+        table.add_column("Title", style="green")
+        table.add_column("Difficulty", style="yellow")
+        table.add_column("XP", style="magenta", justify="right")
+        
+        # Add tutorials to table with animation
+        with Live(table, console=self.console, refresh_per_second=4) as live:
+            for i, tutorial in enumerate(tutorials, 1):
+                title = tutorial.get('title', 'Unknown')
+                difficulty = tutorial.get('difficulty', 'beginner').capitalize()
+                xp_reward = tutorial.get('xpTotal', 0)
+                
+                table.add_row(
+                    str(i),
+                    title,
+                    difficulty,
+                    str(xp_reward)
+                )
+                live.update(table)
+                time.sleep(0.2)
+        
+        # Animate the prompt
+        self.console.print()
+        prompt_text = "[bold yellow]Select a tutorial (number) or 'b' to go back:[/bold yellow]"
+        self.animated_rich_text(prompt_text, delay=0.01)
+        
+        # Get user selection
+        choice = prompt("> ", style=self.style)
+        
+        if choice.lower() == 'b':
+            return None
+        
+        try:
+            index = int(choice) - 1
+            if 0 <= index < len(tutorials):
+                return tutorials[index]
+            else:
+                error_text = f"[bold red]Invalid selection. Please enter a number between 1 and {len(tutorials)}.[/bold red]"
+                self.animated_rich_text(error_text, delay=0.01)
+                return None
+        except ValueError:
+            error_text = "[bold red]Invalid input. Please enter a number.[/bold red]"
+            self.animated_rich_text(error_text, delay=0.01)
+            return None
+    
+    def display_tutorial_header(self, tutorial: Dict[str, Any]) -> None:
+        """
+        Display tutorial header with metadata using animated styling.
+        
+        Args:
+            tutorial: Tutorial data
+        """
+        if not tutorial:
+            self.console.print("[bold red]Tutorial not found or could not be loaded.[/bold red]")
+            return
+        
+        title = tutorial.get('title', 'Untitled Tutorial')
+        description = tutorial.get('description', 'No description available.')
+        difficulty = tutorial.get('difficulty', 'Unknown')
+        xp_total = tutorial.get('xpTotal', 0)
+        
+        # Create and animate a header panel
+        self.clear_screen()
+        
+        # Add stylish rule
+        self.console.rule("[bold cyan]CmdShiftLearn Tutorial[/bold cyan]")
+        
+        # Animate title with typing effect
+        self.console.print()
+        title_text = f"[bold blue]{title}[/bold blue]"
+        self.animated_rich_text(title_text, delay=0.01)
+        
+        # Display difficulty and XP with a subtle fade-in effect
+        info_text = f"[bold]Difficulty:[/bold] [yellow]{difficulty}[/yellow] | [bold]XP:[/bold] [magenta]{xp_total}[/magenta]"
+        self.animated_rich_text(info_text, delay=0.01)
+        
+        # Animate description
+        self.console.print()
+        self.animated_rich_text(description, delay=0.01)
+        self.console.print()
+        
+        # Add a visual separator
+        self.console.rule()
+        time.sleep(0.5)  # Pause for effect
+    
+    def display_step(self, step: Dict[str, Any], step_number: int, total_steps: int) -> None:
+        """
+        Display a tutorial step with animations and visual styling.
+        
+        Args:
+            step: Step data
+            step_number: Current step number (1-based)
+            total_steps: Total number of steps
+        """
+        if not step:
+            self.console.print("[yellow]This step is empty or not available.[/yellow]")
+            return
+        
+        # Extract step details
+        step_id = step.get('id', f'step{step_number}')
+        title = step.get('title', f'Step {step_number}')
+        instruction = step.get('instructions', 'No instructions available.')
+        xp_reward = step.get('xp', 0)
+        
+        # Create progress text
+        progress = f"Step {step_number} of {total_steps}"
+        
+        # Clear the screen and display step header
+        self.clear_screen()
+        
+        # Display step progress with a progress bar
+        self.console.print()
+        progress_pct = (step_number - 1) / total_steps  # -1 because we're at the start of this step
+        
+        with Progress(
+            "[progress.description]{task.description}",
+            BarColumn(complete_style="green", finished_style="green"),
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            console=self.console
+        ) as progress_bar:
+            task = progress_bar.add_task(f"[cyan]Tutorial Progress[/cyan]", total=100, completed=progress_pct * 100)
+            time.sleep(0.5)  # Let user see current progress
+        
+        # Display step title with animation
+        self.console.print()
+        step_title = f"[bold green]{title}[/bold green]"
+        self.animated_rich_text(step_title, delay=0.01)
+        
+        # Display step instruction with typing animation
+        self.console.print()
+        if "```" in instruction or "#" in instruction or "*" in instruction:
+            self.animated_markdown(instruction, delay=0.01)
+        else:
+            self.animated_rich_text(instruction, delay=0.01)
+        
+        # Display XP reward info with subtle animation
+        if xp_reward:
+            self.console.print()
+            xp_text = f"[green]🏆 Complete this step to earn {xp_reward} XP![/green]"
+            
+            with Live(console=self.console, refresh_per_second=10) as live:
+                for i in range(5):
+                    intensity = 40 + (i % 2) * 60  # Pulse between 40% and 100% brightness
+                    pulse_text = Text(f"🏆 Complete this step to earn {xp_reward} XP!", 
+                                    style=f"green")
+                    live.update(pulse_text)
+                    time.sleep(0.2)
+        
+        self.console.print()
+    
+    def get_command_input(self, step: Dict[str, Any]):
+        """Get PowerShell command input from the user with animation."""
+        # Animate the prompt appearance
+        self.console.print()
+        prompt_text = "[bold cyan]Enter your PowerShell command:[/bold cyan]"
+        self.animated_rich_text(prompt_text, delay=0.01)
+        
+        # Simulate a blinking cursor for a moment
+        with Live(console=self.console, refresh_per_second=4) as live:
+            for i in range(2):
+                cursors = ["_", " "]
+                for cursor in cursors:
+                    live.update(Text(f"PS> {cursor}", style="green"))
+                    time.sleep(0.25)
+        
+        # Create history file if it doesn't exist
+        if not os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, 'w') as f:
+                pass
+        
+        # Get command input with history and auto-completion
+        user_input = prompt(
+            HTML('<ansicyan>PS></ansicyan> '),
+            history=FileHistory(HISTORY_FILE),
+            completer=self.completer,
+            style=self.style
+        )
+        
+        return user_input
+    
+    def display_feedback(self, is_correct: bool, feedback: str) -> None:
+        """
+        Display animated feedback for a command.
+        
+        Args:
+            is_correct: Whether the command was correct
+            feedback: Feedback message
+        """
+        self.console.print()
+        
+        if is_correct:
+            # Success animation with checkmark
+            with Live(console=self.console, refresh_per_second=15) as live:
+                frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+                for i in range(10):
+                    frame = frames[i % len(frames)]
+                    live.update(Text(f"{frame} Processing...", style="green bold"))
+                    time.sleep(0.05)
+                live.update(Text(f"✓ {feedback}", style="green bold"))
+                time.sleep(0.5)
+        else:
+            # Failure animation with changing colors
+            with Live(console=self.console, refresh_per_second=15) as live:
+                for i in range(10):
+                    intensity = 100 - (i * 5)
+                    live.update(Text(f"✗ {feedback}", style=f"rgb({intensity}%,0%,0%) bold"))
+                    time.sleep(0.05)
+                live.update(Text(f"✗ {feedback}", style="red bold"))
+                time.sleep(0.5)
+    
+    def display_hint(self, hint: str) -> None:
+        """
+        Display a hint with animated reveal.
+        
+        Args:
+            hint: Hint text
+        """
+        self.console.print()
+        
+        # Animate a "typing" hint panel
+        hint_panel = Panel(
+            Markdown(""),
+            title="[bold yellow]Hint[/bold yellow]",
+            border_style="yellow",
+            box=ROUNDED
+        )
+        
+        with Live(hint_panel, console=self.console, refresh_per_second=20) as live:
+            displayed_text = ""
+            for char in hint:
+                displayed_text += char
+                hint_panel = Panel(
+                    Markdown(displayed_text),
+                    title="[bold yellow]Hint[/bold yellow]",
+                    border_style="yellow",
+                    box=ROUNDED
+                )
+                live.update(hint_panel)
+                time.sleep(self.typing_speed)
+        
+        self.console.print()
+    
+    def display_expected_command(self, command: str) -> None:
+        """
+        Display the expected command with animated reveal.
+        
+        Args:
+            command: Expected command
+        """
+        self.console.print()
+        self.console.print("[bold yellow]Expected Command:[/bold yellow]")
+        
+        # Create a syntax object for the command
+        syntax = Syntax("", "powershell", theme="monokai", line_numbers=False)
+        
+        # Animate it character by character
+        with Live(syntax, console=self.console, refresh_per_second=20) as live:
+            for i in range(len(command) + 1):
+                partial_command = command[:i]
+                syntax = Syntax(partial_command, "powershell", theme="monokai", line_numbers=False)
+                live.update(syntax)
+                time.sleep(self.typing_speed)
+    
+    def animate_xp_gain(self, xp: int) -> None:
+        """
+        Animate XP gain with visual and progress effects.
+        
+        Args:
+            xp: XP points gained
+        """
+        self.console.print()
+        
+        # Track total XP
+        old_xp = self.current_total_xp
+        self.current_total_xp += xp
+        
+        # Create a progress bar for XP animation
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[bold blue]Gaining XP..."),
+            BarColumn(complete_style="green", finished_style="green"),
+            TextColumn("[bold]{task.percentage:.0f}%"),
+            console=self.console
+        ) as progress:
+            task = progress.add_task("", total=100)
+            
+            # Animate progress
+            for i in range(1, 101):
+                progress.update(task, completed=i)
+                time.sleep(0.01)
+        
+        # Show XP gained with counting animation
+        with Live(console=self.console, refresh_per_second=20) as live:
+            for i in range(11):
+                percentage = i / 10
+                current_displayed_xp = int(old_xp + (xp * percentage))
+                # Get a random emoji from our celebration set
+                emoji = random.choice(self.celebration_emojis)
+                live.update(Text(
+                    f"{emoji} +{int(xp * percentage)} XP gained! Total: {current_displayed_xp} XP",
+                    style="green bold"
+                ))
+                time.sleep(0.05)
+        
+        self.console.print()
+    
+    def celebrate_step_completion(self) -> None:
+        """Display celebration for completing a step with animations."""
+        celebrations = [
+            "🎉 Great job!",
+            "🚀 You're making progress!",
+            "⭐ Excellent work!",
+            "🏆 Well done!",
+            "🎮 Level up!",
+            "🎯 You nailed it!",
+            "💯 Perfect!",
+            "👍 Keep it up!"
+        ]
+        
+        celebration = random.choice(celebrations)
+        
+        self.console.print()
+        
+        # Animate the celebration with growing/shrinking effect
+        with Live(console=self.console, refresh_per_second=10) as live:
+            for i in range(10):
+                # Change the color to create a pulsing effect
+                colors = ["green", "green1", "green2", "green3", "green4"]
+                color = colors[i % len(colors)]
+                live.update(Text(celebration, style=f"bold {color}"))
+                time.sleep(0.1)
+        
+        self.console.print()
+    
+    def celebrate_tutorial_completion(self, tutorial_title: str, total_xp: int) -> None:
+        """
+        Display celebration for completing a tutorial with fireworks animation.
+        
+        Args:
+            tutorial_title: Title of the completed tutorial
+            total_xp: Total XP gained from the tutorial
+        """
+        self.console.print()
+        
+        # ASCII art for fireworks
+        fireworks_frames = [
+            """
+             *  *
+           *     * 
+         *        *
+           *     *
+             *  *
+            """,
+            """
+              \\ /
+           - -X- -
+              / \\
+            """,
+            """
+           * * * *
+          *       *
+         *         *
+          *       *
+           * * * *
+            """
+        ]
+        
+        # Create celebration text
+        celebration_text = f"""
+        # 🎉 Congratulations! 🎉
+        
+        You have completed:
+        ## {tutorial_title}
+        
+        Total XP earned: {total_xp} XP
+        
+        Keep going to master PowerShell!
+        """
+        
+        # Animate fireworks
+        for _ in range(3):  # Three cycles of fireworks
+            for frame in fireworks_frames:
+                self.clear_screen()
+                self.console.print(frame, style="bold yellow")
+                self.console.print(Markdown(celebration_text))
+                time.sleep(0.2)
+        
+        # Final static display
+        self.clear_screen()
+        panel = Panel(
+            Align.center(
+                Markdown(celebration_text)
+            ),
+            title="[bold green]Tutorial Completed![/bold green]",
+            border_style="green",
+            box=HEAVY
+        )
+        self.console.print(panel)
+        
+        # Add some pause for effect
+        time.sleep(1)
+    
+    def display_loading(self, message: str, callback: Callable) -> Any:
+        """
+        Display a loading spinner while executing a callback.
+        
+        Args:
+            message: Loading message
+            callback: Function to execute while showing spinner
+            
+        Returns:
+            Any: Result of the callback
+        """
+        with self.console.status(f"[bold blue]{message}[/bold blue]", spinner="dots"):
+            result = callback()
+        
+        return result
+    
+    def display_error(self, message: str) -> None:
+        """
+        Display an error message with visual effects.
+        
+        Args:
+            message: Error message
+        """
+        self.console.print()
+        
+        # Animate the error appearance
+        with Live(console=self.console, refresh_per_second=10) as live:
+            for i in range(5):
+                if i % 2 == 0:
+                    live.update(Text(f"Error: {message}", style="bold red"))
+                else:
+                    live.update(Text(f"Error: {message}", style="red"))
+                time.sleep(0.2)
+        
+        self.console.print()
+    
+    def say_goodbye(self):
+        """Display animated goodbye message."""
+        # Create goodbye message
+        goodbye_text = "Thank you for using CmdShiftLearn!\nSee you next time!"
+        
+        # Animate the message character by character
+        panel = Panel("")
+        with Live(panel, console=self.console, refresh_per_second=20) as live:
+            displayed_text = ""
+            for char in goodbye_text:
+                displayed_text += char
+                panel = Panel(
+                    Text(displayed_text, style="cyan bold"),
+                    border_style="blue"
+                )
+                live.update(panel)
+                time.sleep(0.05)
+        
+        # Fade out animation
+        time.sleep(1)

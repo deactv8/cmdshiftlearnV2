@@ -8,6 +8,29 @@ import platform
 import tempfile
 from typing import Tuple, Dict, Any, List, Optional
 
+# Create a singleton executor for easy access
+_executor = None
+
+def execute_powershell_command(command: str, timeout: int = 10) -> Tuple[bool, str, str]:
+    """
+    Execute a PowerShell command.
+    
+    Args:
+        command: The PowerShell command to execute
+        timeout: Timeout in seconds
+        
+    Returns:
+        Tuple[bool, str, str]: (success, output, error)
+    """
+    global _executor
+    
+    # Initialize executor if needed
+    if _executor is None:
+        _executor = PowerShellExecutor(sandbox_mode=False)
+    
+    # Execute the command
+    return _executor.execute_command(command)
+
 class PowerShellExecutor:
     """Execute PowerShell commands and validate results."""
     

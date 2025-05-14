@@ -215,10 +215,43 @@ def run_animated_tutorial(ui: AnimatedTerminalUI, tutorial: Dict[str, Any]) -> N
         ui.display_error("Tutorial not found or could not be loaded.")
         return
     
+    # Ensure we have the steps key and it's a list
+    if 'steps' not in tutorial or not isinstance(tutorial['steps'], list):
+        ui.display_error("This tutorial has an invalid structure or no interactive steps.")
+        ui.console.print("[yellow]Trying to repair the tutorial structure...[/yellow]")
+        
+        # Try to repair the tutorial - sometimes YAML loading can result in odd structures
+        if 'content' in tutorial and isinstance(tutorial['content'], str) and not tutorial.get('steps'):
+            ui.console.print("[yellow]Tutorial has content but no steps - trying to convert to tutorial format[/yellow]")
+            # Create a simple tutorial step if none exists
+            tutorial['steps'] = [
+                {
+                    'id': 'step1',
+                    'title': 'Tutorial Step',
+                    'instructions': tutorial.get('content', 'Welcome to PowerShell'),
+                    'expectedCommand': 'Get-Help',
+                    'hint': 'Use Get-Help to see PowerShell help',
+                    'xp': 10
+                }
+            ]
+        elif isinstance(tutorial, dict) and not tutorial.get('steps'):
+            ui.console.print("[yellow]Creating default steps for tutorial[/yellow]")
+            # Create a simple tutorial step if none exists
+            tutorial['steps'] = [
+                {
+                    'id': 'step1',
+                    'title': 'Welcome to PowerShell',
+                    'instructions': 'Welcome to PowerShell! PowerShell is a cross-platform task automation framework from Microsoft.',
+                    'expectedCommand': 'Get-Help',
+                    'hint': 'Type Get-Help to see available commands',
+                    'xp': 10
+                }
+            ]
+    
     steps = tutorial.get('steps', [])
     
     if not steps:
-        ui.display_error("This tutorial has no interactive steps.")
+        ui.display_error("This tutorial has no interactive steps after attempted repair.")
         return
     
     # Display tutorial header with animation
@@ -231,6 +264,21 @@ def run_animated_tutorial(ui: AnimatedTerminalUI, tutorial: Dict[str, Any]) -> N
     
     # Run each step with animations
     for i, step in enumerate(steps, 1):
+        # Ensure step is a dictionary
+        if not isinstance(step, dict):
+            ui.display_error(f"Step {i} has an invalid format. Skipping.")
+            continue
+            
+        # Ensure step has the expected keys
+        if 'instructions' not in step:
+            step['instructions'] = f"Step {i} of the tutorial."
+            
+        if 'expectedCommand' not in step:
+            step['expectedCommand'] = "Get-Help"
+            
+        if 'hint' not in step:
+            step['hint'] = "Type the command shown in the instructions."
+        
         if not run_animated_tutorial_step(ui, step, i, len(steps), tutorial.get('id')):
             # Step failed or user quit
             ui.display_error("Tutorial stopped. You can try again later.")

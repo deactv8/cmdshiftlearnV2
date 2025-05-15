@@ -335,7 +335,9 @@ class AnimatedTerminalUI:
         title = tutorial.get('title', 'Untitled Tutorial')
         description = tutorial.get('description', 'No description available.')
         difficulty = tutorial.get('difficulty', 'Unknown')
-        xp_total = tutorial.get('xpTotal', 0)
+        
+        # Handle both old and new XP field names
+        xp_total = tutorial.get('xpTotal', tutorial.get('xp', 0))
         
         # Create and animate a header panel
         self.clear_screen()
@@ -358,16 +360,38 @@ class AnimatedTerminalUI:
         info_text = f"[bold]Difficulty:[/bold] [yellow]{difficulty}[/yellow] | [bold]XP:[/bold] [magenta]{xp_total}[/magenta]"
         self.animated_rich_text(info_text, delay=0.01)
         
-        # Animate description
+        # Animate description in a panel
         self.console.print()
-        self.animated_rich_text(description, delay=0.01)
+        
+        try:
+            from rich.panel import Panel
+            from rich.markdown import Markdown
+            from rich.box import ROUNDED
+            
+            # Use markdown for the description
+            md = Markdown(description)
+            description_panel = Panel(
+                md,
+                title="[bold green]Description[/bold green]",
+                border_style="cyan",
+                box=ROUNDED,
+                padding=(1, 2)
+            )
+            self.console.print(description_panel)
+        except Exception:
+            # Fallback for simple text version
+            self.console.print("[bold]Description:[/bold]")
+            self.animated_rich_text(description, delay=0.01)
+        
         self.console.print()
         
         # Add a visual separator (safely)
         try:
-            self.console.rule()
+            self.console.rule("[bold cyan]Let's Begin![/bold cyan]")
         except Exception:
             # Fallback for encoding issues
+            self.console.print("=" * 60)
+            self.console.print("[bold cyan]Let's Begin![/bold cyan]", justify="center")
             self.console.print("=" * 60)
         
         time.sleep(0.5)  # Pause for effect
@@ -389,7 +413,7 @@ class AnimatedTerminalUI:
         step_id = step.get('id', f'step{step_number}')
         title = step.get('title', f'Step {step_number}')
         instruction = step.get('instructions', 'No instructions available.')
-        xp_reward = step.get('xp', 0)
+        xp_reward = step.get('xpReward', step.get('xp', 0))
         
         # Create progress text
         progress = f"Step {step_number} of {total_steps}"
@@ -418,18 +442,37 @@ class AnimatedTerminalUI:
         
         # Display step title with animation
         self.console.print()
-        step_title = f"[bold green]{title}[/bold green]"
+        step_title = f"[bold blue]{title}[/bold blue]"
         self.animated_rich_text(step_title, delay=0.01)
         
-        # Display step instruction with typing animation
+        # Display instructions in a more prominent way with a box or panel
         self.console.print()
+        
         try:
-            if "```" in instruction or "#" in instruction or "*" in instruction:
-                self.animated_markdown(instruction, delay=0.01)
+            # Create a panel for instructions with pretty formatting
+            from rich.panel import Panel
+            from rich.markdown import Markdown
+            from rich.box import ROUNDED
+            
+            # Format the instructions as markdown
+            if "```" in instruction or "#" in instruction or "*" in instruction or "🔍" in instruction or "👋" in instruction:
+                md = Markdown(instruction)
+                # Use a panel with a nice border to make instructions stand out
+                instruction_panel = Panel(
+                    md,
+                    title="[bold green]Instructions[/bold green]",
+                    border_style="green",
+                    box=ROUNDED,
+                    padding=(1, 2)
+                )
+                self.console.print(instruction_panel)
             else:
-                self.animated_rich_text(instruction, delay=0.01)
+                # Plain text format if no markdown
+                self.console.print("[bold green]Instructions:[/bold green]")
+                self.console.print(instruction, style="white")
         except Exception:
-            # Fallback if animation fails
+            # Fallback if rich formatting fails
+            self.console.print("[bold green]Instructions:[/bold green]")
             self.console.print(instruction)
         
         # Display XP reward info with subtle animation
@@ -438,17 +481,22 @@ class AnimatedTerminalUI:
             xp_text = f"[green]🏆 Complete this step to earn {xp_reward} XP![/green]"
             
             try:
-                with Live(console=self.console, refresh_per_second=10) as live:
-                    for i in range(5):
-                        intensity = 40 + (i % 2) * 60  # Pulse between 40% and 100% brightness
-                        pulse_text = Text(f"Complete this step to earn {xp_reward} XP!", 
-                                        style=f"green")
-                        live.update(pulse_text)
-                        time.sleep(0.2)
+                self.console.print(xp_text)
             except Exception:
                 # Fallback if animation fails
                 self.console.print(f"[green]Complete this step to earn {xp_reward} XP![/green]")
         
+        self.console.print()
+        
+        # Make a clear visual separator before the command prompt
+        try:
+            self.console.rule("[bold yellow]Your Turn![/bold yellow]")
+        except Exception:
+            # Fallback for encoding issues
+            self.console.print("\n" + "-" * 60)
+            self.console.print("[bold yellow]Your Turn![/bold yellow]")
+            self.console.print("-" * 60)
+            
         self.console.print()
     
     def get_command_input(self, step: Dict[str, Any]):
@@ -458,13 +506,19 @@ class AnimatedTerminalUI:
         prompt_text = "[bold cyan]Enter your PowerShell command:[/bold cyan]"
         self.animated_rich_text(prompt_text, delay=0.01)
         
-        # Simulate a blinking cursor for a moment
-        with Live(console=self.console, refresh_per_second=4) as live:
-            for i in range(2):
-                cursors = ["_", " "]
-                for cursor in cursors:
-                    live.update(Text(f"PS> {cursor}", style="green"))
-                    time.sleep(0.25)
+        # Create a more visually distinct prompt
+        try:
+            # Use a blue background for the PS> prompt to make it stand out
+            from rich.console import Console
+            from rich.text import Text
+            
+            # Show the prompt with background formatting
+            prompt_style = "white on blue"
+            ps_prompt = Text("PS>", style=prompt_style)
+            self.console.print(ps_prompt, end=" ")
+        except Exception:
+            # Fallback if rich formatting fails
+            print("PS>", end=" ")
         
         # Create history file if it doesn't exist
         if not os.path.exists(HISTORY_FILE):
@@ -472,12 +526,16 @@ class AnimatedTerminalUI:
                 pass
         
         # Get command input with history and auto-completion
-        user_input = prompt(
-            HTML('<ansicyan>PS></ansicyan> '),
-            history=FileHistory(HISTORY_FILE),
-            completer=self.completer,
-            style=self.style
-        )
+        try:
+            user_input = prompt(
+                "",  # Use an empty prompt since we've already displayed PS>
+                history=FileHistory(HISTORY_FILE),
+                completer=self.completer,
+                style=self.style
+            )
+        except Exception:
+            # Fallback if prompt_toolkit fails
+            user_input = input()
         
         return user_input
     
@@ -491,12 +549,40 @@ class AnimatedTerminalUI:
         """
         self.console.print()
         
-        if is_correct:
-            # Success feedback - directly use console.print
-            self.console.print(f"[bold green]✓ {feedback}[/bold green]")
-        else:
-            # Error feedback
-            self.console.print(f"[bold red]✗ {feedback}[/bold red]")
+        try:
+            # Create a visually appealing panel for feedback
+            from rich.panel import Panel
+            from rich.box import ROUNDED
+            
+            if is_correct:
+                # Success feedback - in a green panel
+                panel = Panel(
+                    feedback,
+                    title="[bold green]Success![/bold green]",
+                    border_style="green",
+                    box=ROUNDED
+                )
+                self.console.print(panel)
+            else:
+                # Error feedback - in a red panel
+                panel = Panel(
+                    feedback,
+                    title="[bold red]Try Again[/bold red]",
+                    border_style="red",
+                    box=ROUNDED
+                )
+                self.console.print(panel)
+        except Exception:
+            # Fallback if panel formatting fails
+            if is_correct:
+                # Success feedback - directly use console.print
+                self.console.print(f"[bold green]✓ {feedback}[/bold green]")
+            else:
+                # Error feedback
+                self.console.print(f"[bold red]✗ {feedback}[/bold red]")
+                
+        # Pause slightly to let the user read the feedback
+        time.sleep(0.5)
     
     def display_hint(self, hint: str) -> None:
         """

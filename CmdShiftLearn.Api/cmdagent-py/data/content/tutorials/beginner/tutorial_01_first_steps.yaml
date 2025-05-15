@@ -1,127 +1,83 @@
 id: tutorial_01_first_steps
-title: "First Steps: Welcome to PowerShell"
-description: "Take your first steps with PowerShell! This beginner-friendly tutorial introduces you to the command-line interface, teaches you how to run basic commands, and helps you understand how PowerShell works."
+title: First Steps: Welcome to PowerShell
+description: Let's wake up the terminal and take our very first steps together! You'll learn how to talk to PowerShell and get your first taste of command-line magic.
 difficulty: beginner
-estimatedTime: 15
-xpTotal: 150
-topics:
-  - powershell
-  - basics
-  - commands
+xpTotal: 50
 steps:
-  - id: welcome
-    title: "Meet Your Terminal"
-    instructions: "Welcome to PowerShell! 👋 You're looking at the PowerShell terminal window - a powerful text-based interface for controlling your computer. Unlike clicking on icons, here you'll type commands to tell your computer what to do. Don't worry if it seems intimidating at first - we'll start with the basics. Try typing your name and pressing Enter to see what happens."
+  - id: meet-terminal
+    title: Meet Your Terminal
+    instructions: |
+      👋 Hey there, explorer!
+      Welcome to PowerShell — your new command-line playground.
+      This black box in front of you? That's your **terminal**, and it's ready to listen. Let's test if it's awake.
+      🔍 Type this command exactly and press Enter:
+      ```powershell
+      Get-Process
+      ```
+      This command asks PowerShell to show you a list of everything that's currently running on your system. Neat, right?
+    expectedCommand: Get-Process
+    hint: |
+      🔎 Try typing:
+      ```powershell
+      Get-Process
+      ```
+      That's the PowerShell way of saying "Show me what's running!"
+
+      ❌ If you're stuck: Make sure to type `Get-Process` exactly.
+    xpReward: 10
+  - id: your-first-friend
+    title: Your First Friend: The Echo
+    instructions: |
+      Great job! 🥳
+      Let's teach your terminal to *speak back to you*. There's a friendly little command called `Write-Host` that does just that.
+      🎯 Try saying hello like this:
+      ```powershell
+      Write-Host "Hello, world!"
+      ```
+    expectedCommand: Write-Host "Hello, world!"
+    hint: |
+      ✨ Try:
+      ```powershell
+      Write-Host "Hello, world!"
+      ```
+      Make sure the quotes are straight and the spacing is exact.
+
+      ❌ Not quite! Make sure your command looks like: `Write-Host "Hello, world!"`
+    xpReward: 10
+  - id: try-your-own
+    title: Try Saying Something Else
+    instructions: |
+      Now it's your turn! 🎤
+      Say **anything** to your terminal using `Write-Host`.
+      👇 Example:
+      ```powershell
+      Write-Host "PowerShell is awesome!"
+      ```
+      Pick your own phrase — just be sure to use `Write-Host` and wrap it in quotes.
+    expectedCommand: Write-Host "PowerShell is awesome!"
+    validation:
+      type: regex
+      pattern: ^Write-Host\s+"[^"]+"
+      caseSensitive: false
+    hint: |
+      💡 Try something like:
+      ```powershell
+      Write-Host "Learning is fun!"
+      ```
+      You can replace the text inside the quotes.
+
+      ❌ Remember to use `Write-Host` with *quotes* around your message.
+    xpReward: 15
+  - id: mission-complete
+    title: Tutorial Complete!
+    instructions: |
+      🏁 And just like that… you've taken your **first steps** with PowerShell!
+      You learned how to:
+      - Check if your terminal is alive (`Get-Process`)
+      - Say something with `Write-Host`
+      - Express your own message
+      🎉 You're off to a great start.
+      In the next tutorial, we'll explore your computer's **files and folders** like a digital treasure hunter. 🗺️
     expectedCommand: ""
-    hint: "Just type anything and press Enter to continue. There's no 'correct' answer for this step."
-    validation:
-      type: any
-    xp: 5
-    animation: typing
-    ascii_art: |
-      +-------------------------+
-      |  PowerShell Terminal    |
-      |                         |
-      |  PS> _                  |
-      |                         |
-      +-------------------------+
-
-  - id: first_try
-    title: "Your First Command"
-    instructions: "Great! PowerShell tried to run what you typed as a command. Let's try a real PowerShell command now. Type `Get-Date` and press Enter to see the current date and time."
-    expectedCommand: "Get-Date"
-    hint: "Type `Get-Date` exactly as shown (capital G and D) and press Enter."
-    validation:
-      type: exact
-      caseSensitive: false
-    xp: 10
-    animation: typing
-
-  - id: understand_commands
-    title: "Understanding Commands"
-    instructions: "Perfect! The `Get-Date` command displays the current date and time. PowerShell commands follow a 'Verb-Noun' pattern (like Get-Date, where 'Get' is the action and 'Date' is what you're acting on). Let's try another command. Type `Get-Location` to see your current location in the file system."
-    expectedCommand: "Get-Location"
-    hint: "Type `Get-Location` with capital G and L, then press Enter. This shows your current directory."
-    validation:
-      type: exact
-      caseSensitive: false
-    xp: 15
-    animation: typing
-
-  - id: command_alias
-    title: "Command Shortcuts"
-    instructions: "Well done! `Get-Location` shows your current directory. Many PowerShell commands have shorter aliases to save typing. For example, `Get-Location` can be shortened to just `pwd`. Try typing `pwd` now to achieve the same result."
-    expectedCommand: "pwd"
-    hint: "Type the three letters `pwd` and press Enter. This is a shorter way to use the Get-Location command."
-    validation:
-      type: exact
-      caseSensitive: false
-    xp: 20
-    animation: typing
-
-  - id: getting_help
-    title: "Getting Help"
-    instructions: "PowerShell has hundreds of commands, and you don't need to memorize them all! You can get help on any command using `Get-Help`. Let's try it - type `Get-Help Get-Date` to see information about the Get-Date command."
-    expectedCommand: "Get-Help Get-Date"
-    hint: "Type `Get-Help Get-Date` exactly as shown to display help information."
-    validation:
-      type: exact
-      caseSensitive: false
-    xp: 25
-    animation: typing
-
-  - id: finding_commands
-    title: "Finding Commands"
-    instructions: "Great! You can use `Get-Help` anytime you need to learn about a command. But how do you discover commands in the first place? Type `Get-Command -Noun Process` to find all commands that work with processes."
-    expectedCommand: "Get-Command -Noun Process"
-    hint: "Type `Get-Command -Noun Process` to find all commands that have 'Process' as their noun."
-    validation:
-      type: exact
-      caseSensitive: false
-    xp: 30
-    animation: typing
-
-  - id: simple_calculation
-    title: "Using PowerShell as a Calculator"
-    instructions: "PowerShell can also perform calculations directly. Try a simple math operation by typing `2 + 2` and pressing Enter."
-    expectedCommand: "2 + 2"
-    hint: "Type `2 + 2` and press Enter. PowerShell will calculate and display the result."
-    validation:
-      type: exact
-    xp: 15
-    animation: typing
-
-  - id: advanced_calculation
-    title: "More Complex Math"
-    instructions: "PowerShell supports all standard math operations. Let's try a more complex calculation. Type `(10 * 5) / 2` to multiply 10 by 5, then divide the result by 2."
-    expectedCommand: "(10 * 5) / 2"
-    hint: "Type `(10 * 5) / 2` exactly as shown, with the parentheses to ensure multiplication happens before division."
-    validation:
-      type: exact
-    xp: 20
-    animation: typing
-    ascii_art: |
-      +----------------+
-      |     25.0       |
-      |   RESULT!      |
-      +----------------+
-
-  - id: conclusion
-    title: "Congratulations!"
-    instructions: "🎉 Congratulations! You've completed your first PowerShell tutorial! You've learned how to run commands, get help, find commands, and even do calculations. These fundamentals will serve as your foundation as you explore more advanced PowerShell techniques. Type `Write-Host \"I did it!\"` to celebrate your achievement!"
-    expectedCommand: "Write-Host \"I did it!\""
-    hint: "Type `Write-Host \"I did it!\"` including the quotes around the text."
-    validation:
-      type: exact
-      caseSensitive: false
-    xp: 30
-    animation: typing
-    ascii_art: |
-      .-------------------.
-      |  .-----------.-. |
-      |  |  PowerSh  | | |
-      |  |   ell     | | |
-      |  |           | | |
-      |  | COMPLETED!| | |
-      |  `-----------'| |
-      `-------------------'
+    hint: Just press Enter to complete the tutorial.
+    xpReward: 15
